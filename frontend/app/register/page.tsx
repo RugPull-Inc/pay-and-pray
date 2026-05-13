@@ -47,18 +47,21 @@ export default function RegisterPage() {
     setLoading(true);
     setErrors({});
     try {
-      const res = await fetch("http://localhost:8080/auth/register", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      if (res.status === 409) {
+        setErrors({ server: "Este email ya está registrado." });
+        return;
+      }
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setErrors({ server: data.message ?? "Error al crear la cuenta." });
+        setErrors({ server: "Error al crear la cuenta. Intentá de nuevo." });
         return;
       }
       setSuccess(true);
-      setTimeout(() => router.push("/"), 1500);
+      setTimeout(() => router.push("/login"), 1500);
     } catch {
       setErrors({ server: "No se pudo conectar con el servidor." });
     } finally {

@@ -33,7 +33,7 @@ export default function LoginPage() {
     setServerError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/auth/login", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -46,6 +46,8 @@ export default function LoginPage() {
         setServerError("Ocurrió un error. Intentá de nuevo.");
         return;
       }
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } catch {

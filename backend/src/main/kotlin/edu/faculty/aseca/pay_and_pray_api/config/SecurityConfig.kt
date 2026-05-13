@@ -27,6 +27,7 @@ class SecurityConfig {
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration()
+        // TODO T16: mover a variable de entorno, no hardcodear el origen
         config.allowedOrigins = listOf("http://localhost:3000")
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         config.allowedHeaders = listOf("*")
