@@ -11,7 +11,7 @@ export default function Home() {
   const router = useRouter()
   const [ticker, setTicker] = useState('')
 
-  function handleSearch(e: React.SubmitEvent<HTMLFormElement>) {
+  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const t = ticker.trim().toUpperCase()
     if (t) router.push(`/companies/${t}`)
