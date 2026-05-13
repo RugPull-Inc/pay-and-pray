@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Ingresá un email válido."),
+  password: z.string().min(1, "La contraseña es requerida."),
+});
 
 type FieldErrors = { email?: string; password?: string };
 
@@ -16,15 +22,17 @@ export default function LoginPage() {
   const [success, setSuccess] = useState(false);
 
   function validate(): boolean {
-    const next: FieldErrors = {};
-    if (!email) {
-      next.email = "El email es requerido.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.email = "Ingresá un email válido.";
+    const result = schema.safeParse({ email, password });
+    if (result.success) {
+      setFieldErrors({});
+      return true;
     }
-    if (!password) next.password = "La contraseña es requerida.";
-    setFieldErrors(next);
-    return Object.keys(next).length === 0;
+    const errs = z.flattenError(result.error).fieldErrors;
+    setFieldErrors({
+      email: errs.email?.[0],
+      password: errs.password?.[0],
+    });
+    return false;
   }
 
   async function handleSubmit(e: { preventDefault(): void }) {
@@ -93,7 +101,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="password..."
               className={`rounded-lg border px-3 py-2.5 text-sm text-zinc-900 bg-white outline-none transition focus:ring-2 focus:ring-zinc-900 ${
                 fieldErrors.password ? "border-red-500 focus:ring-red-500" : "border-zinc-300"
               }`}
@@ -107,7 +115,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || success}
-            className="mt-1 rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-1 rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white transition-all cursor-pointer hover:bg-zinc-600 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
