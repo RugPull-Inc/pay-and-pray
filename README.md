@@ -18,7 +18,7 @@ Integrates SEC EDGAR for financial data and Yahoo Finance for market prices.
 
 1. **Clone the repo**
   ```bash
-   git clone https://github.com/your-org/pay-and-pray.git
+   git clone https://github.com/RugPull-Inc/pay-and-pray.git
    cd pay-and-pray
   ```
 2. **Setup your** `.env` file (see `.env.example`)
