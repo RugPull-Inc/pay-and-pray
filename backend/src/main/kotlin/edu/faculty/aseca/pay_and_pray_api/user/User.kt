@@ -8,6 +8,7 @@ import java.util.UUID
 @Table(name = "users")
 data class User(
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
     @Column(nullable = false, unique = true)

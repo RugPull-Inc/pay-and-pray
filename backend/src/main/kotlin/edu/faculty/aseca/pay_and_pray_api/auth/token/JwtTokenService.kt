@@ -1,4 +1,4 @@
-package edu.faculty.aseca.pay_and_pray_api.auth
+package edu.faculty.aseca.pay_and_pray_api.auth.token
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
