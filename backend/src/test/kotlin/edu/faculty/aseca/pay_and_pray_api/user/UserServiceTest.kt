@@ -9,13 +9,13 @@ import java.util.UUID
 class UserServiceTest {
 
     private lateinit var userRepository: UserRepository
-    private lateinit var userService: UserService
+    private lateinit var userService: UserServiceImpl
     private val passwordEncoder = BCryptPasswordEncoder()
 
     @BeforeEach
     fun setUp() {
         userRepository = FakeUserRepository()
-        userService = UserService(userRepository, passwordEncoder)
+        userService = UserServiceImpl(userRepository, passwordEncoder)
     }
 
     @Test

@@ -1,7 +1,6 @@
 package edu.faculty.aseca.pay_and_pray_api.auth
 
 import edu.faculty.aseca.pay_and_pray_api.auth.exception.InvalidCredentialsException
-import edu.faculty.aseca.pay_and_pray_api.user.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -10,16 +9,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class AuthServiceLoginTest {
 
-    private lateinit var userRepository: FakeUserRepository
+    private lateinit var fakeUserService: FakeUserService
     private val passwordEncoder = BCryptPasswordEncoder()
     private val tokenService = FakeTokenService()
     private lateinit var authService: AuthService
 
     @BeforeEach
     fun setUp() {
-        userRepository = FakeUserRepository()
-        userRepository.save(User(email = "rugpull@test.com", password = passwordEncoder.encode("secret")!!))
-        authService = AuthService(userRepository, tokenService, passwordEncoder)
+        fakeUserService = FakeUserService()
+        fakeUserService.createUser("rugpull@test.com", "secret")
+        authService = AuthService(fakeUserService, tokenService, passwordEncoder)
     }
 
     @Test
