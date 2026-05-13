@@ -30,7 +30,7 @@ class AuthServiceRegisterTest {
     fun `register with new email creates user and returns it with an id`() {
         val user = authService.register("new@test.com", "pass123")
 
-        assertNotNull(user.id)
+        assertNotNull(user.userId)
     }
 
     @Test

@@ -18,7 +18,7 @@ class AuthService(
     fun register(email: String, plainPassword: String): RegisterResponse {
         if (userService.findByEmail(email) != null) throw DuplicateEmailException()
         val user = userService.createUser(email, plainPassword)
-        return RegisterResponse(id = user.id.toString(), email = user.email)
+        return RegisterResponse(userId = user.id.toString(), email = user.email)
     }
 
     fun login(email: String, password: String): LoginResponse {
