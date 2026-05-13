@@ -4,10 +4,6 @@
 
 Implementación del cliente HTTP para la API pública de EDGAR (SEC). Actúa como adapter de infraestructura dentro de la arquitectura hexagonal del proyecto, exponiendo un port (`EdgarClient`) del que dependen T11 (company search) y T13 (financial details).
 
-**Dependencias:** T2 (setup backend)  
-**Requerido por:** T11, T13  
-**Asignado a:** Fer  
-
 ---
 
 ## Archivos
