@@ -28,15 +28,15 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/**").permitAll()
-                    .anyRequest().authenticated()
-            }
-            .exceptionHandling { ex ->
+                    .requestMatchers("/auth/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            }.exceptionHandling { ex ->
                 ex.authenticationEntryPoint { _, response, _ ->
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
                 }
-            }
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            }.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 

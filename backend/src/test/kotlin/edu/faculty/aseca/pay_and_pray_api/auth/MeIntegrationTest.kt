@@ -21,7 +21,6 @@ import java.util.UUID
 @AutoConfigureMockMvc
 @Testcontainers
 class MeIntegrationTest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -41,15 +40,18 @@ class MeIntegrationTest {
 
     private fun loginAndGetToken(): String {
         val email = "test-${UUID.randomUUID()}@example.com"
-        mockMvc.post("/auth/register") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"email": "$email", "password": "password123"}"""
-        }.andExpect { status { isCreated() } }
+        mockMvc
+            .post("/auth/register") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"email": "$email", "password": "password123"}"""
+            }.andExpect { status { isCreated() } }
 
-        val result = mockMvc.post("/auth/login") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"email": "$email", "password": "password123"}"""
-        }.andReturn()
+        val result =
+            mockMvc
+                .post("/auth/login") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{"email": "$email", "password": "password123"}"""
+                }.andReturn()
 
         return ObjectMapper().readTree(result.response.contentAsString).get("token").asText()
     }
@@ -65,20 +67,22 @@ class MeIntegrationTest {
     fun `GET api me with valid token returns 200 with userId`() {
         val token = loginAndGetToken()
 
-        mockMvc.get("/api/me") {
-            header("Authorization", "Bearer $token")
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$.userId") { exists() }
-        }
+        mockMvc
+            .get("/api/me") {
+                header("Authorization", "Bearer $token")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.userId") { exists() }
+            }
     }
 
     @Test
     fun `GET api me with invalid token returns 401`() {
-        mockMvc.get("/api/me") {
-            header("Authorization", "Bearer invalid.token.here")
-        }.andExpect {
-            status { isUnauthorized() }
-        }
+        mockMvc
+            .get("/api/me") {
+                header("Authorization", "Bearer invalid.token.here")
+            }.andExpect {
+                status { isUnauthorized() }
+            }
     }
 }

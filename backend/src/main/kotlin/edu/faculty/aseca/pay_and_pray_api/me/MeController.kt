@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api")
 class MeController {
-
     @GetMapping("/me")
-    fun me(authentication: Authentication): MeResponse =
-        MeResponse(userId = authentication.principal as String)
+    fun me(authentication: Authentication): MeResponse = MeResponse(userId = authentication.principal as String)
 }
 
-data class MeResponse(val userId: String)
+data class MeResponse(
+    val userId: String,
+)
