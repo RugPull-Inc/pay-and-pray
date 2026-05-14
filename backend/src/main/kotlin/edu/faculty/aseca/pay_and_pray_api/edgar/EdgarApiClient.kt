@@ -55,6 +55,8 @@ class EdgarApiClient(
             CompanyConcept::class.java
         )
 
+    // forms=10-K limits results to companies with annual reports — intentional for a portfolio tracker,
+    // where all major US public companies file 10-K. Companies with only 10-Q or 8-K won't appear.
     override fun searchFullText(query: String): FullTextSearchResult =
         get(
             "https://efts.sec.gov/LATEST/search-index?q=${query.encodeForUrl()}&forms=10-K",

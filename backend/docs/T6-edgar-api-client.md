@@ -42,7 +42,7 @@ EDGAR requiere un User-Agent descriptivo con nombre de proyecto y email. Request
 | `getCompanySubmissions(cik)` | `https://data.sec.gov/submissions/CIK{CIK}.json` |
 | `getCompanyFacts(cik)` | `https://data.sec.gov/api/xbrl/companyfacts/CIK{CIK}.json` |
 | `getCompanyConcept(cik, concept)` | `https://data.sec.gov/api/xbrl/companyconcept/CIK{CIK}/us-gaap/{concept}.json` |
-| `searchFullText(query)` | `https://efts.sec.gov/LATEST/search-index?q={query}&forms=10-K` |
+| `searchFullText(query)` | `https://efts.sec.gov/LATEST/search-index?q={query}&forms=10-K` — solo empresas con 10-K anual (ver decisiones) |
 | `getCompanyTickers()` | `https://www.sec.gov/files/company_tickers.json` |
 
 ---
@@ -147,9 +147,13 @@ Configurado como `ClientHttpRequestInterceptor` en el bean `edgarRestTemplate` (
 
 Todo error HTTP se envuelve en `EdgarApiException` (RuntimeException). El caller (T11/T13) decide cómo manejarlo — por ejemplo, devolviendo un 503 al usuario si EDGAR no responde.
 
+### Filtro `forms=10-K` en búsqueda
+
+`searchFullText` filtra resultados a filings de tipo 10-K (reporte anual). Esto es intencional: para un portfolio tracker, el universo relevante son las empresas que cotizan en bolsas mayores de EE.UU., todas las cuales deben presentar 10-K. Empresas con solo 10-Q u 8-K (ej. extranjeras con Form 20-F) no van a aparecer en los resultados de búsqueda.
+
 ### DTOs
 
-Todos los DTOs usan `@JsonIgnoreProperties(ignoreUnknown = true)` para tolerar campos nuevos que EDGAR pueda agregar sin romper la deserialización. Los campos con nombres que no son idiomatic Kotlin (como `_id`, `_source`, `cik_str`) usan `@JsonProperty`.
+Los campos con nombres que no son idiomatic Kotlin (como `_id`, `_source`, `cik_str`) usan `@JsonProperty`. Los campos desconocidos del JSON de EDGAR se descartan silenciosamente mediante configuración global de Jackson (`spring.jackson.deserialization.fail-on-unknown-properties=false` en `application.yml`).
 
 ---
 
