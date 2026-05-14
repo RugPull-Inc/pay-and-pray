@@ -21,7 +21,11 @@ class AuthService(
     ): RegisterResponse {
         if (userService.findByEmail(email) != null) throw DuplicateEmailException()
         val user = userService.createUser(email, plainPassword)
-        return RegisterResponse(userId = user.id.toString(), email = user.email)
+        return RegisterResponse(
+            userId = user.id.toString(),
+            email = user.email,
+            token = tokenService.generate(user.id.toString()),
+        )
     }
 
     fun login(

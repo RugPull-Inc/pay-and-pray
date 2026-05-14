@@ -1,6 +1,6 @@
 # Pay and Pray
 
-Portfolio tracker for US-listed stocks. 
+Portfolio tracker for US-listed stocks.
 
 Integrates SEC EDGAR for financial data and Yahoo Finance for market prices.
 
@@ -72,12 +72,12 @@ docker compose down -v                  # stop everything and wipe database
 docker compose logs -f backend          # tail backend API logs
 docker compose logs -f frontend         # tail web frontend logs
 
-# linting and formatting backend
+# linting and formatting backend API
 cd backend
 ./gradlew ktlintCheck        # check for issues
 ./gradlew ktlintFormat       # fix automatically
 
-# linting and fromatting frontend
+# linting and formatting web frontend
 cd frontend
 npm run format               # fix formatting automatically
 npm run format:check         # check only (what CI runs)
