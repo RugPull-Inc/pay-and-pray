@@ -4,15 +4,11 @@ CHANGED=$(git diff @{u}..HEAD --name-only 2>/dev/null || git diff HEAD~1 --name-
 
 if echo "$CHANGED" | grep -q "^backend/"; then
   echo "Running backend tests..."
-  cd backend && ./gradlew test --no-daemon || exit 1
-  cd ..
+  (cd backend && ./gradlew test --no-daemon) || exit 1
 fi
 
 if echo "$CHANGED" | grep -q "^frontend/"; then
   echo "Running frontend checks..."
-  cd frontend
-
-  npm run type-check || npx tsc --noEmit || exit 1 
-  npm test -- --passWithNoTests || exit 1
-  cd ..
+  (cd frontend && npm run type-check) || exit 1
+  (cd frontend && npm test -- --passWithNoTests) || exit 1
 fi
