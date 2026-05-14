@@ -20,9 +20,8 @@ function formatBillions(value: number) {
   return `$${(value / 1e9).toFixed(1)}B`
 }
 
-function formatTooltip(value: number, name: string) {
-  if (name === 'EPS') return [`$${value.toFixed(2)}`, name]
-  return [formatBillions(value), name]
+function formatEPS(value: number) {
+  return `$${value.toFixed(2)}`
 }
 
 export default function FinancialChart({ history }: Props) {
@@ -62,7 +61,10 @@ export default function FinancialChart({ history }: Props) {
           width={60}
         />
         <Tooltip
-          formatter={formatTooltip}
+          formatter={(value, name) => {
+            const num = typeof value === 'number' ? value : 0
+            return [name === 'EPS' ? formatEPS(num) : formatBillions(num), String(name)]
+          }}
           contentStyle={{
             background: 'var(--color-zinc-900)',
             border: '1px solid var(--color-zinc-700)',
