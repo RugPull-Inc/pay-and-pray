@@ -56,6 +56,7 @@ export default function LoginPage() {
       }
       const data = await res.json();
       localStorage.setItem("token", data.token);
+      window.dispatchEvent(new Event("auth"));
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } catch {

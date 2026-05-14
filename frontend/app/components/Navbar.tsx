@@ -9,7 +9,10 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setLoggedIn(!!localStorage.getItem("token"));
+    const sync = () => setLoggedIn(!!localStorage.getItem("token"));
+    sync();
+    window.addEventListener("auth", sync);
+    return () => window.removeEventListener("auth", sync);
   }, []);
 
   function handleLogout() {
