@@ -8,8 +8,7 @@ data class RegisterRequest(
     @field:NotBlank(message = "email is required")
     @field:Email(message = "email must be valid")
     val email: String,
-
     @field:NotBlank(message = "password is required")
     @field:Size(min = 8, message = "password must be at least 8 characters")
-    val password: String
+    val password: String,
 )

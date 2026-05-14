@@ -50,7 +50,10 @@ export default function CompanyLoading() {
           <SkeletonBlock className="h-5 w-36" />
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-zinc-800/50 last:border-b-0">
+              <div
+                key={i}
+                className="flex items-center gap-4 px-5 py-4 border-b border-zinc-800/50 last:border-b-0"
+              >
                 <SkeletonBlock className="h-5 w-14 rounded-full" />
                 <SkeletonBlock className="h-4 w-24" />
                 <SkeletonBlock className="h-4 w-24 hidden sm:block" />

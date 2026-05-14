@@ -3,7 +3,12 @@
 import Link from 'next/link'
 import { ArrowLeft, AlertCircle } from 'lucide-react'
 
-export default function CompanyError({ reset }: { error: Error; reset: () => void }) {
+export default function CompanyError({
+  reset,
+}: {
+  error: Error
+  reset: () => void
+}) {
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="text-center space-y-6 max-w-sm">
@@ -13,7 +18,9 @@ export default function CompanyError({ reset }: { error: Error; reset: () => voi
           </div>
         </div>
         <div className="space-y-2">
-          <h1 className="text-xl font-semibold text-zinc-100">Something went wrong</h1>
+          <h1 className="text-xl font-semibold text-zinc-100">
+            Something went wrong
+          </h1>
           <p className="text-zinc-400 text-sm">
             Failed to load company data. Try again or go back to search.
           </p>

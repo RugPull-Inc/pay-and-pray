@@ -11,9 +11,8 @@ import org.springframework.stereotype.Component
 @Component
 class DevDataSeeder(
     private val authService: AuthService,
-    @Value("\${seed.user-count:1}") private val userCount: Int
+    @Value("\${seed.user-count:1}") private val userCount: Int,
 ) : ApplicationRunner {
-
     private val logger = LoggerFactory.getLogger(DevDataSeeder::class.java)
 
     override fun run(args: ApplicationArguments) {
