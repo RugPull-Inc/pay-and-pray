@@ -15,7 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class EdgarApiClientTest {
-
     private lateinit var mockServer: MockRestServiceServer
     private lateinit var client: EdgarApiClient
 
@@ -23,25 +22,30 @@ class EdgarApiClientTest {
 
     @BeforeEach
     fun setUp() {
-        val restTemplate = RestTemplate().apply {
-            interceptors = mutableListOf(ClientHttpRequestInterceptor { request, body, execution ->
-                request.headers.set("User-Agent", testUserAgent)
-                execution.execute(request, body)
-            })
-        }
+        val restTemplate =
+            RestTemplate().apply {
+                interceptors =
+                    mutableListOf(
+                        ClientHttpRequestInterceptor { request, body, execution ->
+                            request.headers.set("User-Agent", testUserAgent)
+                            execution.execute(request, body)
+                        },
+                    )
+            }
         mockServer = MockRestServiceServer.createServer(restTemplate)
         client = EdgarApiClient(restTemplate, testUserAgent)
     }
 
     @Test
     fun `getCompanySubmissions pads cik to 10 digits and returns parsed response`() {
-        mockServer.expect(requestTo("https://data.sec.gov/submissions/CIK0000320193.json"))
+        mockServer
+            .expect(requestTo("https://data.sec.gov/submissions/CIK0000320193.json"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(
                 withSuccess(
                     """{"cik":"0000320193","name":"Apple Inc.","tickers":["AAPL"],"exchanges":["Nasdaq"]}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         val result = client.getCompanySubmissions("320193")
@@ -54,12 +58,13 @@ class EdgarApiClientTest {
 
     @Test
     fun `getCompanyFacts returns parsed response`() {
-        mockServer.expect(requestTo("https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json"))
+        mockServer
+            .expect(requestTo("https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json"))
             .andRespond(
                 withSuccess(
                     """{"cik":"0000320193","entityName":"Apple Inc.","facts":{}}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         val result = client.getCompanyFacts("320193")
@@ -71,12 +76,13 @@ class EdgarApiClientTest {
 
     @Test
     fun `getCompanyConcept includes concept in url`() {
-        mockServer.expect(requestTo("https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/Revenues.json"))
+        mockServer
+            .expect(requestTo("https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/Revenues.json"))
             .andRespond(
                 withSuccess(
                     """{"cik":"0000320193","entityName":"Apple Inc.","tag":"Revenues","units":{}}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         val result = client.getCompanyConcept("320193", "Revenues")
@@ -87,12 +93,13 @@ class EdgarApiClientTest {
 
     @Test
     fun `searchFullText encodes query and returns hits`() {
-        mockServer.expect(requestTo("https://efts.sec.gov/LATEST/search-index?q=Apple+Inc&forms=10-K"))
+        mockServer
+            .expect(requestTo("https://efts.sec.gov/LATEST/search-index?q=Apple+Inc&forms=10-K"))
             .andRespond(
                 withSuccess(
                     """{"hits":{"total":{"value":1,"relation":"eq"},"hits":[{"_id":"abc","_source":{}}]}}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         val result = client.searchFullText("Apple Inc")
@@ -104,12 +111,13 @@ class EdgarApiClientTest {
 
     @Test
     fun `getCompanyTickers parses ordinal-keyed map`() {
-        mockServer.expect(requestTo("https://www.sec.gov/files/company_tickers.json"))
+        mockServer
+            .expect(requestTo("https://www.sec.gov/files/company_tickers.json"))
             .andRespond(
                 withSuccess(
                     """{"0":{"cik_str":320193,"name":"Apple Inc.","ticker":"AAPL","exchange":"Nasdaq"}}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         val result = client.getCompanyTickers()
@@ -121,7 +129,8 @@ class EdgarApiClientTest {
 
     @Test
     fun `http error wraps in EdgarApiException`() {
-        mockServer.expect(requestTo("https://data.sec.gov/submissions/CIK0000000001.json"))
+        mockServer
+            .expect(requestTo("https://data.sec.gov/submissions/CIK0000000001.json"))
             .andRespond(withStatus(HttpStatus.NOT_FOUND))
 
         assertThrows<EdgarApiException> {
@@ -132,12 +141,13 @@ class EdgarApiClientTest {
 
     @Test
     fun `cik with leading zeros is not double-padded`() {
-        mockServer.expect(requestTo("https://data.sec.gov/submissions/CIK0000320193.json"))
+        mockServer
+            .expect(requestTo("https://data.sec.gov/submissions/CIK0000320193.json"))
             .andRespond(
                 withSuccess(
                     """{"cik":"0000320193","name":"Apple Inc.","tickers":[],"exchanges":[]}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         client.getCompanySubmissions("0000320193")
@@ -146,13 +156,14 @@ class EdgarApiClientTest {
 
     @Test
     fun `user-agent header is present in every request`() {
-        mockServer.expect(requestTo("https://data.sec.gov/submissions/CIK0000320193.json"))
+        mockServer
+            .expect(requestTo("https://data.sec.gov/submissions/CIK0000320193.json"))
             .andExpect(header("User-Agent", "PayAndPray/1.0 test@test.com"))
             .andRespond(
                 withSuccess(
                     """{"cik":"0000320193","name":"Apple Inc.","tickers":[],"exchanges":[]}""",
-                    MediaType.APPLICATION_JSON
-                )
+                    MediaType.APPLICATION_JSON,
+                ),
             )
 
         client.getCompanySubmissions("320193")

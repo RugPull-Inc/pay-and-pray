@@ -8,13 +8,17 @@ import org.springframework.web.client.RestTemplate
 
 @Configuration
 class EdgarConfig {
-
     @Bean
-    fun edgarRestTemplate(@Value("\${edgar.user-agent}") userAgent: String): RestTemplate =
+    fun edgarRestTemplate(
+        @Value("\${edgar.user-agent}") userAgent: String,
+    ): RestTemplate =
         RestTemplate().apply {
-            interceptors = listOf(ClientHttpRequestInterceptor { request, body, execution ->
-                request.headers.set("User-Agent", userAgent)
-                execution.execute(request, body)
-            })
+            interceptors =
+                listOf(
+                    ClientHttpRequestInterceptor { request, body, execution ->
+                        request.headers.set("User-Agent", userAgent)
+                        execution.execute(request, body)
+                    },
+                )
         }
 }

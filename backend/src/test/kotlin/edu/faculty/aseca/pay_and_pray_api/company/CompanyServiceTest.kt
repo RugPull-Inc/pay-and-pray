@@ -8,15 +8,15 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class CompanyServiceTest {
-
     private val service = CompanyService(FakeEdgarClient())
 
     @Test
     fun `search returns mapped results from EDGAR hits`() {
-        FakeEdgarClient.nextResult = fullTextResult(
-            hit("0000320193-24-000006", "Apple Inc.", "AAPL"),
-            hit("0000789019-24-000001", "Microsoft Corporation", null)
-        )
+        FakeEdgarClient.nextResult =
+            fullTextResult(
+                hit("0000320193-24-000006", "Apple Inc.", "AAPL"),
+                hit("0000789019-24-000001", "Microsoft Corporation", null),
+            )
 
         val response = service.search("Apple")
 
@@ -30,10 +30,11 @@ class CompanyServiceTest {
 
     @Test
     fun `search deduplicates companies with multiple filings`() {
-        FakeEdgarClient.nextResult = fullTextResult(
-            hit("0000320193-24-000001", "Apple Inc.", "AAPL"),
-            hit("0000320193-23-000001", "Apple Inc.", "AAPL")
-        )
+        FakeEdgarClient.nextResult =
+            fullTextResult(
+                hit("0000320193-24-000001", "Apple Inc.", "AAPL"),
+                hit("0000320193-23-000001", "Apple Inc.", "AAPL"),
+            )
 
         val response = service.search("Apple")
 
@@ -60,34 +61,45 @@ class CompanyServiceTest {
         }
     }
 
-    private fun hit(id: String, entityName: String, ticker: String?): FullTextHit =
+    private fun hit(
+        id: String,
+        entityName: String,
+        ticker: String?,
+    ): FullTextHit =
         FullTextHit(
             id = id,
-            source = FullTextSource(entityName = entityName, tickerSymbol = ticker)
+            source = FullTextSource(entityName = entityName, tickerSymbol = ticker),
         )
 
     private fun fullTextResult(vararg hits: FullTextHit): FullTextSearchResult =
         FullTextSearchResult(
-            hits = FullTextHits(
-                total = FullTextTotal(value = hits.size, relation = "eq"),
-                hits = hits.toList()
-            )
+            hits =
+                FullTextHits(
+                    total = FullTextTotal(value = hits.size, relation = "eq"),
+                    hits = hits.toList(),
+                ),
         )
 }
 
 private class FakeEdgarClient : EdgarClient {
-
     companion object {
-        var nextResult: FullTextSearchResult? = FullTextSearchResult(
-            hits = FullTextHits(total = FullTextTotal(0, "eq"), hits = emptyList())
-        )
+        var nextResult: FullTextSearchResult? =
+            FullTextSearchResult(
+                hits = FullTextHits(total = FullTextTotal(0, "eq"), hits = emptyList()),
+            )
     }
 
     override fun searchFullText(query: String): FullTextSearchResult =
         nextResult ?: throw EdgarApiException("EDGAR unavailable")
 
     override fun getCompanySubmissions(cik: String): CompanySubmissions = throw UnsupportedOperationException()
+
     override fun getCompanyFacts(cik: String): CompanyFacts = throw UnsupportedOperationException()
-    override fun getCompanyConcept(cik: String, concept: String): CompanyConcept = throw UnsupportedOperationException()
+
+    override fun getCompanyConcept(
+        cik: String,
+        concept: String,
+    ): CompanyConcept = throw UnsupportedOperationException()
+
     override fun getCompanyTickers(): Map<String, CompanyTicker> = throw UnsupportedOperationException()
 }

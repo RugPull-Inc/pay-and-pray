@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/companies")
-class CompanyController(private val service: CompanyService) {
-
+class CompanyController(
+    private val service: CompanyService,
+) {
     @GetMapping("/search")
-    fun search(@RequestParam q: String): CompanySearchResponse = service.search(q)
+    fun search(
+        @RequestParam q: String,
+    ): CompanySearchResponse = service.search(q)
 }

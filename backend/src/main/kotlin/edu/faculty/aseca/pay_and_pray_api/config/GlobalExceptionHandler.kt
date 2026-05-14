@@ -31,7 +31,8 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(EdgarApiException::class)
     fun handleEdgarUnavailable(ex: EdgarApiException): ResponseEntity<ErrorResponse> =
-        ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        ResponseEntity
+            .status(HttpStatus.SERVICE_UNAVAILABLE)
             .body(ErrorResponse(error = ex.message ?: "EDGAR service unavailable. Please try again later."))
 }
 
