@@ -56,6 +56,7 @@ export default function LoginPage() {
       }
       const data = await res.json();
       localStorage.setItem("token", data.token);
+      document.cookie = `token=${data.token}; path=/; SameSite=Strict`;
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } catch {
