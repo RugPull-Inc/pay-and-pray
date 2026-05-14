@@ -1,8 +1,8 @@
-# T11 — Company Search Backend
+# T12 — Company Search Backend
 
 ## Descripción
 
-Endpoint de búsqueda de empresas por nombre o ticker. Consume el `EdgarClient` (T6) a través de su port, mapea los resultados a una respuesta propia de la API, y maneja errores si EDGAR no está disponible.
+Endpoint de búsqueda de empresas por nombre o ticker. Consume el `EdgarClient` (T11) a través de su port, mapea los resultados a una respuesta propia de la API, y maneja errores si EDGAR no está disponible.
 
 ---
 
@@ -74,7 +74,7 @@ data class CompanySearchResponse(
 
 ## Lógica del servicio (`CompanySearchService`)
 
-1. Llama a `edgarClient.searchFullText(query)` — delega en el port de T6
+1. Llama a `edgarClient.searchFullText(query)` — delega en el port de T11
 2. Mapea cada `FullTextHit` a `CompanySearchResult`:
    - `name` ← `hit.source["entity_name"]` (campo estándar de EDGAR)
    - `ticker` ← `hit.source["ticker_symbol"]` (nullable — no siempre presente)
@@ -137,7 +137,7 @@ El handler se centralizó aquí (en lugar de en el controller) para mantener con
 
 ## Mapeo al patrón hexagonal
 
-T11 no agrega nuevos ports ni adapters — solo la capa de aplicación (service + controller) sobre el port existente de T6.
+T12 no agrega nuevos ports ni adapters — solo la capa de aplicación (service + controller) sobre el port existente de T11.
 
 | Capa | Archivo |
 |------|---------|

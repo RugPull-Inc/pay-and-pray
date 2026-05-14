@@ -1,8 +1,8 @@
-# T6 — SEC EDGAR API Client
+# T11 — SEC EDGAR API Client
 
 ## Descripción
 
-Implementación del cliente HTTP para la API pública de EDGAR (SEC). Actúa como adapter de infraestructura dentro de la arquitectura hexagonal del proyecto, exponiendo un port (`EdgarClient`) del que dependen T11 (company search) y T13 (financial details).
+Implementación del cliente HTTP para la API pública de EDGAR (SEC). Actúa como adapter de infraestructura dentro de la arquitectura hexagonal del proyecto, exponiendo un port (`EdgarClient`) del que dependen T12 (company search) y T13 (financial details).
 
 ---
 
