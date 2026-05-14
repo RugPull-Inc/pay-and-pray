@@ -9,7 +9,10 @@ class FakeUserService : UserService {
     private val store = mutableListOf<User>()
     private val passwordEncoder = BCryptPasswordEncoder()
 
-    override fun createUser(email: String, plainPassword: String): User =
+    override fun createUser(
+        email: String,
+        plainPassword: String,
+    ): User =
         User(id = UUID.randomUUID(), email = email, password = passwordEncoder.encode(plainPassword).toString())
             .also { store.add(it) }
 

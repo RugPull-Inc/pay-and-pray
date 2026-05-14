@@ -6,12 +6,15 @@ import org.springframework.stereotype.Service
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ) : UserService {
-
-    override fun createUser(email: String, plainPassword: String): User {
-        val hashed = passwordEncoder.encode(plainPassword)
-            ?: throw IllegalStateException("Password encoding failed")
+    override fun createUser(
+        email: String,
+        plainPassword: String,
+    ): User {
+        val hashed =
+            passwordEncoder.encode(plainPassword)
+                ?: throw IllegalStateException("Password encoding failed")
         return userRepository.save(User(email = email, password = hashed))
     }
 

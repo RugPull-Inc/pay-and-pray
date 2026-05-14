@@ -11,7 +11,9 @@ export default function CompanyNotFound() {
           </div>
         </div>
         <div className="space-y-2">
-          <h1 className="text-xl font-semibold text-zinc-100">Company not found</h1>
+          <h1 className="text-xl font-semibold text-zinc-100">
+            Company not found
+          </h1>
           <p className="text-zinc-400 text-sm">
             No data available for that ticker. Check the symbol and try again.
           </p>

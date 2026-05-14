@@ -61,7 +61,10 @@ export default function Home() {
 
         <div className="space-y-2">
           <div className="relative">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+            />
             <input
               type="text"
               value={query}
@@ -79,8 +82,12 @@ export default function Home() {
                   onClick={() => router.push(`/companies/${c.ticker}`)}
                   className="w-full flex items-center gap-4 px-4 py-3 hover:bg-zinc-800 transition-colors text-left border-b border-zinc-800 last:border-0"
                 >
-                  <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">{c.ticker}</span>
-                  <span className="text-sm text-zinc-300 truncate">{c.name}</span>
+                  <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">
+                    {c.ticker}
+                  </span>
+                  <span className="text-sm text-zinc-300 truncate">
+                    {c.name}
+                  </span>
                 </button>
               ))}
             </div>
@@ -88,14 +95,21 @@ export default function Home() {
 
           {showEmpty && (
             <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-6 text-center">
-              <p className="text-sm text-zinc-500">No companies found for <span className="text-zinc-300 font-mono">"{query.trim()}"</span></p>
+              <p className="text-sm text-zinc-500">
+                No companies found for{' '}
+                <span className="text-zinc-300 font-mono">
+                  &ldquo;{query.trim()}&rdquo;
+                </span>
+              </p>
             </div>
           )}
         </div>
 
         {!query.trim() && (
           <div className="space-y-3">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider text-center">Popular</p>
+            <p className="text-xs text-zinc-500 uppercase tracking-wider text-center">
+              Popular
+            </p>
             <div className="flex flex-wrap justify-center gap-2">
               {POPULAR.map((t) => (
                 <Link

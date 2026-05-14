@@ -8,7 +8,6 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class AuthServiceRegisterTest {
-
     private lateinit var fakeUserService: FakeUserService
     private val passwordEncoder = BCryptPasswordEncoder()
     private lateinit var authService: AuthService

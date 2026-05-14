@@ -7,7 +7,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.util.UUID
 
 class UserServiceTest {
-
     private lateinit var userRepository: UserRepository
     private lateinit var userService: UserServiceImpl
     private val passwordEncoder = BCryptPasswordEncoder()
@@ -61,5 +60,6 @@ private class FakeUserRepository : UserRepository {
     private val store = mutableListOf<User>()
 
     override fun save(user: User): User = user.copy(id = UUID.randomUUID()).also { store.add(it) }
+
     override fun findByEmail(email: String): User? = store.find { it.email == email }
 }

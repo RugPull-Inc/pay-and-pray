@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ValidationErrorResponse> {
-        val fieldErrors = ex.bindingResult.fieldErrors.associate { error ->
-            error.field to (error.defaultMessage ?: "invalid value")
-        }
+        val fieldErrors =
+            ex.bindingResult.fieldErrors.associate { error ->
+                error.field to (error.defaultMessage ?: "invalid value")
+            }
 
         return ResponseEntity.badRequest().body(ValidationErrorResponse(errors = fieldErrors))
     }
@@ -35,6 +35,10 @@ class GlobalExceptionHandler {
             .body(ErrorResponse(error = ex.message ?: "EDGAR service unavailable. Please try again later."))
 }
 
-data class ErrorResponse(val error: String)
+data class ErrorResponse(
+    val error: String,
+)
 
-data class ValidationErrorResponse(val errors: Map<String, String>)
+data class ValidationErrorResponse(
+    val errors: Map<String, String>,
+)
