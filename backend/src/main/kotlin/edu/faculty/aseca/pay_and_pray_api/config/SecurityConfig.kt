@@ -18,9 +18,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
-    @Value("\${cors.allowed-origins}") private val allowedOrigins: String
+    @Value("\${cors.allowed-origins}") private val allowedOrigins: String,
 ) {
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http

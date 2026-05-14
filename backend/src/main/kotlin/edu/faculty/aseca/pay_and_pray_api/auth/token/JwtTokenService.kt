@@ -10,26 +10,29 @@ import java.util.Date
 @Service
 class JwtTokenService(
     @Value("\${jwt.secret}") private val secret: String,
-    @Value("\${jwt.expiration-ms}") private val expirationMs: Long
+    @Value("\${jwt.expiration-ms}") private val expirationMs: Long,
 ) : TokenService {
-
     private val key by lazy { Keys.hmacShaKeyFor(secret.toByteArray()) }
 
-    override fun generate(userId: String): String = Jwts.builder()
-        .subject(userId)
-        .issuedAt(Date())
-        .expiration(Date(System.currentTimeMillis() + expirationMs))
-        .signWith(key)
-        .compact()
+    override fun generate(userId: String): String =
+        Jwts
+            .builder()
+            .subject(userId)
+            .issuedAt(Date())
+            .expiration(Date(System.currentTimeMillis() + expirationMs))
+            .signWith(key)
+            .compact()
 
-    override fun getUserId(token: String): String? = try {
-        Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .payload
-            .subject
-    } catch (e: JwtException) {
-        null
-    }
+    override fun getUserId(token: String): String? =
+        try {
+            Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+                .subject
+        } catch (e: JwtException) {
+            null
+        }
 }

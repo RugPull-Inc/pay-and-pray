@@ -3,7 +3,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, FileText, AlertCircle } from 'lucide-react'
 import { fetchCompanyData } from '@/lib/company-data'
-import type { CompanyFinancialsResponse, MetricValue, QuarterlySnapshot } from '@/app/types/company'
+import type {
+  CompanyFinancialsResponse,
+  MetricValue,
+  QuarterlySnapshot,
+} from '@/app/types/company'
 import FinancialChart from './components/FinancialChart'
 
 export async function generateMetadata(
@@ -18,7 +22,9 @@ export async function generateMetadata(
   }
 }
 
-export default async function CompanyPage(props: PageProps<'/companies/[ticker]'>) {
+export default async function CompanyPage(
+  props: PageProps<'/companies/[ticker]'>
+) {
   const { ticker } = await props.params
   const data = await fetchCompanyData(ticker)
 
@@ -50,7 +56,9 @@ function Header({ data }: { data: CompanyFinancialsResponse }) {
       <div className="flex items-start gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold tracking-tight">{data.companyName}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {data.companyName}
+            </h1>
             <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-mono font-semibold">
               {data.ticker}
             </span>
@@ -66,15 +74,16 @@ function MockBanner() {
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-300 text-sm">
       <AlertCircle size={16} className="shrink-0" />
-      Showing demo data — connect the backend (issue #13) to see live EDGAR data.
+      Showing demo data — connect the backend (issue #13) to see live EDGAR
+      data.
     </div>
   )
 }
 
 function formatCurrency(v: number): string {
   if (Math.abs(v) >= 1e12) return `$${(v / 1e12).toFixed(2)}T`
-  if (Math.abs(v) >= 1e9)  return `$${(v / 1e9).toFixed(2)}B`
-  if (Math.abs(v) >= 1e6)  return `$${(v / 1e6).toFixed(2)}M`
+  if (Math.abs(v) >= 1e9) return `$${(v / 1e9).toFixed(2)}B`
+  if (Math.abs(v) >= 1e6) return `$${(v / 1e6).toFixed(2)}M`
   return `$${v.toLocaleString()}`
 }
 
@@ -91,10 +100,14 @@ function MetricCard({
 }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-2">
-      <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">{label}</p>
+      <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+        {label}
+      </p>
       {metric ? (
         <>
-          <p className={`text-2xl font-bold tabular-nums ${colorize && metric.value < 0 ? 'text-red-400' : colorize ? 'text-emerald-400' : 'text-zinc-100'}`}>
+          <p
+            className={`text-2xl font-bold tabular-nums ${colorize && metric.value < 0 ? 'text-red-400' : colorize ? 'text-emerald-400' : 'text-zinc-100'}`}
+          >
             {format(metric.value)}
           </p>
           <p className="text-xs text-zinc-500">{metric.period}</p>
@@ -109,16 +122,31 @@ function MetricCard({
   )
 }
 
-function MetricsGrid({ metrics }: { metrics: CompanyFinancialsResponse['metrics'] }) {
+function MetricsGrid({
+  metrics,
+}: {
+  metrics: CompanyFinancialsResponse['metrics']
+}) {
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold text-zinc-200">Key Financial Metrics</h2>
+      <h2 className="text-lg font-semibold text-zinc-200">
+        Key Financial Metrics
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        <MetricCard label="Revenue"           metric={metrics.revenue} />
-        <MetricCard label="Net Income"        metric={metrics.netIncome}        colorize />
-        <MetricCard label="EPS"               metric={metrics.eps}              colorize format={(v) => `$${v.toFixed(2)}`} />
-        <MetricCard label="Total Assets"      metric={metrics.totalAssets} />
-        <MetricCard label="Total Liabilities" metric={metrics.totalLiabilities} colorize />
+        <MetricCard label="Revenue" metric={metrics.revenue} />
+        <MetricCard label="Net Income" metric={metrics.netIncome} colorize />
+        <MetricCard
+          label="EPS"
+          metric={metrics.eps}
+          colorize
+          format={(v) => `$${v.toFixed(2)}`}
+        />
+        <MetricCard label="Total Assets" metric={metrics.totalAssets} />
+        <MetricCard
+          label="Total Liabilities"
+          metric={metrics.totalLiabilities}
+          colorize
+        />
       </div>
     </section>
   )
@@ -128,7 +156,9 @@ function ChartSection({ history }: { history: QuarterlySnapshot[] }) {
   return (
     <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-zinc-200">Historical Evolution</h2>
+        <h2 className="text-lg font-semibold text-zinc-200">
+          Historical Evolution
+        </h2>
         <p className="text-sm text-zinc-500">{history.length} quarters</p>
       </div>
       {history.length === 0 ? (
@@ -142,7 +172,11 @@ function ChartSection({ history }: { history: QuarterlySnapshot[] }) {
   )
 }
 
-function FilingsSection({ filings }: { filings: CompanyFinancialsResponse['recentFilings'] }) {
+function FilingsSection({
+  filings,
+}: {
+  filings: CompanyFinancialsResponse['recentFilings']
+}) {
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold text-zinc-200">Recent Filings</h2>
@@ -155,10 +189,18 @@ function FilingsSection({ filings }: { filings: CompanyFinancialsResponse['recen
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-800">
-                <th className="text-left px-5 py-3 text-zinc-400 font-medium">Type</th>
-                <th className="text-left px-5 py-3 text-zinc-400 font-medium">Filed</th>
-                <th className="text-left px-5 py-3 text-zinc-400 font-medium hidden sm:table-cell">Period</th>
-                <th className="text-left px-5 py-3 text-zinc-400 font-medium hidden md:table-cell">Accession #</th>
+                <th className="text-left px-5 py-3 text-zinc-400 font-medium">
+                  Type
+                </th>
+                <th className="text-left px-5 py-3 text-zinc-400 font-medium">
+                  Filed
+                </th>
+                <th className="text-left px-5 py-3 text-zinc-400 font-medium hidden sm:table-cell">
+                  Period
+                </th>
+                <th className="text-left px-5 py-3 text-zinc-400 font-medium hidden md:table-cell">
+                  Accession #
+                </th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -169,12 +211,16 @@ function FilingsSection({ filings }: { filings: CompanyFinancialsResponse['recen
                   className={`hover:bg-zinc-800/40 transition-colors ${i < filings.length - 1 ? 'border-b border-zinc-800/50' : ''}`}
                 >
                   <td className="px-5 py-3">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${f.type === '10-K' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${f.type === '10-K' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-emerald-500/20 text-emerald-300'}`}
+                    >
                       <FileText size={11} />
                       {f.type}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-zinc-300 font-mono">{f.filedDate}</td>
+                  <td className="px-5 py-3 text-zinc-300 font-mono">
+                    {f.filedDate}
+                  </td>
                   <td className="px-5 py-3 text-zinc-400 font-mono hidden sm:table-cell">
                     {f.reportDate ?? <span className="text-zinc-700">—</span>}
                   </td>

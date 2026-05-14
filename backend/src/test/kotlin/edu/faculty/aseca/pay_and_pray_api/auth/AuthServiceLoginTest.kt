@@ -8,7 +8,6 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class AuthServiceLoginTest {
-
     private lateinit var fakeUserService: FakeUserService
     private val passwordEncoder = BCryptPasswordEncoder()
     private val tokenService = FakeTokenService()
@@ -52,12 +51,14 @@ class AuthServiceLoginTest {
 
     @Test
     fun `wrong password and non-existent email return the same error`() {
-        val wrongPassword = assertThrows<InvalidCredentialsException> {
-            authService.login("rugpull@test.com", "wrongpass")
-        }
-        val noUser = assertThrows<InvalidCredentialsException> {
-            authService.login("nobody@test.com", "secret")
-        }
+        val wrongPassword =
+            assertThrows<InvalidCredentialsException> {
+                authService.login("rugpull@test.com", "wrongpass")
+            }
+        val noUser =
+            assertThrows<InvalidCredentialsException> {
+                authService.login("nobody@test.com", "secret")
+            }
 
         assertEquals(wrongPassword.message, noUser.message)
     }

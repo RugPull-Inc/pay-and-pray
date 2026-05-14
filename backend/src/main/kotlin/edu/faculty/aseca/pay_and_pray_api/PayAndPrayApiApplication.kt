@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class PayAndPrayApiApplication
 
 fun main(args: Array<String>) {
-	runApplication<PayAndPrayApiApplication>(*args)
+    runApplication<PayAndPrayApiApplication>(*args)
 }
