@@ -11,14 +11,14 @@ Endpoint de búsqueda de empresas por nombre o ticker. Consume el `EdgarClient` 
 ```
 backend/src/main/kotlin/.../
 └── company/
-    ├── CompanySearchResult.kt      DTO de cada resultado
-    ├── CompanySearchResponse.kt    wrapper de la respuesta { results, total }
-    ├── CompanySearchService.kt     @Service — lógica de mapeo y deduplicación
-    └── CompanySearchController.kt  @RestController GET /companies/search
+    ├── CompanySearchResult.kt   DTO de cada resultado
+    ├── CompanySearchResponse.kt wrapper de la respuesta { results, total }
+    ├── CompanyService.kt        @Service — lógica de mapeo y deduplicación
+    └── CompanyController.kt     @RestController GET /companies/search
 
 backend/src/test/kotlin/.../
 └── company/
-    └── CompanySearchServiceTest.kt 4 tests con FakeEdgarClient
+    └── CompanyServiceTest.kt    4 tests con FakeEdgarClient
 ```
 
 **Archivo modificado:** `config/GlobalExceptionHandler.kt` — se agregó el handler de `EdgarApiException`.
@@ -87,12 +87,12 @@ El `_id` de EDGAR es el número de accesión (ej: `0000320193-24-000006`). Los d
 
 ---
 
-## Controller (`CompanySearchController`)
+## Controller (`CompanyController`)
 
 ```kotlin
 @RestController
 @RequestMapping("/companies")
-class CompanySearchController(private val service: CompanySearchService) {
+class CompanyController(private val service: CompanyService) {
 
     @GetMapping("/search")
     fun search(@RequestParam q: String): CompanySearchResponse = service.search(q)
@@ -128,7 +128,7 @@ El handler se centralizó aquí (en lugar de en el controller) para mantener con
 | `search propagates EdgarApiException when EDGAR is down` | La excepción sube sin ser swallowed |
 
 ```bash
-./gradlew test --tests "*.company.CompanySearchServiceTest"
+./gradlew test --tests "*.company.CompanyServiceTest"
 ```
 
 **Sobre `FakeEdgarClient`:** implementa `EdgarClient` solo para `searchFullText`. Los demás métodos lanzan `UnsupportedOperationException`. Usa un `companion object` con `nextResult` para configurar el comportamiento por test.
@@ -143,7 +143,7 @@ T11 no agrega nuevos ports ni adapters — solo la capa de aplicación (service 
 |------|---------|
 | Port (reutilizado) | `edgar/EdgarClient.kt` |
 | Adapter (reutilizado) | `edgar/EdgarApiClient.kt` |
-| Service | `company/CompanySearchService.kt` |
-| Controller | `company/CompanySearchController.kt` |
+| Service | `company/CompanyService.kt` |
+| Controller | `company/CompanyController.kt` |
 | DTOs de API | `CompanySearchResult.kt`, `CompanySearchResponse.kt` |
 | Excepción (reutilizada) | `edgar/EdgarApiException.kt` |

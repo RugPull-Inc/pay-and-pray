@@ -5,7 +5,7 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.FullTextHit
 import org.springframework.stereotype.Service
 
 @Service
-class CompanySearchService(private val edgarClient: EdgarClient) {
+class CompanyService(private val edgarClient: EdgarClient) {
 
     fun search(query: String): CompanySearchResponse {
         val results = edgarClient.searchFullText(query).hits.hits

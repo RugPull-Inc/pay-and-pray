@@ -7,9 +7,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class CompanySearchServiceTest {
+class CompanyServiceTest {
 
-    private val service = CompanySearchService(FakeEdgarClient())
+    private val service = CompanyService(FakeEdgarClient())
 
     @Test
     fun `search returns mapped results from EDGAR hits`() {
