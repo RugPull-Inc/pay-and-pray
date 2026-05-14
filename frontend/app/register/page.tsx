@@ -57,11 +57,11 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, password }),
       });
       if (res.status === 409) {
-        setErrors({ server: "Este email ya está registrado." });
+        setErrors({ server: "This email is already registered." });
         return;
       }
       if (!res.ok) {
-        setErrors({ server: "Error al crear la cuenta. Intentá de nuevo." });
+        setErrors({ server: "Failed to create account. Please try again." });
         return;
       }
       const data = await res.json();
@@ -70,7 +70,7 @@ export default function RegisterPage() {
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } catch {
-      setErrors({ server: "No se pudo conectar con el servidor." });
+      setErrors({ server: "Could not connect to the server." });
     } finally {
       setLoading(false);
     }

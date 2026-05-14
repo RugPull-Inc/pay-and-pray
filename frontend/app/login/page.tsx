@@ -47,11 +47,11 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       if (res.status === 401) {
-        setServerError("Email o contraseña incorrectos.");
+        setServerError("Invalid email or password.");
         return;
       }
       if (!res.ok) {
-        setServerError("Ocurrió un error. Intentá de nuevo.");
+        setServerError("Something went wrong. Please try again.");
         return;
       }
       const data = await res.json();
@@ -60,7 +60,7 @@ export default function LoginPage() {
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } catch {
-      setServerError("No se pudo conectar con el servidor.");
+      setServerError("Could not connect to the server.");
     } finally {
       setLoading(false);
     }
