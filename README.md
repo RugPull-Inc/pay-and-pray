@@ -17,18 +17,29 @@ Integrates SEC EDGAR for financial data and Yahoo Finance for market prices.
 ## Setup
 
 1. **Clone the repo**
-  ```bash
+
+```bash
    git clone https://github.com/RugPull-Inc/pay-and-pray.git
    cd pay-and-pray
-  ```
-2. **Setup your** `.env` file (see `.env.example`)
-  ```bash
+```
+
+1. **Setup your** `.env` file (see `.env.example`)
+
+```bash
    cp .env.example .env
-  ```
-3. **Start the stack**
-  ```bash
+```
+
+1. **Activate git hooks**
+
+```bash
+   ./git-hooks/init
+```
+
+1. **Start the stack**
+
+```bash
    docker compose up -d
-  ```
+```
 
 ## Services
 
@@ -60,5 +71,17 @@ docker compose down -v                  # stop everything and wipe database
 # logs
 docker compose logs -f backend          # tail backend API logs
 docker compose logs -f frontend         # tail web frontend logs
+
+# linting and formatting backend
+cd backend
+./gradlew ktlintCheck        # check for issues
+./gradlew ktlintFormat       # fix automatically
+
+# linting and fromatting frontend
+cd frontend
+npm run format               # fix formatting automatically
+npm run format:check         # check only (what CI runs)
+npm run lint                 # check linting
+npm run lint:fix             # fix linting automatically
 ```
 
