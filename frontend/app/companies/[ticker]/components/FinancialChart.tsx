@@ -63,7 +63,10 @@ export default function FinancialChart({ history }: Props) {
         <Tooltip
           formatter={(value, name) => {
             const num = typeof value === 'number' ? value : 0
-            return [name === 'EPS' ? formatEPS(num) : formatBillions(num), String(name)]
+            return [
+              name === 'EPS' ? formatEPS(num) : formatBillions(num),
+              String(name),
+            ]
           }}
           contentStyle={{
             background: 'var(--color-zinc-900)',
