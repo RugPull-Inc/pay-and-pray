@@ -64,8 +64,10 @@ export default function RegisterPage() {
         setErrors({ server: "Error al crear la cuenta. Intentá de nuevo." });
         return;
       }
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
       setSuccess(true);
-      setTimeout(() => router.push("/login"), 1500);
+      setTimeout(() => router.push("/"), 1500);
     } catch {
       setErrors({ server: "No se pudo conectar con el servidor." });
     } finally {
@@ -146,7 +148,7 @@ export default function RegisterPage() {
             <p className="text-xs text-red-400 text-center">{errors.server}</p>
           )}
           {success && (
-            <p className="text-xs text-green-400 text-center">Account created! You can now sign in.</p>
+            <p className="text-xs text-green-400 text-center">Account created! Redirecting...</p>
           )}
 
           <button
