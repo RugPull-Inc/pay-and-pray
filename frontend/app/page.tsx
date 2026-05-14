@@ -34,7 +34,10 @@ export default function Home() {
 
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+            />
             <input
               type="text"
               value={ticker}
@@ -55,7 +58,9 @@ export default function Home() {
         </form>
 
         <div className="space-y-3">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider text-center">Popular</p>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider text-center">
+            Popular
+          </p>
           <div className="flex flex-wrap justify-center gap-2">
             {POPULAR.map((t) => (
               <Link

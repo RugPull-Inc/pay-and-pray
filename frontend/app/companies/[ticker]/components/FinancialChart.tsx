@@ -71,7 +71,13 @@ export default function FinancialChart({ history }: Props) {
           }}
           labelStyle={{ color: 'var(--color-zinc-400)', marginBottom: 4 }}
         />
-        <Legend wrapperStyle={{ color: 'var(--color-zinc-400)', fontSize: 13, paddingTop: 12 }} />
+        <Legend
+          wrapperStyle={{
+            color: 'var(--color-zinc-400)',
+            fontSize: 13,
+            paddingTop: 12,
+          }}
+        />
         {hasRevenue && (
           <Line
             type="monotone"

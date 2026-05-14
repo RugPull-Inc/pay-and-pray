@@ -7,7 +7,6 @@ data class LoginRequest(
     @field:NotBlank(message = "email is required")
     @field:Email(message = "email must be valid")
     val email: String,
-
     @field:NotBlank(message = "password is required")
-    val password: String
+    val password: String,
 )
