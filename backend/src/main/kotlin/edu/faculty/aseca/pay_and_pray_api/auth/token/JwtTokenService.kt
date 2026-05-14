@@ -1,5 +1,6 @@
 package edu.faculty.aseca.pay_and_pray_api.auth.token
 
+import edu.faculty.aseca.pay_and_pray_api.auth.exception.InvalidTokenException
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -23,7 +24,7 @@ class JwtTokenService(
             .signWith(key)
             .compact()
 
-    override fun getUserId(token: String): String? =
+    override fun getUserId(token: String): String =
         try {
             Jwts
                 .parser()
@@ -33,6 +34,6 @@ class JwtTokenService(
                 .payload
                 .subject
         } catch (e: JwtException) {
-            null
+            throw InvalidTokenException(e)
         }
 }

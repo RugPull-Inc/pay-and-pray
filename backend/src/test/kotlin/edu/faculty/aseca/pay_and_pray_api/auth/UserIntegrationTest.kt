@@ -3,10 +3,11 @@ package edu.faculty.aseca.pay_and_pray_api.auth
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
@@ -18,9 +19,10 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
 
 @SpringBootTest
+@ActiveProfiles("integration")
 @AutoConfigureMockMvc
 @Testcontainers
-class MeIntegrationTest {
+class UserIntegrationTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -32,7 +34,7 @@ class MeIntegrationTest {
 
         @DynamicPropertySource
         @JvmStatic
-        fun properties(registry: DynamicPropertyRegistry) {
+        fun jwtProperties(registry: DynamicPropertyRegistry) {
             registry.add("jwt.secret") { "integration-test-secret-key-long-enough-for-hmac-sha256" }
             registry.add("jwt.expiration-ms") { "86400000" }
         }
