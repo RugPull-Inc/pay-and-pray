@@ -48,10 +48,14 @@ kotlin {
 
 dependencyManagement {
 	imports {
-		mavenBom "org.testcontainers:testcontainers-bom:1.20.4"
+		mavenBom "org.testcontainers:testcontainers-bom:1.21.3"
 	}
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	environment 'DOCKER_HOST', System.getenv('DOCKER_HOST') ?: 'tcp://localhost:2375'
+	// Postgres images use modern IANA tzdata. Windows JVMs in Argentina report
+	// the legacy "America/Buenos_Aires" alias, which postgres:16 rejects.
+	systemProperty 'user.timezone', 'UTC'
 }
