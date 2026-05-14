@@ -2,6 +2,7 @@ package edu.faculty.aseca.pay_and_pray_api.config
 
 import edu.faculty.aseca.pay_and_pray_api.auth.exception.DuplicateEmailException
 import edu.faculty.aseca.pay_and_pray_api.auth.exception.InvalidCredentialsException
+import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarApiException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -27,6 +28,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException::class)
     fun handleDuplicateEmail(ex: DuplicateEmailException): ResponseEntity<ErrorResponse> =
         ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse(error = ex.message ?: "Conflict"))
+
+    @ExceptionHandler(EdgarApiException::class)
+    fun handleEdgarUnavailable(ex: EdgarApiException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(ErrorResponse(error = ex.message ?: "EDGAR service unavailable. Please try again later."))
 }
 
 data class ErrorResponse(val error: String)

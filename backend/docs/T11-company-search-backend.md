@@ -21,7 +21,7 @@ backend/src/test/kotlin/.../
     └── CompanySearchServiceTest.kt 4 tests con FakeEdgarClient
 ```
 
-**Sin modificaciones a archivos existentes.**
+**Archivo modificado:** `config/GlobalExceptionHandler.kt` — se agregó el handler de `EdgarApiException`.
 
 ---
 
@@ -80,7 +80,7 @@ data class CompanySearchResponse(
    - `ticker` ← `hit.source["ticker_symbol"]` (nullable — no siempre presente)
    - `cik` ← primeros dígitos del `hit.id` antes del primer guión, sin ceros a la izquierda
 3. Deduplica por nombre con `distinctBy { it.name }` — una empresa puede aparecer en múltiples filings 10-K
-4. `EdgarApiException` **no** se captura en el servicio — sube al controller
+4. `EdgarApiException` **no** se captura en el servicio — sube al `GlobalExceptionHandler`
 
 **Extracción del CIK desde el ID del hit:**  
 El `_id` de EDGAR es el número de accesión (ej: `0000320193-24-000006`). Los dígitos antes del primer `-` son el CIK zero-padded. Se hace `substringBefore('-').trimStart('0')` para obtener el CIK limpio.
@@ -96,14 +96,23 @@ class CompanySearchController(private val service: CompanySearchService) {
 
     @GetMapping("/search")
     fun search(@RequestParam q: String): CompanySearchResponse = service.search(q)
-
-    @ExceptionHandler(EdgarApiException::class)
-    fun handleEdgarUnavailable(e: EdgarApiException): ResponseEntity<Map<String, String>> =
-        ResponseEntity.status(503).body(mapOf("error" to "EDGAR service unavailable. Please try again later."))
 }
 ```
 
-Patrón replicado de `AuthController`: el `@ExceptionHandler` está en el controller, no en un `@ControllerAdvice` global, para mantener la responsabilidad localizada.
+El controller es solo routing — sin manejo de errores propio.
+
+## Manejo de errores (`GlobalExceptionHandler`)
+
+`EdgarApiException` se maneja en el `@RestControllerAdvice` global (`config/GlobalExceptionHandler.kt`), junto con las excepciones de auth. Devuelve 503 usando el mismo `ErrorResponse` que el resto del sistema:
+
+```kotlin
+@ExceptionHandler(EdgarApiException::class)
+fun handleEdgarUnavailable(ex: EdgarApiException): ResponseEntity<ErrorResponse> =
+    ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(ErrorResponse(error = ex.message ?: "EDGAR service unavailable. Please try again later."))
+```
+
+El handler se centralizó aquí (en lugar de en el controller) para mantener consistencia con el patrón del proyecto.
 
 ---
 
