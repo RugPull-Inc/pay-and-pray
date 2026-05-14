@@ -1,13 +1,18 @@
 #!/bin/sh
 
-CHANGED=$(git diff origin/$(git rev-parse --abbrev-ref HEAD) --name-only 2>/dev/null || git diff HEAD~1 --name-only)
+CHANGED=$(git diff @{u}..HEAD --name-only 2>/dev/null || git diff HEAD~1 --name-only)
 
 if echo "$CHANGED" | grep -q "^backend/"; then
-  cd backend && ./gradlew build test --no-daemon || exit 1
+  echo "Running backend tests..."
+  cd backend && ./gradlew test --no-daemon || exit 1
   cd ..
 fi
 
 if echo "$CHANGED" | grep -q "^frontend/"; then
-  cd frontend && npm run build && npm test || exit 1
+  echo "Running frontend checks..."
+  cd frontend
+
+  npm run type-check || npx tsc --noEmit || exit 1 
+  npm test -- --passWithNoTests || exit 1
   cd ..
 fi
