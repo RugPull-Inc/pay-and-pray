@@ -15,8 +15,8 @@ class CompanyService(private val edgarClient: EdgarClient) {
     }
 
     private fun FullTextHit.toSearchResult() = CompanySearchResult(
-        name   = source["entity_name"] as? String ?: "Unknown",
-        ticker = source["ticker_symbol"] as? String,
+        name   = source.entityName ?: "Unknown",
+        ticker = source.tickerSymbol,
         cik    = id.substringBefore('-').trimStart('0').ifEmpty { null }
     )
 }

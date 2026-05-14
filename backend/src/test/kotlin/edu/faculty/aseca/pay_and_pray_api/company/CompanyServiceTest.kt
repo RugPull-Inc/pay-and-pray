@@ -63,10 +63,7 @@ class CompanyServiceTest {
     private fun hit(id: String, entityName: String, ticker: String?): FullTextHit =
         FullTextHit(
             id = id,
-            source = buildMap {
-                put("entity_name", entityName)
-                if (ticker != null) put("ticker_symbol", ticker)
-            }
+            source = FullTextSource(entityName = entityName, tickerSymbol = ticker)
         )
 
     private fun fullTextResult(vararg hits: FullTextHit): FullTextSearchResult =

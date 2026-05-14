@@ -12,14 +12,14 @@ data class CompanySubmissions(
 data class CompanyFacts(
     val cik: String,
     val entityName: String,
-    val facts: Map<String, Any> = emptyMap()
+    val facts: Map<String, Any> = emptyMap() // TODO T13: tipar según lo que financial details necesite
 )
 
 data class CompanyConcept(
     val cik: String,
     val entityName: String,
     val tag: String,
-    val units: Map<String, Any> = emptyMap()
+    val units: Map<String, Any> = emptyMap() // TODO T13: tipar según lo que financial details necesite
 )
 
 data class FullTextSearchResult(val hits: FullTextHits)
@@ -31,9 +31,14 @@ data class FullTextHits(
 
 data class FullTextTotal(val value: Int, val relation: String)
 
+data class FullTextSource(
+    @JsonProperty("entity_name") val entityName: String?,
+    @JsonProperty("ticker_symbol") val tickerSymbol: String?
+)
+
 data class FullTextHit(
     @JsonProperty("_id") val id: String,
-    @JsonProperty("_source") val source: Map<String, Any> = emptyMap()
+    @JsonProperty("_source") val source: FullTextSource
 )
 
 data class CompanyTicker(
