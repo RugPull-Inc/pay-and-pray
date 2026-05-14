@@ -6,11 +6,11 @@ import { useState } from "react";
 import { z } from "zod";
 
 const schema = z.object({
-  email: z.email("Ingresá un email válido."),
-  password: z.string().min(8, "Mínimo 8 caracteres."),
-  confirm: z.string().min(1, "Confirmá tu contraseña."),
+  email: z.email("Enter a valid email"),
+  password: z.string().min(8, "Minimum 8 characters"),
+  confirm: z.string().min(1, "Please confirm your password"),
 }).refine((d) => d.password === d.confirm, {
-  message: "Las contraseñas no coinciden.",
+  message: "Passwords do not match",
   path: ["confirm"],
 });
 
@@ -74,15 +74,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-8 text-2xl font-semibold tracking-tight text-zinc-900">
-          Crear cuenta
-        </h1>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-100 px-4">
+      <div className="w-full max-w-sm space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Pay & Pray</h1>
+          <p className="text-zinc-400">Create your account to get started</p>
+        </div>
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-zinc-700">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-zinc-400">
               Email
             </label>
             <input
@@ -91,17 +92,19 @@ export default function RegisterPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              className={`rounded-lg border px-3 py-2.5 text-sm text-zinc-900 bg-white outline-none transition focus:ring-2 focus:ring-zinc-900 ${
-                errors.email ? "border-red-500 focus:ring-red-500" : "border-zinc-300"
+              placeholder="example@email.com"
+              className={`rounded-xl border px-3.5 py-3 text-sm text-zinc-100 bg-zinc-900 outline-none transition focus:ring-2 ${
+                errors.email
+                  ? "border-red-500 focus:ring-red-500/40"
+                  : "border-zinc-700 focus:ring-indigo-500/40 focus:border-indigo-500/60"
               }`}
             />
-            {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+            {errors.email && <p className="text-xs text-red-400">{errors.email}</p>}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-zinc-700">
-              Contraseña
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-zinc-400">
+              Password
             </label>
             <input
               id="password"
@@ -110,16 +113,18 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="password..."
-              className={`rounded-lg border px-3 py-2.5 text-sm text-zinc-900 bg-white outline-none transition focus:ring-2 focus:ring-zinc-900 ${
-                errors.password ? "border-red-500 focus:ring-red-500" : "border-zinc-300"
+              className={`rounded-xl border px-3.5 py-3 text-sm text-zinc-100 bg-zinc-900 outline-none transition focus:ring-2 ${
+                errors.password
+                  ? "border-red-500 focus:ring-red-500/40"
+                  : "border-zinc-700 focus:ring-indigo-500/40 focus:border-indigo-500/60"
               }`}
             />
-            {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
+            {errors.password && <p className="text-xs text-red-400">{errors.password}</p>}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="confirm" className="text-sm font-medium text-zinc-700">
-              Repetir contraseña
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="confirm" className="text-sm font-medium text-zinc-400">
+              Confirm password
             </label>
             <input
               id="confirm"
@@ -128,33 +133,35 @@ export default function RegisterPage() {
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="password..."
-              className={`rounded-lg border px-3 py-2.5 text-sm text-zinc-900 bg-white outline-none transition focus:ring-2 focus:ring-zinc-900 ${
-                errors.confirm ? "border-red-500 focus:ring-red-500" : "border-zinc-300"
+              className={`rounded-xl border px-3.5 py-3 text-sm text-zinc-100 bg-zinc-900 outline-none transition focus:ring-2 ${
+                errors.confirm
+                  ? "border-red-500 focus:ring-red-500/40"
+                  : "border-zinc-700 focus:ring-indigo-500/40 focus:border-indigo-500/60"
               }`}
             />
-            {errors.confirm && <p className="text-xs text-red-500">{errors.confirm}</p>}
+            {errors.confirm && <p className="text-xs text-red-400">{errors.confirm}</p>}
           </div>
 
           {errors.server && (
-            <p className="text-xs text-red-500 text-center">{errors.server}</p>
+            <p className="text-xs text-red-400 text-center">{errors.server}</p>
           )}
           {success && (
-            <p className="text-xs text-green-600 text-center">¡Cuenta creada! Ya podés iniciar sesión.</p>
+            <p className="text-xs text-green-400 text-center">Account created! You can now sign in.</p>
           )}
 
           <button
             type="submit"
             disabled={loading || success}
-            className="mt-1 rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white transition-all cursor-pointer hover:bg-zinc-600 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/40 disabled:cursor-not-allowed py-3 text-sm font-medium text-white transition-colors cursor-pointer"
           >
-            {loading ? "Creando cuenta..." : "Registrarse"}
+            {loading ? "Creating account..." : "Register"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
-          ¿Ya tenés cuenta?{" "}
-          <Link href="/login" className="font-medium text-zinc-900 underline underline-offset-2">
-            Iniciar sesión
+        <p className="text-center text-sm text-zinc-500">
+          Already have an account?{" "}
+          <Link href="/login" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+            Sign in
           </Link>
         </p>
       </div>

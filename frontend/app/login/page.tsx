@@ -6,8 +6,8 @@ import { useState } from "react";
 import { z } from "zod";
 
 const schema = z.object({
-  email: z.email("Ingresá un email válido."),
-  password: z.string().min(1, "La contraseña es requerida."),
+  email: z.email("Enter a valid email"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type FieldErrors = { email?: string; password?: string };
@@ -66,15 +66,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-8 text-2xl font-semibold tracking-tight text-zinc-900">
-          Iniciar sesión
-        </h1>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-100 px-4">
+      <div className="w-full max-w-sm space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Pay & Pray</h1>
+          <p className="text-zinc-400">Sign in to continue</p>
+        </div>
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-zinc-700">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-zinc-400">
               Email
             </label>
             <input
@@ -83,17 +84,19 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              className={`rounded-lg border px-3 py-2.5 text-sm text-zinc-900 bg-white outline-none transition focus:ring-2 focus:ring-zinc-900 ${
-                fieldErrors.email ? "border-red-500 focus:ring-red-500" : "border-zinc-300"
+              placeholder="example@email.com"
+              className={`rounded-xl border px-3.5 py-3 text-sm text-zinc-100 bg-zinc-900 outline-none transition focus:ring-2 ${
+                fieldErrors.email
+                  ? "border-red-500 focus:ring-red-500/40"
+                  : "border-zinc-700 focus:ring-indigo-500/40 focus:border-indigo-500/60"
               }`}
             />
-            {fieldErrors.email && <p className="text-xs text-red-500">{fieldErrors.email}</p>}
+            {fieldErrors.email && <p className="text-xs text-red-400">{fieldErrors.email}</p>}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-zinc-700">
-              Contraseña
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-zinc-400">
+              Password
             </label>
             <input
               id="password"
@@ -102,29 +105,31 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="password..."
-              className={`rounded-lg border px-3 py-2.5 text-sm text-zinc-900 bg-white outline-none transition focus:ring-2 focus:ring-zinc-900 ${
-                fieldErrors.password ? "border-red-500 focus:ring-red-500" : "border-zinc-300"
+              className={`rounded-xl border px-3.5 py-3 text-sm text-zinc-100 bg-zinc-900 outline-none transition focus:ring-2 ${
+                fieldErrors.password
+                  ? "border-red-500 focus:ring-red-500/40"
+                  : "border-zinc-700 focus:ring-indigo-500/40 focus:border-indigo-500/60"
               }`}
             />
-            {fieldErrors.password && <p className="text-xs text-red-500">{fieldErrors.password}</p>}
+            {fieldErrors.password && <p className="text-xs text-red-400">{fieldErrors.password}</p>}
           </div>
 
-          {serverError && <p className="text-xs text-red-500 text-center">{serverError}</p>}
-          {success && <p className="text-xs text-green-600 text-center">¡Bienvenido! Redirigiendo...</p>}
+          {serverError && <p className="text-xs text-red-400 text-center">{serverError}</p>}
+          {success && <p className="text-xs text-green-400 text-center">Welcome! Redirecting...</p>}
 
           <button
             type="submit"
             disabled={loading || success}
-            className="mt-1 rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white transition-all cursor-pointer hover:bg-zinc-600 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/40 disabled:cursor-not-allowed py-3 text-sm font-medium text-white transition-colors cursor-pointer"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
-          ¿No tenés cuenta?{" "}
-          <Link href="/register" className="font-medium text-zinc-900 underline underline-offset-2">
-            Registrarse
+        <p className="text-center text-sm text-zinc-500">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+            Register
           </Link>
         </p>
       </div>
