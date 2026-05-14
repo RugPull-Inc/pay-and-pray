@@ -18,7 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
 
 @SpringBootTest
-@Testcontainers
+@Testcontainers // Note: test will fail without Docker running (no need for docker compose up, only Docker itself)
 class AuthIntegrationTest {
 
     @Autowired
@@ -67,7 +67,7 @@ class AuthIntegrationTest {
         mockMvc.post("/auth/register") {
             contentType = MediaType.APPLICATION_JSON
             content = registerBody(email, "password123")
-        }
+        }.andExpect { status { isCreated() } }
 
         mockMvc.post("/auth/register") {
             contentType = MediaType.APPLICATION_JSON
@@ -103,7 +103,7 @@ class AuthIntegrationTest {
         mockMvc.post("/auth/register") {
             contentType = MediaType.APPLICATION_JSON
             content = registerBody(email, "password123")
-        }
+        }.andExpect { status { isCreated() } }
 
         mockMvc.post("/auth/login") {
             contentType = MediaType.APPLICATION_JSON
@@ -120,7 +120,7 @@ class AuthIntegrationTest {
         mockMvc.post("/auth/register") {
             contentType = MediaType.APPLICATION_JSON
             content = registerBody(email, "password123")
-        }
+        }.andExpect { status { isCreated() } }
 
         mockMvc.post("/auth/login") {
             contentType = MediaType.APPLICATION_JSON
