@@ -1,6 +1,9 @@
 spring:
   application:
     name: pay-and-pray-api
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
