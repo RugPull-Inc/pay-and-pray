@@ -1,0 +1,17 @@
+#!/bin/sh
+
+STAGED=$(git diff --cached --name-only)
+
+if echo "$STAGED" | grep -q "^backend/"; then
+  cd backend && ./gradlew ktlintFormat --no-daemon || exit 1
+  git diff --name-only | grep "^backend/" | xargs -r git add
+  ./gradlew ktlintCheck --no-daemon || exit 1
+  cd ..
+fi
+
+if echo "$STAGED" | grep -q "^frontend/"; then
+  cd frontend && npx prettier --write . || exit 1
+  git diff --name-only | grep "^frontend/" | xargs -r git add
+  npx eslint . || exit 1
+  cd ..
+fi
