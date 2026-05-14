@@ -59,18 +59,18 @@ class UserIntegrationTest {
     }
 
     @Test
-    fun `GET api me without token returns 401`() {
-        mockMvc.get("/api/me").andExpect {
+    fun `GET api user without token returns 401`() {
+        mockMvc.get("/api/user").andExpect {
             status { isUnauthorized() }
         }
     }
 
     @Test
-    fun `GET api me with valid token returns 200 with userId`() {
+    fun `GET api user with valid token returns 200 with userId`() {
         val token = loginAndGetToken()
 
         mockMvc
-            .get("/api/me") {
+            .get("/api/user") {
                 header("Authorization", "Bearer $token")
             }.andExpect {
                 status { isOk() }
@@ -79,9 +79,9 @@ class UserIntegrationTest {
     }
 
     @Test
-    fun `GET api me with invalid token returns 401`() {
+    fun `GET api user with invalid token returns 401`() {
         mockMvc
-            .get("/api/me") {
+            .get("/api/user") {
                 header("Authorization", "Bearer invalid.token.here")
             }.andExpect {
                 status { isUnauthorized() }

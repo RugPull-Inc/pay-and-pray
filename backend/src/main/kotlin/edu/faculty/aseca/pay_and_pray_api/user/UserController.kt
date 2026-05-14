@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api")
 class UserController {
-    @GetMapping("/me")
-    fun me(authentication: Authentication): UserResponse = UserResponse(userId = authentication.principal as String)
+    @GetMapping("/user")
+    fun user(authentication: Authentication): UserResponse = UserResponse(userId = authentication.principal as String)
 }
 
 data class UserResponse(
