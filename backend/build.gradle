@@ -38,6 +38,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 	runtimeOnly 'org.postgresql:postgresql'
+	implementation 'com.bucket4j:bucket4j-core:8.10.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:junit-jupiter'
@@ -60,4 +61,11 @@ ktlint {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// Windows JVMs in AR report the deprecated TZ alias "America/Buenos_Aires",
+	// which postgres:16 rejects on connect with FATAL: invalid TimeZone.
+	systemProperty 'user.timezone', 'UTC'
+}
+
+tasks.test {
+	jvmArgs("-Duser.timezone=UTC")
 }

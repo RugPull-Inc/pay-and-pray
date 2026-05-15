@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -23,6 +25,13 @@ class PayAndPrayApiApplicationTests {
         @BeforeAll
         fun setup() {
             TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("jwt.secret") { "integration-test-secret-key-long-enough-for-hmac-sha256" }
+            registry.add("jwt.expiration-ms") { "86400000" }
         }
     }
 

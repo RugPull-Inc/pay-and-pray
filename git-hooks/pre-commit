@@ -6,15 +6,14 @@ if echo "$STAGED_FILES" | grep -q "^backend/"; then
   cd backend
   ./gradlew ktlintFormat --no-daemon
   
-  git add . 
+  echo "$STAGED_FILES" | grep "^backend/" | cut -c 9- | xargs -r git add
   cd ..
 fi
 
 if echo "$STAGED_FILES" | grep -q "^frontend/"; then
   cd frontend
-
   echo "$STAGED_FILES" | grep "^frontend/" | cut -c 10- | xargs -r npx prettier --write
   
-  git add .
+  echo "$STAGED_FILES" | grep "^frontend/" | cut -c 10- | xargs -r git add
   cd ..
 fi
