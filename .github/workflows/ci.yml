@@ -111,6 +111,7 @@ jobs:
           POSTGRES_PASSWORD=ci_password
           JWT_SECRET=ci-jwt-secret-key-long-enough-for-hmac-sha256-algorithm
           SEED_USER_COUNT=0
+          EDGAR_USER_AGENT=Pay-and-Pray/1.0 github-actions@pay-and-pray.dev
           EOF
 
       - name: Run E2E (docker compose + cypress)

@@ -33,6 +33,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: ${JWT_SECRET}
       SEED_USER_COUNT: ${SEED_USER_COUNT:-3}
+      EDGAR_USER_AGENT: ${EDGAR_USER_AGENT}
     ports:
       - "8080:8080"
 
