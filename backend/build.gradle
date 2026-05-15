@@ -62,3 +62,7 @@ ktlint {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.test {
+	jvmArgs("-Duser.timezone=UTC")
+}
