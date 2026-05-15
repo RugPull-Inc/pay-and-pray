@@ -14,19 +14,19 @@ declare global {
 Cypress.Commands.add('registerThroughUI', (email: string, password: string) => {
   cy.intercept('POST', '**/auth/register').as('register')
   cy.visit('/register')
-  cy.get('#email').type(email)
-  cy.get('#password').type(password)
-  cy.get('#confirm').type(password)
-  cy.contains('button', 'Register').click()
+  cy.get('#email').should('be.enabled').type(email)
+  cy.get('#password').should('be.enabled').type(password)
+  cy.get('#confirm').should('be.enabled').type(password)
+  cy.contains('button', 'Register').should('be.enabled').click()
   cy.wait('@register').its('response.statusCode').should('eq', 201)
 })
 
 Cypress.Commands.add('loginThroughUI', (email: string, password: string) => {
   cy.intercept('POST', '**/auth/login').as('login')
   cy.visit('/login')
-  cy.get('#email').type(email)
-  cy.get('#password').type(password)
-  cy.contains('button', 'Sign in').click()
+  cy.get('#email').should('be.enabled').type(email)
+  cy.get('#password').should('be.enabled').type(password)
+  cy.contains('button', 'Sign in').should('be.enabled').click()
   cy.wait('@login').its('response.statusCode').should('eq', 200)
 })
 

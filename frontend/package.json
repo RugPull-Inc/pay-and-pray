@@ -18,8 +18,8 @@
     "e2e:next:build": "cross-env NEXT_PUBLIC_API_URL=http://localhost:8080 next build",
     "e2e:next:start": "next start",
     "e2e": "npm run e2e:next:build && cross-env WAIT_ON_TIMEOUT=180000 start-server-and-test \"npm run e2e:stack\" tcp:8080 \"npm run e2e:next:start\" http-get://localhost:3000 cy:run",
-    "e2e:open": "npm run e2e:next:build && cross-env WAIT_ON_TIMEOUT=180000 start-server-and-test \"npm run e2e:stack\" tcp:8080 \"npm run e2e:next:start\" http-get://localhost:3000 cy:open"
-    "type-check": "tsc --noEmit",
+    "e2e:open": "npm run e2e:next:build && cross-env WAIT_ON_TIMEOUT=180000 start-server-and-test \"npm run e2e:stack\" tcp:8080 \"npm run e2e:next:start\" http-get://localhost:3000 cy:open",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "^1.14.0",
