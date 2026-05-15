@@ -12,6 +12,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      e2e: ${{ steps.filter.outputs.e2e }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -22,6 +23,11 @@ jobs:
               - 'backend/**'
             frontend:
               - 'frontend/**'
+            e2e:
+              - 'backend/**'
+              - 'frontend/**'
+              - 'docker-compose.yml'
+              - '.github/workflows/ci.yml'
 
   backend:
     needs: changes
@@ -73,3 +79,48 @@ jobs:
 
       - name: Test
         run: cd frontend && npm test
+
+  e2e:
+    needs: changes
+    if: needs.changes.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps
+        run: cd frontend && npm ci
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Bootstrap stack env
+        run: |
+          cat > .env <<EOF
+          POSTGRES_DB=pay_and_pray
+          POSTGRES_USER=pay_and_pray_user
+          POSTGRES_PASSWORD=ci_password
+          JWT_SECRET=ci-jwt-secret-key-long-enough-for-hmac-sha256-algorithm
+          SEED_USER_COUNT=0
+          EDGAR_USER_AGENT=Pay-and-Pray/1.0 github-actions@pay-and-pray.dev
+          EOF
+
+      - name: Run E2E (docker compose + cypress)
+        run: cd frontend && npm run e2e
+
+      - name: Upload Cypress screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+          if-no-files-found: ignore
