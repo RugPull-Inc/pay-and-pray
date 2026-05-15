@@ -61,6 +61,9 @@ ktlint {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// Windows JVMs in AR report the deprecated TZ alias "America/Buenos_Aires",
+	// which postgres:16 rejects on connect with FATAL: invalid TimeZone.
+	systemProperty 'user.timezone', 'UTC'
 }
 
 tasks.test {

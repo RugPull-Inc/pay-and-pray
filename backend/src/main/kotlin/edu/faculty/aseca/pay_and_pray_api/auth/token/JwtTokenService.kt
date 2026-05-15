@@ -1,5 +1,7 @@
 package edu.faculty.aseca.pay_and_pray_api.auth.token
 
+import edu.faculty.aseca.pay_and_pray_api.auth.exception.InvalidTokenException
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
@@ -21,4 +23,17 @@ class JwtTokenService(
             .expiration(Date(System.currentTimeMillis() + expirationMs))
             .signWith(key)
             .compact()
+
+    override fun getUserId(token: String): String =
+        try {
+            Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+                .subject
+        } catch (e: JwtException) {
+            throw InvalidTokenException(e)
+        }
 }
