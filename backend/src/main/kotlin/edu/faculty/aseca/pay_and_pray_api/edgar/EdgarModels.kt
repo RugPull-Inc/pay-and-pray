@@ -2,24 +2,47 @@ package edu.faculty.aseca.pay_and_pray_api.edgar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
+data class ConceptUnit(
+    val end: String,
+    @JsonProperty("val") val value: Double,
+    val accn: String,
+    val fy: Int? = null,
+    val fp: String? = null,
+    val form: String,
+    val filed: String,
+    val frame: String? = null,
+)
+
+data class RecentFilingsData(
+    val accessionNumber: List<String> = emptyList(),
+    val filingDate: List<String> = emptyList(),
+    val form: List<String> = emptyList(),
+    val primaryDocument: List<String> = emptyList(),
+)
+
+data class RecentFilings(
+    val recent: RecentFilingsData = RecentFilingsData(),
+)
+
 data class CompanySubmissions(
     val cik: String,
     val name: String,
     val tickers: List<String> = emptyList(),
     val exchanges: List<String> = emptyList(),
+    val filings: RecentFilings? = null,
 )
 
 data class CompanyFacts(
     val cik: String,
     val entityName: String,
-    val facts: Map<String, Any> = emptyMap(), // TODO T13: tipar según lo que financial details necesite
+    val facts: Map<String, Any> = emptyMap(),
 )
 
 data class CompanyConcept(
     val cik: String,
     val entityName: String,
     val tag: String,
-    val units: Map<String, Any> = emptyMap(), // TODO T13: tipar según lo que financial details necesite
+    val units: Map<String, List<ConceptUnit>> = emptyMap(),
 )
 
 data class FullTextSearchResult(
