@@ -4,6 +4,9 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -156,6 +159,16 @@ class CompanyDetailsServiceTest {
         }
     }
 
+    @Test
+    fun `propagates EdgarApiException when EDGAR returns 5xx during concept fetch`() {
+        fakeEdgar.submissions = appleSubmissions()
+        fakeEdgar.conceptServerError = true
+
+        assertThrows<EdgarApiException> {
+            service.getDetails("320193")
+        }
+    }
+
     private fun appleSubmissions() =
         CompanySubmissions(cik = "0000320193", name = "Apple Inc.", tickers = listOf("AAPL"))
 
@@ -174,6 +187,7 @@ class CompanyDetailsServiceTest {
 private class FakeDetailsEdgarClient : EdgarClient {
     var submissions: CompanySubmissions = CompanySubmissions("", "", emptyList())
     var throwOnSubmissions = false
+    var conceptServerError = false
     val concepts = mutableMapOf<String, CompanyConcept>()
 
     override fun getCompanySubmissions(cik: String): CompanySubmissions {
@@ -184,7 +198,16 @@ private class FakeDetailsEdgarClient : EdgarClient {
     override fun getCompanyConcept(
         cik: String,
         concept: String,
-    ): CompanyConcept = concepts[concept] ?: throw EdgarApiException("concept $concept not found")
+    ): CompanyConcept {
+        if (conceptServerError) {
+            throw EdgarApiException(
+                "EDGAR 503",
+                HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE),
+            )
+        }
+        return concepts[concept]
+            ?: throw EdgarApiException("concept $concept not found", HttpClientErrorException(HttpStatus.NOT_FOUND))
+    }
 
     override fun getCompanyFacts(cik: String): CompanyFacts = throw UnsupportedOperationException()
 

@@ -4,7 +4,9 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.CompanySubmissions
 import edu.faculty.aseca.pay_and_pray_api.edgar.ConceptUnit
 import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarApiException
 import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarClient
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpStatusCodeException
 
 @Service
 class CompanyDetailsService(
@@ -55,7 +57,8 @@ class CompanyDetailsService(
                     .take(MAX_PERIODS)
                     .map { it.toDataPoint() }
             } catch (e: EdgarApiException) {
-                continue
+                val status = (e.cause as? HttpStatusCodeException)?.statusCode
+                if (status != HttpStatus.NOT_FOUND) throw e
             }
         }
         return emptyList()
