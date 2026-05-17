@@ -5,8 +5,8 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarApiException
 import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarClient
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
+import org.mockito.kotlin.any
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.get
 
@@ -16,9 +16,9 @@ class CompanyApiDownIntegrationTest : IntegrationTestBase() {
 
     @BeforeEach
     fun setupEdgarDown() {
-        given(edgarClient.searchFullText(anyString() ?: ""))
+        given(edgarClient.searchFullText(any()))
             .willThrow(EdgarApiException("EDGAR is down"))
-        given(edgarClient.getCompanySubmissions(anyString() ?: ""))
+        given(edgarClient.getCompanySubmissions(any()))
             .willThrow(EdgarApiException("EDGAR is down"))
     }
 
