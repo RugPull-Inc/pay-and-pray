@@ -1,43 +1,12 @@
 package edu.faculty.aseca.pay_and_pray_api.auth
 
+import edu.faculty.aseca.pay_and_pray_api.IntegrationTestBase
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.http.MediaType
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
 
-@SpringBootTest
-@ActiveProfiles("integration")
-@AutoConfigureMockMvc
-@Testcontainers
-class AuthIntegrationTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
-
-    companion object {
-        @Container
-        @ServiceConnection
-        @JvmField
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16")
-
-        @DynamicPropertySource
-        @JvmStatic
-        fun jwtProperties(registry: DynamicPropertyRegistry) {
-            registry.add("jwt.secret") { "integration-test-secret-key-long-enough-for-hmac-sha256" }
-            registry.add("jwt.expiration-ms") { "86400000" }
-        }
-    }
-
+class AuthIntegrationTest : IntegrationTestBase() {
     private fun uniqueEmail() = "test-${UUID.randomUUID()}@example.com"
 
     private fun registerBody(
