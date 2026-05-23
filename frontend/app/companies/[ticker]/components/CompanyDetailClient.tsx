@@ -20,7 +20,8 @@ export default function CompanyDetailClient({ ticker }: { ticker: string }) {
     const token = localStorage.getItem('token') ?? ''
     fetchCompanyByTicker(ticker, token)
       .then((result) => {
-        if (!result) setError('Company not found or no financial data available.')
+        if (!result)
+          setError('Company not found or no financial data available.')
         else setData(result)
       })
       .catch(() => setError('Could not reach the server. Please try again.'))

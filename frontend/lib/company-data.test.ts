@@ -1,7 +1,9 @@
 import { adaptDetailsResponse } from './company-data'
 
 // Minimal backend response builder
-function makeBackendResponse(overrides: Partial<Parameters<typeof adaptDetailsResponse>[0]> = {}) {
+function makeBackendResponse(
+  overrides: Partial<Parameters<typeof adaptDetailsResponse>[0]> = {}
+) {
   return {
     cik: '320193',
     name: 'Apple Inc.',
@@ -24,7 +26,14 @@ function makeDataPoint(
   fiscalYear: number | null = 2024,
   fiscalPeriod: string | null = 'Q3'
 ) {
-  return { period, value, form: '10-Q', filed: period, fiscalYear, fiscalPeriod }
+  return {
+    period,
+    value,
+    form: '10-Q',
+    filed: period,
+    fiscalYear,
+    fiscalPeriod,
+  }
 }
 
 describe('adaptDetailsResponse', () => {
@@ -40,7 +49,9 @@ describe('adaptDetailsResponse', () => {
     })
 
     it('passes cik through', () => {
-      const result = adaptDetailsResponse(makeBackendResponse({ cik: '789019' }))
+      const result = adaptDetailsResponse(
+        makeBackendResponse({ cik: '789019' })
+      )
       expect(result.cik).toBe('789019')
     })
   })
@@ -217,22 +228,30 @@ describe('adaptDetailsResponse', () => {
     }
 
     it('maps form to type', () => {
-      const result = adaptDetailsResponse(makeBackendResponse({ recentFilings: [filing] }))
+      const result = adaptDetailsResponse(
+        makeBackendResponse({ recentFilings: [filing] })
+      )
       expect(result.recentFilings[0].type).toBe('10-K')
     })
 
     it('maps filingDate to filedDate', () => {
-      const result = adaptDetailsResponse(makeBackendResponse({ recentFilings: [filing] }))
+      const result = adaptDetailsResponse(
+        makeBackendResponse({ recentFilings: [filing] })
+      )
       expect(result.recentFilings[0].filedDate).toBe('2024-11-01')
     })
 
     it('passes reportDate through', () => {
-      const result = adaptDetailsResponse(makeBackendResponse({ recentFilings: [filing] }))
+      const result = adaptDetailsResponse(
+        makeBackendResponse({ recentFilings: [filing] })
+      )
       expect(result.recentFilings[0].reportDate).toBe('2024-09-28')
     })
 
     it('passes url through', () => {
-      const result = adaptDetailsResponse(makeBackendResponse({ recentFilings: [filing] }))
+      const result = adaptDetailsResponse(
+        makeBackendResponse({ recentFilings: [filing] })
+      )
       expect(result.recentFilings[0].url).toBe(filing.url)
     })
 
@@ -245,7 +264,9 @@ describe('adaptDetailsResponse', () => {
 
     it('sets reportDate to null when backend sends null', () => {
       const result = adaptDetailsResponse(
-        makeBackendResponse({ recentFilings: [{ ...filing, reportDate: null }] })
+        makeBackendResponse({
+          recentFilings: [{ ...filing, reportDate: null }],
+        })
       )
       expect(result.recentFilings[0].reportDate).toBeNull()
     })

@@ -84,9 +84,7 @@ export default function Home() {
               {results.slice(0, 6).map((c) => (
                 <button
                   key={c.cik ?? c.name}
-                  onClick={() =>
-                    router.push(`/companies/${c.ticker ?? c.cik}`)
-                  }
+                  onClick={() => router.push(`/companies/${c.ticker ?? c.cik}`)}
                   className="w-full flex items-center gap-4 px-4 py-3 hover:bg-zinc-800 transition-colors text-left border-b border-zinc-800 last:border-0"
                 >
                   <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">

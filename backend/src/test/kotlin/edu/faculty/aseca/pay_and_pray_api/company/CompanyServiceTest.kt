@@ -119,7 +119,12 @@ class CompanyServiceTest {
         val response = service.search("AAPL")
 
         assertEquals("320193", response.results[0].cik)
-        assertNull(response.results[0].ticker?.let { if (it.isEmpty()) null else it }.let { null })
+        assertNull(
+            response.results[0]
+                .ticker
+                ?.let { if (it.isEmpty()) null else it }
+                .let { null },
+        )
         assertEquals("AAPL", response.results[0].ticker)
     }
 }
