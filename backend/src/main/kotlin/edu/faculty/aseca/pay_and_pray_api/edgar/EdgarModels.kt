@@ -72,7 +72,7 @@ data class FullTextHit(
 
 data class CompanyTicker(
     @JsonProperty("cik_str") val cikStr: Int,
-    val name: String,
+    @JsonProperty("title") val name: String,
     val ticker: String,
-    val exchange: String = "",
+    val exchange: String? = null,
 )
