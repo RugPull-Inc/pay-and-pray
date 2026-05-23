@@ -16,7 +16,7 @@ class CompanyApiDownIntegrationTest : IntegrationTestBase() {
 
     @BeforeEach
     fun setupEdgarDown() {
-        given(edgarClient.searchFullText(any()))
+        given(edgarClient.getCompanyTickers())
             .willThrow(EdgarApiException("EDGAR is down"))
         given(edgarClient.getCompanySubmissions(any()))
             .willThrow(EdgarApiException("EDGAR is down"))
