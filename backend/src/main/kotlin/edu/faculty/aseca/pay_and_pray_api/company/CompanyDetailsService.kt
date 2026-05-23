@@ -74,7 +74,10 @@ class CompanyDetailsService(
             fiscalPeriod = fp,
         )
 
-    private fun extractFilings(submissions: CompanySubmissions, cik: String): List<FilingEntry> {
+    private fun extractFilings(
+        submissions: CompanySubmissions,
+        cik: String,
+    ): List<FilingEntry> {
         val recent = submissions.filings?.recent ?: return emptyList()
         return recent.accessionNumber.indices
             .map { i ->
@@ -87,9 +90,10 @@ class CompanyDetailsService(
                     reportDate = recent.reportDate.getOrElse(i) { "" }.ifEmpty { null },
                     form = recent.form.getOrElse(i) { "" },
                     primaryDocument = primaryDocument,
-                    url = primaryDocument?.let {
-                        "https://www.sec.gov/Archives/edgar/data/$cik/$accessionPath/$it"
-                    },
+                    url =
+                        primaryDocument?.let {
+                            "https://www.sec.gov/Archives/edgar/data/$cik/$accessionPath/$it"
+                        },
                 )
             }.filter { it.form in RELEVANT_FORMS }
             .take(MAX_FILINGS)
