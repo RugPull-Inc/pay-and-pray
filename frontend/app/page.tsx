@@ -12,34 +12,33 @@ const POPULAR = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']
 export default function Home() {
   const router = useRouter()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<BackendSearchResult[]>([])
+  const [hits, setHits] = useState<BackendSearchResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [searched, setSearched] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
+
+  const trimmed = query.trim()
+  const results = trimmed ? hits : []
+  const searched = trimmed ? hasSearched : false
 
   const runSearch = useCallback(async (q: string) => {
     const token = localStorage.getItem('token') ?? ''
     setLoading(true)
-    setSearched(true)
+    setHasSearched(true)
     try {
-      const hits = await searchCompanies(q, token)
-      setResults(hits)
+      const data = await searchCompanies(q, token)
+      setHits(data)
     } catch {
-      setResults([])
+      setHits([])
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    const trimmed = query.trim()
-    if (!trimmed) {
-      setResults([])
-      setSearched(false)
-      return
-    }
+    if (!trimmed) return
     const id = setTimeout(() => runSearch(trimmed), 350)
     return () => clearTimeout(id)
-  }, [query, runSearch])
+  }, [trimmed, runSearch])
 
   const showEmpty = searched && !loading && results.length === 0
 
