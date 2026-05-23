@@ -1,48 +1,46 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { TrendingUp, Search } from 'lucide-react'
+import { TrendingUp, Search, Loader2 } from 'lucide-react'
+import { searchCompanies } from '@/lib/company-data'
+import type { BackendSearchResult } from '@/lib/company-data'
 
 const POPULAR = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']
-
-const MOCK_COMPANIES = [
-  { ticker: 'AAPL', name: 'Apple Inc.' },
-  { ticker: 'MSFT', name: 'Microsoft Corporation' },
-  { ticker: 'GOOGL', name: 'Alphabet Inc.' },
-  { ticker: 'AMZN', name: 'Amazon.com Inc.' },
-  { ticker: 'TSLA', name: 'Tesla Inc.' },
-  { ticker: 'NVDA', name: 'NVIDIA Corporation' },
-  { ticker: 'META', name: 'Meta Platforms Inc.' },
-  { ticker: 'BRK.B', name: 'Berkshire Hathaway Inc.' },
-  { ticker: 'JPM', name: 'JPMorgan Chase & Co.' },
-  { ticker: 'V', name: 'Visa Inc.' },
-  { ticker: 'UNH', name: 'UnitedHealth Group Inc.' },
-  { ticker: 'XOM', name: 'Exxon Mobil Corporation' },
-  { ticker: 'JNJ', name: 'Johnson & Johnson' },
-  { ticker: 'WMT', name: 'Walmart Inc.' },
-  { ticker: 'MA', name: 'Mastercard Inc.' },
-  { ticker: 'PG', name: 'Procter & Gamble Co.' },
-  { ticker: 'HD', name: 'The Home Depot Inc.' },
-  { ticker: 'CVX', name: 'Chevron Corporation' },
-  { ticker: 'ABBV', name: 'AbbVie Inc.' },
-  { ticker: 'KO', name: 'The Coca-Cola Company' },
-]
 
 export default function Home() {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const [hits, setHits] = useState<BackendSearchResult[]>([])
+  const [loading, setLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
 
-  const results = useMemo(() => {
-    const q = query.trim().toUpperCase()
-    if (!q) return []
-    return MOCK_COMPANIES.filter(
-      (c) => c.ticker.includes(q) || c.name.toUpperCase().includes(q)
-    ).slice(0, 6)
-  }, [query])
+  const trimmed = query.trim()
+  const results = trimmed ? hits : []
+  const searched = trimmed ? hasSearched : false
 
-  const showEmpty = query.trim().length > 0 && results.length === 0
+  const runSearch = useCallback(async (q: string) => {
+    const token = localStorage.getItem('token') ?? ''
+    setLoading(true)
+    setHasSearched(true)
+    try {
+      const data = await searchCompanies(q, token)
+      setHits(data)
+    } catch {
+      setHits([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!trimmed) return
+    const id = setTimeout(() => runSearch(trimmed), 350)
+    return () => clearTimeout(id)
+  }, [trimmed, runSearch])
+
+  const showEmpty = searched && !loading && results.length === 0
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-4">
@@ -72,18 +70,24 @@ export default function Home() {
               placeholder="Search ticker or company name..."
               className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60 transition-colors font-mono tracking-wide"
             />
+            {loading && (
+              <Loader2
+                size={16}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 animate-spin"
+              />
+            )}
           </div>
 
           {results.length > 0 && (
             <div className="bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden">
-              {results.map((c) => (
+              {results.slice(0, 6).map((c) => (
                 <button
-                  key={c.ticker}
-                  onClick={() => router.push(`/companies/${c.ticker}`)}
+                  key={c.cik ?? c.name}
+                  onClick={() => router.push(`/companies/${c.ticker ?? c.cik}`)}
                   className="w-full flex items-center gap-4 px-4 py-3 hover:bg-zinc-800 transition-colors text-left border-b border-zinc-800 last:border-0"
                 >
                   <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">
-                    {c.ticker}
+                    {c.ticker ?? '—'}
                   </span>
                   <span className="text-sm text-zinc-300 truncate">
                     {c.name}
