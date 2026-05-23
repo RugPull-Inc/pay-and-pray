@@ -115,7 +115,7 @@ class EdgarApiClientTest {
             .expect(requestTo("https://www.sec.gov/files/company_tickers.json"))
             .andRespond(
                 withSuccess(
-                    """{"0":{"cik_str":320193,"name":"Apple Inc.","ticker":"AAPL","exchange":"Nasdaq"}}""",
+                    """{"0":{"cik_str":320193,"title":"Apple Inc.","ticker":"AAPL","exchange":"Nasdaq"}}""",
                     MediaType.APPLICATION_JSON,
                 ),
             )
