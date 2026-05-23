@@ -1,65 +1,129 @@
-import Image from "next/image";
+'use client'
+
+import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { TrendingUp, Search } from 'lucide-react'
+
+const POPULAR = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']
+
+const MOCK_COMPANIES = [
+  { ticker: 'AAPL', name: 'Apple Inc.' },
+  { ticker: 'MSFT', name: 'Microsoft Corporation' },
+  { ticker: 'GOOGL', name: 'Alphabet Inc.' },
+  { ticker: 'AMZN', name: 'Amazon.com Inc.' },
+  { ticker: 'TSLA', name: 'Tesla Inc.' },
+  { ticker: 'NVDA', name: 'NVIDIA Corporation' },
+  { ticker: 'META', name: 'Meta Platforms Inc.' },
+  { ticker: 'BRK.B', name: 'Berkshire Hathaway Inc.' },
+  { ticker: 'JPM', name: 'JPMorgan Chase & Co.' },
+  { ticker: 'V', name: 'Visa Inc.' },
+  { ticker: 'UNH', name: 'UnitedHealth Group Inc.' },
+  { ticker: 'XOM', name: 'Exxon Mobil Corporation' },
+  { ticker: 'JNJ', name: 'Johnson & Johnson' },
+  { ticker: 'WMT', name: 'Walmart Inc.' },
+  { ticker: 'MA', name: 'Mastercard Inc.' },
+  { ticker: 'PG', name: 'Procter & Gamble Co.' },
+  { ticker: 'HD', name: 'The Home Depot Inc.' },
+  { ticker: 'CVX', name: 'Chevron Corporation' },
+  { ticker: 'ABBV', name: 'AbbVie Inc.' },
+  { ticker: 'KO', name: 'The Coca-Cola Company' },
+]
 
 export default function Home() {
+  const router = useRouter()
+  const [query, setQuery] = useState('')
+
+  const results = useMemo(() => {
+    const q = query.trim().toUpperCase()
+    if (!q) return []
+    return MOCK_COMPANIES.filter(
+      (c) => c.ticker.includes(q) || c.name.toUpperCase().includes(q)
+    ).slice(0, 6)
+  }, [query])
+
+  const showEmpty = query.trim().length > 0 && results.length === 0
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-lg space-y-10">
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="p-4 bg-indigo-500/10 rounded-3xl">
+              <TrendingUp size={40} className="text-indigo-400" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight">Pay & Pray</h1>
+          <p className="text-zinc-400 text-lg">
+            Financial metrics & SEC filings for any US-listed company
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <div className="space-y-2">
+          <div className="relative">
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/8 px-5 transition-colors hover:border-transparent hover:bg-black/4 dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search ticker or company name..."
+              className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60 transition-colors font-mono tracking-wide"
+            />
+          </div>
+
+          {results.length > 0 && (
+            <div className="bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden">
+              {results.map((c) => (
+                <button
+                  key={c.ticker}
+                  onClick={() => router.push(`/companies/${c.ticker}`)}
+                  className="w-full flex items-center gap-4 px-4 py-3 hover:bg-zinc-800 transition-colors text-left border-b border-zinc-800 last:border-0"
+                >
+                  <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">
+                    {c.ticker}
+                  </span>
+                  <span className="text-sm text-zinc-300 truncate">
+                    {c.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {showEmpty && (
+            <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-6 text-center">
+              <p className="text-sm text-zinc-500">
+                No companies found for{' '}
+                <span className="text-zinc-300 font-mono">
+                  &ldquo;{query.trim()}&rdquo;
+                </span>
+              </p>
+            </div>
+          )}
         </div>
-      </main>
+
+        {!query.trim() && (
+          <div className="space-y-3">
+            <p className="text-xs text-zinc-500 uppercase tracking-wider text-center">
+              Popular
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {POPULAR.map((t) => (
+                <Link
+                  key={t}
+                  href={`/companies/${t}`}
+                  className="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/60 hover:border-zinc-600 rounded-full text-sm font-mono text-zinc-300 hover:text-zinc-100 transition-colors"
+                >
+                  {t}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }
