@@ -28,6 +28,8 @@ data class MetricDataPoint(
 data class FilingEntry(
     val accessionNumber: String,
     val filingDate: String,
+    val reportDate: String?,
     val form: String,
     val primaryDocument: String?,
+    val url: String?,
 )

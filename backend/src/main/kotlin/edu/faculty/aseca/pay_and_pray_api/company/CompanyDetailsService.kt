@@ -38,7 +38,7 @@ class CompanyDetailsService(
                     totalAssets = fetchMetric(cik, ASSETS_TAGS),
                     totalLiabilities = fetchMetric(cik, LIABILITIES_TAGS),
                 ),
-            recentFilings = extractFilings(submissions),
+            recentFilings = extractFilings(submissions, cik),
         )
     }
 
@@ -74,15 +74,22 @@ class CompanyDetailsService(
             fiscalPeriod = fp,
         )
 
-    private fun extractFilings(submissions: CompanySubmissions): List<FilingEntry> {
+    private fun extractFilings(submissions: CompanySubmissions, cik: String): List<FilingEntry> {
         val recent = submissions.filings?.recent ?: return emptyList()
         return recent.accessionNumber.indices
             .map { i ->
+                val accessionNumber = recent.accessionNumber[i]
+                val primaryDocument = recent.primaryDocument.getOrNull(i)
+                val accessionPath = accessionNumber.replace("-", "")
                 FilingEntry(
-                    accessionNumber = recent.accessionNumber[i],
+                    accessionNumber = accessionNumber,
                     filingDate = recent.filingDate.getOrElse(i) { "" },
+                    reportDate = recent.reportDate.getOrElse(i) { "" }.ifEmpty { null },
                     form = recent.form.getOrElse(i) { "" },
-                    primaryDocument = recent.primaryDocument.getOrNull(i),
+                    primaryDocument = primaryDocument,
+                    url = primaryDocument?.let {
+                        "https://www.sec.gov/Archives/edgar/data/$cik/$accessionPath/$it"
+                    },
                 )
             }.filter { it.form in RELEVANT_FORMS }
             .take(MAX_FILINGS)

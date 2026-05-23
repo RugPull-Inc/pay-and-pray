@@ -16,6 +16,7 @@ data class ConceptUnit(
 data class RecentFilingsData(
     val accessionNumber: List<String> = emptyList(),
     val filingDate: List<String> = emptyList(),
+    val reportDate: List<String> = emptyList(),
     val form: List<String> = emptyList(),
     val primaryDocument: List<String> = emptyList(),
 )

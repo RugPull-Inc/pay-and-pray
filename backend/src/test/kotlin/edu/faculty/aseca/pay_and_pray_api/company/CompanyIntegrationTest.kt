@@ -59,6 +59,8 @@ class CompanyIntegrationTest : IntegrationTestBase() {
                 jsonPath("$.cik") { value("320193") }
                 jsonPath("$.metrics.revenue") { exists() }
                 jsonPath("$.recentFilings[0]") { exists() }
+                jsonPath("$.recentFilings[0].reportDate") { exists() }
+                jsonPath("$.recentFilings[0].url") { exists() }
             }
     }
 }

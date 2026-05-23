@@ -126,10 +126,11 @@ class CompanyDetailsServiceTest {
                 filings =
                     RecentFilings(
                         RecentFilingsData(
-                            accessionNumber = listOf("acc-1", "acc-2", "acc-3"),
+                            accessionNumber = listOf("0000320193-24-000123", "0000320193-24-000085", "acc-3"),
                             filingDate = listOf("2024-11-01", "2024-08-01", "2024-05-01"),
+                            reportDate = listOf("2024-09-28", "2024-06-29", ""),
                             form = listOf("10-K", "10-Q", "8-K"),
-                            primaryDocument = listOf("doc1.htm", "doc2.htm", "doc3.htm"),
+                            primaryDocument = listOf("aapl-20240928.htm", "aapl-20240629.htm", "doc3.htm"),
                         ),
                     ),
             )
@@ -138,7 +139,63 @@ class CompanyDetailsServiceTest {
 
         assertEquals(2, result.recentFilings.size)
         assertEquals("10-K", result.recentFilings[0].form)
+        assertEquals("2024-09-28", result.recentFilings[0].reportDate)
+        assertEquals(
+            "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+            result.recentFilings[0].url,
+        )
         assertEquals("10-Q", result.recentFilings[1].form)
+        assertEquals("2024-06-29", result.recentFilings[1].reportDate)
+    }
+
+    @Test
+    fun `reportDate is null when empty string in EDGAR response`() {
+        fakeEdgar.submissions =
+            CompanySubmissions(
+                cik = "0000320193",
+                name = "Apple Inc.",
+                tickers = listOf("AAPL"),
+                filings =
+                    RecentFilings(
+                        RecentFilingsData(
+                            accessionNumber = listOf("0000320193-24-000123"),
+                            filingDate = listOf("2024-11-01"),
+                            reportDate = listOf(""),
+                            form = listOf("10-K"),
+                            primaryDocument = listOf("aapl-20240928.htm"),
+                        ),
+                    ),
+            )
+
+        val result = service.getDetails("320193")
+
+        assertEquals(1, result.recentFilings.size)
+        assertEquals(null, result.recentFilings[0].reportDate)
+    }
+
+    @Test
+    fun `url is null when primaryDocument is missing`() {
+        fakeEdgar.submissions =
+            CompanySubmissions(
+                cik = "0000320193",
+                name = "Apple Inc.",
+                tickers = listOf("AAPL"),
+                filings =
+                    RecentFilings(
+                        RecentFilingsData(
+                            accessionNumber = listOf("0000320193-24-000123"),
+                            filingDate = listOf("2024-11-01"),
+                            reportDate = listOf("2024-09-28"),
+                            form = listOf("10-K"),
+                            primaryDocument = emptyList(),
+                        ),
+                    ),
+            )
+
+        val result = service.getDetails("320193")
+
+        assertEquals(1, result.recentFilings.size)
+        assertEquals(null, result.recentFilings[0].url)
     }
 
     @Test
