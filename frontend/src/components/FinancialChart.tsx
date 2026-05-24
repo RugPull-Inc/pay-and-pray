@@ -14,6 +14,15 @@ interface Props {
   history: QuarterlySnapshot[]
 }
 
+export function toChartData(history: QuarterlySnapshot[]) {
+  return history.map((q) => ({
+    period: q.period,
+    Revenue: q.revenue,
+    'Net Income': q.netIncome,
+    EPS: q.eps,
+  }))
+}
+
 function formatBillions(value: number) {
   return `$${(value / 1e9).toFixed(1)}B`
 }
@@ -23,12 +32,7 @@ function formatEPS(value: number) {
 }
 
 export default function FinancialChart({ history }: Props) {
-  const data = [...history].reverse().map((q) => ({
-    period: `${q.fiscalPeriod} FY${q.fiscalYear}`,
-    Revenue: q.revenue,
-    'Net Income': q.netIncome,
-    EPS: q.eps,
-  }))
+  const data = toChartData(history)
 
   const hasRevenue = data.some((d) => d.Revenue !== null)
   const hasNetIncome = data.some((d) => d['Net Income'] !== null)

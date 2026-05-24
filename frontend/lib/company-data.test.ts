@@ -143,9 +143,9 @@ describe('adaptDetailsResponse', () => {
         makeBackendResponse({
           metrics: {
             revenue: [
-              makeDataPoint('2024-06-29', 85777),
-              makeDataPoint('2023-09-30', 89498),
-              makeDataPoint('2024-03-30', 90753),
+              makeDataPoint('2024-06-29', 85777, 2024, 'Q3'),
+              makeDataPoint('2023-09-30', 89498, 2023, 'Q4'),
+              makeDataPoint('2024-03-30', 90753, 2024, 'Q2'),
             ],
             netIncome: [],
             eps: [],
@@ -155,7 +155,44 @@ describe('adaptDetailsResponse', () => {
         })
       )
       const periods = result.quarterlyHistory.map((s) => s.period)
-      expect(periods).toEqual(['2023-09-30', '2024-03-30', '2024-06-29'])
+      expect(periods).toEqual(['2023-Q3', '2024-Q1', '2024-Q2'])
+    })
+
+    it('merges metrics for the same fiscal period when raw dates differ', () => {
+      const result = adaptDetailsResponse(
+        makeBackendResponse({
+          metrics: {
+            revenue: [makeDataPoint('2024-06-29', 85777, 2024, 'Q3')],
+            netIncome: [makeDataPoint('2024-06-30', 21448, 2024, 'Q3')],
+            eps: [],
+            totalAssets: [],
+            totalLiabilities: [],
+          },
+        })
+      )
+
+      expect(result.quarterlyHistory).toHaveLength(1)
+      expect(result.quarterlyHistory[0].revenue).toBe(85777)
+      expect(result.quarterlyHistory[0].netIncome).toBe(21448)
+    })
+
+    it('merges metrics for the same calendar period when fiscal labels differ', () => {
+      const result = adaptDetailsResponse(
+        makeBackendResponse({
+          metrics: {
+            revenue: [makeDataPoint('2025-06-30', 100, 2025, 'Q2')],
+            netIncome: [makeDataPoint('2025-06-30', 50, 2026, 'Q2')],
+            eps: [],
+            totalAssets: [],
+            totalLiabilities: [],
+          },
+        })
+      )
+
+      expect(result.quarterlyHistory).toHaveLength(1)
+      expect(result.quarterlyHistory[0].period).toBe('2025-Q2')
+      expect(result.quarterlyHistory[0].revenue).toBe(100)
+      expect(result.quarterlyHistory[0].netIncome).toBe(50)
     })
 
     it('fills null for metrics absent in a given period', () => {

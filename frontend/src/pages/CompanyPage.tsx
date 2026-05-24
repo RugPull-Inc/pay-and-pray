@@ -34,7 +34,7 @@ export default function CompanyPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 pt-24 pb-8 space-y-8">
         <Header data={data} />
         <MetricsGrid metrics={data.metrics} />
         <ChartSection history={data.quarterlyHistory} />

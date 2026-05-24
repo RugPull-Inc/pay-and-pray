@@ -51,6 +51,53 @@ interface BackendSearchResponse {
   total: number
 }
 
+function isDevBuild(): boolean {
+  return process.env.NODE_ENV !== 'production'
+}
+
+function metricDebugRows(points: BackendMetricDataPoint[]) {
+  return points.map((point) => ({
+    period: point.period,
+    fiscalYear: point.fiscalYear,
+    fiscalPeriod: point.fiscalPeriod,
+    form: point.form,
+    filed: point.filed,
+    value: point.value,
+  }))
+}
+
+function chartDebugRows(history: QuarterlySnapshot[]) {
+  return history.map((point) => ({
+    period: point.period,
+    fiscalYear: point.fiscalYear,
+    fiscalPeriod: point.fiscalPeriod,
+    revenue: point.revenue,
+    netIncome: point.netIncome,
+    eps: point.eps,
+  }))
+}
+
+function logCompanyChartDebug(
+  requestedTicker: string,
+  backend: BackendDetailsResponse,
+  adapted: CompanyFinancialsResponse
+) {
+  if (!isDevBuild()) return
+
+  console.groupCollapsed(
+    `[Pay & Pray] chart data debug: ${requestedTicker.toUpperCase()} (${backend.name})`
+  )
+  console.info('Resolved ticker:', backend.ticker)
+  console.info('CIK:', backend.cik)
+  console.info('Raw revenue points')
+  console.table(metricDebugRows(backend.metrics.revenue))
+  console.info('Raw net income points')
+  console.table(metricDebugRows(backend.metrics.netIncome))
+  console.info('Merged chart rows')
+  console.table(chartDebugRows(adapted.quarterlyHistory))
+  console.groupEnd()
+}
+
 function toMetricValue(dps: BackendMetricDataPoint[]): MetricValue | null {
   const latest = dps[0]
   if (!latest) return null
@@ -61,20 +108,30 @@ function toMetricValue(dps: BackendMetricDataPoint[]): MetricValue | null {
   return { value: latest.value, unit: 'USD', period, form: latest.form }
 }
 
+function snapshotKey(dp: BackendMetricDataPoint): string {
+  const date = new Date(`${dp.period}T00:00:00Z`)
+  if (Number.isNaN(date.getTime())) return dp.period
+
+  const year = date.getUTCFullYear()
+  const quarter = Math.floor(date.getUTCMonth() / 3) + 1
+  return `${year}-Q${quarter}`
+}
+
 function buildQuarterlyHistory(metrics: BackendMetrics): QuarterlySnapshot[] {
   const map = new Map<string, QuarterlySnapshot>()
 
   const merge = (
     dps: BackendMetricDataPoint[],
-    key: keyof Pick<
+    metricKey: keyof Pick<
       QuarterlySnapshot,
       'revenue' | 'netIncome' | 'eps' | 'totalAssets' | 'totalLiabilities'
     >
   ) => {
     for (const dp of dps) {
-      if (!map.has(dp.period)) {
-        map.set(dp.period, {
-          period: dp.period,
+      const periodKey = snapshotKey(dp)
+      if (!map.has(periodKey)) {
+        map.set(periodKey, {
+          period: periodKey,
           fiscalYear: dp.fiscalYear ?? 0,
           fiscalPeriod: dp.fiscalPeriod ?? '',
           revenue: null,
@@ -84,8 +141,8 @@ function buildQuarterlyHistory(metrics: BackendMetrics): QuarterlySnapshot[] {
           totalLiabilities: null,
         })
       }
-      const snap = map.get(dp.period)!
-      snap[key] = dp.value
+      const snap = map.get(periodKey)!
+      snap[metricKey] = dp.value
       if (dp.fiscalYear) snap.fiscalYear = dp.fiscalYear
       if (dp.fiscalPeriod) snap.fiscalPeriod = dp.fiscalPeriod
     }
@@ -157,5 +214,7 @@ export async function fetchCompanyByTicker(
   const detailsRes = await apiFetch(`/companies/${match.cik}/details`)
   if (!detailsRes.ok) return null
   const details: BackendDetailsResponse = await detailsRes.json()
-  return adaptDetailsResponse(details)
+  const adapted = adaptDetailsResponse(details)
+  logCompanyChartDebug(ticker, details, adapted)
+  return adapted
 }
