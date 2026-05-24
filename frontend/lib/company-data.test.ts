@@ -1,6 +1,5 @@
 import { adaptDetailsResponse } from '@/src/services/companyService'
 
-// Minimal backend response builder
 function makeBackendResponse(
   overrides: Partial<Parameters<typeof adaptDetailsResponse>[0]> = {}
 ) {

@@ -133,9 +133,7 @@ export function adaptDetailsResponse(
 export async function searchCompanies(
   query: string
 ): Promise<BackendSearchResult[]> {
-  const res = await apiFetch(
-    `/companies/search?q=${encodeURIComponent(query)}`
-  )
+  const res = await apiFetch(`/companies/search?q=${encodeURIComponent(query)}`)
   if (!res.ok) return []
   const data: BackendSearchResponse = await res.json()
   return data.results
