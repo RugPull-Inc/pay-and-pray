@@ -6,13 +6,12 @@ Integrates SEC EDGAR for financial data and Yahoo Finance for market prices.
 
 ## Stack
 
-
 | Layer        | Tech                           |
 | ------------ | ------------------------------ |
 | Web Frontend | Vite + React                   |
+| Mobile App   | Capacitor + Android            |
 | Backend API  | Kotlin + Spring Boot (Java 21) |
 | Database     | PostgreSQL 16                  |
-
 
 ## Setup
 
@@ -43,13 +42,11 @@ Integrates SEC EDGAR for financial data and Yahoo Finance for market prices.
 
 ## Services
 
-
 | Service      | URL                                            |
 | ------------ | ---------------------------------------------- |
 | Web Frontend | [http://localhost:3000](http://localhost:3000) |
 | Backend API  | [http://localhost:8080](http://localhost:8080) |
 | Database     | localhost:5432                                 |
-
 
 ## Useful commands
 
@@ -85,3 +82,31 @@ npm run lint                 # check linting
 npm run lint:fix             # fix linting automatically
 ```
 
+## Android app
+
+The mobile app uses Capacitor from the Vite frontend. The Android native project lives in `frontend/android`, which is the standard Capacitor layout because it syncs the built web app from `frontend/dist`.
+
+Prerequisites:
+
+- Android Studio
+- Android SDK
+- Android Emulator, or a physical Android device with USB debugging enabled
+
+Run from `frontend`:
+
+```bash
+npm run mobile:build         # build Vite app and sync Capacitor
+npm run cap:open:android     # open the Android project in Android Studio
+```
+
+You can also run directly:
+
+```bash
+npm run mobile:android
+```
+
+For the Android emulator, the backend URL must use the host-machine alias instead of `localhost`:
+
+```bash
+VITE_API_URL=http://10.0.2.2:8080
+```
