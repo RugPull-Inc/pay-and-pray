@@ -295,6 +295,21 @@ class CompanyDetailsServiceTest {
     }
 
     @Test
+    fun `uses fallback liabilities concept when total liabilities is unavailable`() {
+        fakeEdgar.submissions = appleSubmissions()
+        fakeEdgar.concepts["LiabilitiesCurrent"] =
+            conceptOf(
+                "LiabilitiesCurrent",
+                unit("2026-03-31", 181519.0, "10-Q"),
+            )
+
+        val result = service.getDetails("1018724")
+
+        assertEquals(1, result.metrics.totalLiabilities.size)
+        assertEquals(181519.0, result.metrics.totalLiabilities[0].value)
+    }
+
+    @Test
     fun `returns recent 10-K and 10-Q filings from submissions`() {
         fakeEdgar.submissions =
             CompanySubmissions(

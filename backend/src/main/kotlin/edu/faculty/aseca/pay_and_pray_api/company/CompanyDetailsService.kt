@@ -24,7 +24,8 @@ class CompanyDetailsService(
         private val NET_INCOME_TAGS = listOf("NetIncomeLoss")
         private val EPS_TAGS = listOf("EarningsPerShareBasic", "EarningsPerShareDiluted")
         private val ASSETS_TAGS = listOf("Assets")
-        private val LIABILITIES_TAGS = listOf("Liabilities")
+        private val LIABILITIES_TAGS =
+            listOf("Liabilities", "LiabilitiesCurrent", "LiabilitiesAndStockholdersEquity")
     }
 
     fun getDetails(cik: String): CompanyDetailsResponse {

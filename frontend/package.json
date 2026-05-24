@@ -19,9 +19,15 @@
     "e2e:vite:start": "vite preview --configLoader runner --host 0.0.0.0 --port 3000",
     "e2e": "npm run e2e:vite:build && cross-env WAIT_ON_TIMEOUT=180000 start-server-and-test \"npm run e2e:stack\" tcp:8080 \"npm run e2e:vite:start\" http-get://localhost:3000 cy:run",
     "e2e:open": "npm run e2e:vite:build && cross-env WAIT_ON_TIMEOUT=180000 start-server-and-test \"npm run e2e:stack\" tcp:8080 \"npm run e2e:vite:start\" http-get://localhost:3000 cy:open",
+    "mobile:build": "npm run build && cap sync",
+    "mobile:android": "npm run build && cap run android",
+    "cap:sync": "cap sync",
+    "cap:open:android": "cap open android",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
     "lucide-react": "^1.14.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -30,13 +36,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.4",
     "@eslint/js": "^9.39.2",
     "@tailwindcss/postcss": "^4",
-    "@vitejs/plugin-react": "^5.1.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.1",
     "cross-env": "^10.1.0",
     "cypress": "^15.15.0",
     "eslint": "^9",

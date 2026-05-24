@@ -9,7 +9,7 @@ Integrates SEC EDGAR for financial data and Yahoo Finance for market prices.
 
 | Layer        | Tech                           |
 | ------------ | ------------------------------ |
-| Web Frontend | Next.js (React)                |
+| Web Frontend | Vite + React                   |
 | Backend API  | Kotlin + Spring Boot (Java 21) |
 | Database     | PostgreSQL 16                  |
 
