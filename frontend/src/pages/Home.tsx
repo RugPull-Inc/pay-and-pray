@@ -1,16 +1,13 @@
-'use client'
-
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { Link, useNavigate } from 'react-router-dom'
 import { TrendingUp, Search, Loader2 } from 'lucide-react'
-import { searchCompanies } from '@/lib/company-data'
-import type { BackendSearchResult } from '@/lib/company-data'
+import { searchCompanies } from '@/src/services/companyService'
+import type { BackendSearchResult } from '@/src/services/companyService'
 
 const POPULAR = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA']
 
 export default function Home() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [hits, setHits] = useState<BackendSearchResult[]>([])
   const [loading, setLoading] = useState(false)
@@ -21,11 +18,10 @@ export default function Home() {
   const searched = trimmed ? hasSearched : false
 
   const runSearch = useCallback(async (q: string) => {
-    const token = localStorage.getItem('token') ?? ''
     setLoading(true)
     setHasSearched(true)
     try {
-      const data = await searchCompanies(q, token)
+      const data = await searchCompanies(q)
       setHits(data)
     } catch {
       setHits([])
@@ -83,11 +79,11 @@ export default function Home() {
               {results.slice(0, 6).map((c) => (
                 <button
                   key={c.cik ?? c.name}
-                  onClick={() => router.push(`/companies/${c.ticker ?? c.cik}`)}
+                  onClick={() => navigate(`/companies/${c.ticker ?? c.cik}`)}
                   className="w-full flex items-center gap-4 px-4 py-3 hover:bg-zinc-800 transition-colors text-left border-b border-zinc-800 last:border-0"
                 >
                   <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">
-                    {c.ticker ?? '—'}
+                    {c.ticker ?? '-'}
                   </span>
                   <span className="text-sm text-zinc-300 truncate">
                     {c.name}
@@ -118,7 +114,7 @@ export default function Home() {
               {POPULAR.map((t) => (
                 <Link
                   key={t}
-                  href={`/companies/${t}`}
+                  to={`/companies/${t}`}
                   className="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/60 hover:border-zinc-600 rounded-full text-sm font-mono text-zinc-300 hover:text-zinc-100 transition-colors"
                 >
                   {t}

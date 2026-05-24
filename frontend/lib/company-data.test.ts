@@ -1,4 +1,4 @@
-import { adaptDetailsResponse } from './company-data'
+import { adaptDetailsResponse } from '@/src/services/companyService'
 
 // Minimal backend response builder
 function makeBackendResponse(

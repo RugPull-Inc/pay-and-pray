@@ -3,9 +3,8 @@ import type {
   MetricValue,
   QuarterlySnapshot,
   FilingInfo,
-} from '@/app/types/company'
-
-// ── Raw backend types ────────────────────────────────────────────────────────
+} from '@/src/types/company'
+import { apiFetch } from './apiClient'
 
 interface BackendMetricDataPoint {
   period: string
@@ -51,8 +50,6 @@ interface BackendSearchResponse {
   results: BackendSearchResult[]
   total: number
 }
-
-// ── Adapter ──────────────────────────────────────────────────────────────────
 
 function toMetricValue(dps: BackendMetricDataPoint[]): MetricValue | null {
   const latest = dps[0]
@@ -133,17 +130,11 @@ export function adaptDetailsResponse(
   }
 }
 
-// ── Public API ───────────────────────────────────────────────────────────────
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
-
 export async function searchCompanies(
-  query: string,
-  token: string
+  query: string
 ): Promise<BackendSearchResult[]> {
-  const res = await fetch(
-    `${API_URL}/companies/search?q=${encodeURIComponent(query)}`,
-    { headers: { Authorization: `Bearer ${token}` } }
+  const res = await apiFetch(
+    `/companies/search?q=${encodeURIComponent(query)}`
   )
   if (!res.ok) return []
   const data: BackendSearchResponse = await res.json()
@@ -151,12 +142,10 @@ export async function searchCompanies(
 }
 
 export async function fetchCompanyByTicker(
-  ticker: string,
-  token: string
+  ticker: string
 ): Promise<CompanyFinancialsResponse | null> {
-  const searchRes = await fetch(
-    `${API_URL}/companies/search?q=${encodeURIComponent(ticker)}`,
-    { headers: { Authorization: `Bearer ${token}` } }
+  const searchRes = await apiFetch(
+    `/companies/search?q=${encodeURIComponent(ticker)}`
   )
   if (!searchRes.ok) return null
   const searchData: BackendSearchResponse = await searchRes.json()
@@ -167,9 +156,7 @@ export async function fetchCompanyByTicker(
     ) ?? searchData.results[0]
   if (!match?.cik) return null
 
-  const detailsRes = await fetch(`${API_URL}/companies/${match.cik}/details`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  const detailsRes = await apiFetch(`/companies/${match.cik}/details`)
   if (!detailsRes.ok) return null
   const details: BackendDetailsResponse = await detailsRes.json()
   return adaptDetailsResponse(details)

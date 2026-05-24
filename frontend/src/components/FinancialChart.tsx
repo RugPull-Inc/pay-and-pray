@@ -1,5 +1,3 @@
-'use client'
-
 import {
   ResponsiveContainer,
   LineChart,
@@ -10,7 +8,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts'
-import type { QuarterlySnapshot } from '@/app/types/company'
+import type { QuarterlySnapshot } from '@/src/types/company'
 
 interface Props {
   history: QuarterlySnapshot[]

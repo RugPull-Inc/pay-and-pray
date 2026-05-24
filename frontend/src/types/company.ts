@@ -5,14 +5,6 @@ export interface MetricValue {
   form: string
 }
 
-export interface FinancialMetrics {
-  revenue: MetricValue | null
-  netIncome: MetricValue | null
-  eps: MetricValue | null
-  totalAssets: MetricValue | null
-  totalLiabilities: MetricValue | null
-}
-
 export interface QuarterlySnapshot {
   period: string
   fiscalYear: number
@@ -37,8 +29,13 @@ export interface CompanyFinancialsResponse {
   ticker: string
   companyName: string
   cik: string
-  metrics: FinancialMetrics
+  metrics: {
+    revenue: MetricValue | null
+    netIncome: MetricValue | null
+    eps: MetricValue | null
+    totalAssets: MetricValue | null
+    totalLiabilities: MetricValue | null
+  }
   quarterlyHistory: QuarterlySnapshot[]
   recentFilings: FilingInfo[]
-  isMock?: boolean
 }

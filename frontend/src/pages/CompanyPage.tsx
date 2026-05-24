@@ -1,24 +1,25 @@
-'use client'
-
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, FileText, AlertCircle, Loader2 } from 'lucide-react'
-import { fetchCompanyByTicker } from '@/lib/company-data'
+import { fetchCompanyByTicker } from '@/src/services/companyService'
 import type {
   CompanyFinancialsResponse,
   MetricValue,
   QuarterlySnapshot,
-} from '@/app/types/company'
-import FinancialChart from './FinancialChart'
+} from '@/src/types/company'
+import FinancialChart from '@/src/components/FinancialChart'
 
-export default function CompanyDetailClient({ ticker }: { ticker: string }) {
+export default function CompanyPage() {
+  const { ticker = '' } = useParams()
+  const normalizedTicker = ticker.toUpperCase()
   const [data, setData] = useState<CompanyFinancialsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('token') ?? ''
-    fetchCompanyByTicker(ticker, token)
+    setLoading(true)
+    setError(null)
+    fetchCompanyByTicker(normalizedTicker)
       .then((result) => {
         if (!result)
           setError('Company not found or no financial data available.')
@@ -26,7 +27,7 @@ export default function CompanyDetailClient({ ticker }: { ticker: string }) {
       })
       .catch(() => setError('Could not reach the server. Please try again.'))
       .finally(() => setLoading(false))
-  }, [ticker])
+  }, [normalizedTicker])
 
   if (loading) return <LoadingState />
   if (error || !data) return <ErrorState message={error ?? 'Unknown error.'} />
@@ -59,7 +60,7 @@ function ErrorState({ message }: { message: string }) {
         <p className="text-sm">{message}</p>
       </div>
       <Link
-        href="/"
+        to="/"
         className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
       >
         <ArrowLeft size={16} />
@@ -73,7 +74,7 @@ function Header({ data }: { data: CompanyFinancialsResponse }) {
   return (
     <div className="space-y-4">
       <Link
-        href="/"
+        to="/"
         className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
       >
         <ArrowLeft size={16} />
@@ -130,7 +131,7 @@ function MetricCard({
         </>
       ) : (
         <>
-          <p className="text-2xl font-bold text-zinc-700">—</p>
+          <p className="text-2xl font-bold text-zinc-700">-</p>
           <p className="text-xs text-zinc-600">No data available</p>
         </>
       )}
@@ -238,7 +239,7 @@ function FilingsSection({
                     {f.filedDate}
                   </td>
                   <td className="px-5 py-3 text-zinc-400 font-mono hidden sm:table-cell">
-                    {f.reportDate ?? <span className="text-zinc-700">—</span>}
+                    {f.reportDate ?? <span className="text-zinc-700">-</span>}
                   </td>
                   <td className="px-5 py-3 text-zinc-600 font-mono text-xs hidden md:table-cell">
                     {f.accessionNumber}
@@ -250,7 +251,7 @@ function FilingsSection({
                       rel="noopener noreferrer"
                       className="text-indigo-400 hover:text-indigo-300 transition-colors text-xs font-medium"
                     >
-                      View →
+                      View -&gt;
                     </a>
                   </td>
                 </tr>
