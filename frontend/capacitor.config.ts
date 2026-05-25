@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Pay and Pray',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',
   },
 }
 
