@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pay and Pray</string>
+    <string name="title_activity_main">Pay and Pray</string>
+    <string name="package_name">com.payandpray.app</string>
+    <string name="custom_url_scheme">com.payandpray.app</string>
+</resources>

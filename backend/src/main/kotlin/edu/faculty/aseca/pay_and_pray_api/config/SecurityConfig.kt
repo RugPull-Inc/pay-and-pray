@@ -30,6 +30,8 @@ class SecurityConfig(
                 auth
                     .requestMatchers("/auth/**")
                     .permitAll()
+                    .requestMatchers("/companies/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated()
             }.exceptionHandling { ex ->

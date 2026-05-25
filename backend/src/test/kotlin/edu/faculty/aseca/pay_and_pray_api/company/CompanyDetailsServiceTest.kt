@@ -117,6 +117,199 @@ class CompanyDetailsServiceTest {
     }
 
     @Test
+    fun `chooses revenue concept with newest data when primary tag is stale`() {
+        fakeEdgar.submissions = appleSubmissions()
+        fakeEdgar.concepts["Revenues"] =
+            conceptOf(
+                "Revenues",
+                unit("2018-09-29", 265595.0, "10-K"),
+            )
+        fakeEdgar.concepts["RevenueFromContractWithCustomerExcludingAssessedTax"] =
+            conceptOf(
+                "RevenueFromContractWithCustomerExcludingAssessedTax",
+                unit("2024-09-28", 391035.0, "10-K"),
+                unit("2024-06-29", 85777.0, "10-Q"),
+            )
+
+        val result = service.getDetails("320193")
+
+        assertEquals("2024-09-28", result.metrics.revenue[0].period)
+        assertEquals(391035.0, result.metrics.revenue[0].value)
+    }
+
+    @Test
+    fun `chooses better covered recent revenue concept over sparse newest concept`() {
+        fakeEdgar.submissions =
+            submissionsWithRecentReportDates(
+                "2025-03-31",
+                "2024-12-31",
+                "2024-09-30",
+                "2024-06-30",
+                "2024-03-31",
+            )
+        fakeEdgar.concepts["Revenues"] =
+            conceptOf(
+                "Revenues",
+                unit("2025-03-31", 1.0, "10-Q"),
+            )
+        fakeEdgar.concepts["RevenueFromContractWithCustomerExcludingAssessedTax"] =
+            conceptOf(
+                "RevenueFromContractWithCustomerExcludingAssessedTax",
+                unit("2024-12-31", 100.0, "10-K"),
+                unit("2024-09-30", 90.0, "10-Q"),
+                unit("2024-06-30", 80.0, "10-Q"),
+                unit("2024-03-31", 70.0, "10-Q"),
+            )
+
+        val result = service.getDetails("320193")
+
+        assertEquals(4, result.metrics.revenue.size)
+        assertEquals("2024-12-31", result.metrics.revenue[0].period)
+        assertEquals(100.0, result.metrics.revenue[0].value)
+    }
+
+    @Test
+    fun `chooses revenue concept with better recent filing coverage when sparse concept is newest`() {
+        fakeEdgar.submissions =
+            submissionsWithRecentReportDates(
+                "2025-03-31",
+                "2024-12-31",
+                "2024-09-30",
+                "2024-06-30",
+                "2024-03-31",
+                "2023-12-31",
+            )
+        fakeEdgar.concepts["Revenues"] =
+            conceptOf(
+                "Revenues",
+                unit("2025-03-31", 1.0, "10-Q"),
+                unit("2021-12-31", 2.0, "10-K"),
+            )
+        fakeEdgar.concepts["RevenueFromContractWithCustomerExcludingAssessedTax"] =
+            conceptOf(
+                "RevenueFromContractWithCustomerExcludingAssessedTax",
+                unit("2024-12-31", 100.0, "10-K"),
+                unit("2024-09-30", 90.0, "10-Q"),
+                unit("2024-06-30", 80.0, "10-Q"),
+                unit("2024-03-31", 70.0, "10-Q"),
+                unit("2023-12-31", 60.0, "10-K"),
+            )
+
+        val result = service.getDetails("320193")
+
+        assertEquals(5, result.metrics.revenue.size)
+        assertEquals("2024-12-31", result.metrics.revenue[0].period)
+    }
+
+    @Test
+    fun `falls back to company facts revenue concept when curated revenue tags are stale`() {
+        fakeEdgar.submissions = appleSubmissions()
+        fakeEdgar.concepts["RevenueFromContractWithCustomerExcludingAssessedTax"] =
+            conceptOf(
+                "RevenueFromContractWithCustomerExcludingAssessedTax",
+                unit("2022-01-30", 26914.0, "10-K"),
+            )
+        fakeEdgar.concepts["NetIncomeLoss"] =
+            conceptOf(
+                "NetIncomeLoss",
+                unit("2026-04-26", 58321.0, "10-Q"),
+            )
+        fakeEdgar.companyFacts =
+            CompanyFacts(
+                cik = "0001045810",
+                entityName = "NVIDIA CORP",
+                facts =
+                    mapOf(
+                        "nvidia" to
+                            mapOf(
+                                "Revenue" to
+                                    CompanyFactConcept(
+                                        label = "Revenue",
+                                        units =
+                                            mapOf(
+                                                "USD" to
+                                                    listOf(
+                                                        unit("2026-04-26", 44062.0, "10-Q"),
+                                                        unit("2026-01-25", 130497.0, "10-K"),
+                                                        unit("2025-10-26", 57006.0, "10-Q"),
+                                                        unit("2025-07-27", 46743.0, "10-Q"),
+                                                    ),
+                                            ),
+                                    ),
+                            ),
+                    ),
+            )
+
+        val result = service.getDetails("1045810")
+
+        assertEquals("2026-04-26", result.metrics.revenue[0].period)
+        assertEquals(44062.0, result.metrics.revenue[0].value)
+    }
+
+    @Test
+    fun `falls back to company facts revenue when curated revenue is one year behind net income`() {
+        fakeEdgar.submissions = appleSubmissions()
+        fakeEdgar.concepts["RevenueFromContractWithCustomerExcludingAssessedTax"] =
+            conceptOf(
+                "RevenueFromContractWithCustomerExcludingAssessedTax",
+                unit("2025-03-31", 90234.0, "10-Q"),
+                unit("2024-12-31", 350018.0, "10-K"),
+                unit("2024-09-30", 253549.0, "10-Q"),
+                unit("2024-06-30", 165281.0, "10-Q"),
+            )
+        fakeEdgar.concepts["NetIncomeLoss"] =
+            conceptOf(
+                "NetIncomeLoss",
+                unit("2026-03-31", 62578.0, "10-Q"),
+            )
+        fakeEdgar.companyFacts =
+            CompanyFacts(
+                cik = "0001652044",
+                entityName = "Alphabet Inc.",
+                facts =
+                    mapOf(
+                        "alphabet" to
+                            mapOf(
+                                "Revenue" to
+                                    CompanyFactConcept(
+                                        label = "Revenue",
+                                        units =
+                                            mapOf(
+                                                "USD" to
+                                                    listOf(
+                                                        unit("2026-03-31", 100000.0, "10-Q"),
+                                                        unit("2025-12-31", 400000.0, "10-K"),
+                                                        unit("2025-09-30", 300000.0, "10-Q"),
+                                                        unit("2025-06-30", 200000.0, "10-Q"),
+                                                    ),
+                                            ),
+                                    ),
+                            ),
+                    ),
+            )
+
+        val result = service.getDetails("1652044")
+
+        assertEquals("2026-03-31", result.metrics.revenue[0].period)
+        assertEquals(100000.0, result.metrics.revenue[0].value)
+    }
+
+    @Test
+    fun `uses fallback liabilities concept when total liabilities is unavailable`() {
+        fakeEdgar.submissions = appleSubmissions()
+        fakeEdgar.concepts["LiabilitiesCurrent"] =
+            conceptOf(
+                "LiabilitiesCurrent",
+                unit("2026-03-31", 181519.0, "10-Q"),
+            )
+
+        val result = service.getDetails("1018724")
+
+        assertEquals(1, result.metrics.totalLiabilities.size)
+        assertEquals(181519.0, result.metrics.totalLiabilities[0].value)
+    }
+
+    @Test
     fun `returns recent 10-K and 10-Q filings from submissions`() {
         fakeEdgar.submissions =
             CompanySubmissions(
@@ -229,6 +422,23 @@ class CompanyDetailsServiceTest {
     private fun appleSubmissions() =
         CompanySubmissions(cik = "0000320193", name = "Apple Inc.", tickers = listOf("AAPL"))
 
+    private fun submissionsWithRecentReportDates(vararg reportDates: String) =
+        CompanySubmissions(
+            cik = "0000320193",
+            name = "Apple Inc.",
+            tickers = listOf("AAPL"),
+            filings =
+                RecentFilings(
+                    RecentFilingsData(
+                        accessionNumber = reportDates.mapIndexed { i, _ -> "acc-$i" },
+                        filingDate = reportDates.toList(),
+                        reportDate = reportDates.toList(),
+                        form = reportDates.mapIndexed { i, _ -> if (i == 1) "10-K" else "10-Q" },
+                        primaryDocument = reportDates.mapIndexed { i, _ -> "doc-$i.htm" },
+                    ),
+                ),
+        )
+
     private fun conceptOf(
         tag: String,
         vararg units: ConceptUnit,
@@ -243,6 +453,7 @@ class CompanyDetailsServiceTest {
 
 private class FakeDetailsEdgarClient : EdgarClient {
     var submissions: CompanySubmissions = CompanySubmissions("", "", emptyList())
+    var companyFacts: CompanyFacts = CompanyFacts("", "")
     var throwOnSubmissions = false
     var conceptServerError = false
     val concepts = mutableMapOf<String, CompanyConcept>()
@@ -266,7 +477,7 @@ private class FakeDetailsEdgarClient : EdgarClient {
             ?: throw EdgarApiException("concept $concept not found", HttpClientErrorException(HttpStatus.NOT_FOUND))
     }
 
-    override fun getCompanyFacts(cik: String): CompanyFacts = throw UnsupportedOperationException()
+    override fun getCompanyFacts(cik: String): CompanyFacts = companyFacts
 
     override fun searchFullText(query: String): FullTextSearchResult = throw UnsupportedOperationException()
 
