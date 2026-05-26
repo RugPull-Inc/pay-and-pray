@@ -38,6 +38,24 @@ services:
     ports:
       - "8080:8080"
 
+  price-batch:
+    build:
+      context: ./price-batch
+      dockerfile: Dockerfile
+    container_name: pay-and-pray-price-batch
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      BATCH_SCRIPT_PATH: /app/batch.py
+    profiles:
+      - batch
+
   frontend:
     build:
       context: ./frontend
