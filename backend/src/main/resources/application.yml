@@ -26,6 +26,6 @@ jwt:
 
 edgar:
   user-agent: ${EDGAR_USER_AGENT}
-  
+
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}

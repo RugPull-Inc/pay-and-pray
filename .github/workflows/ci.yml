@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            e2e:
+              - 'backend/**'
+              - 'frontend/**'
+              - 'docker-compose.yml'
+              - '.github/workflows/ci.yml'
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Format check and lint
+        run: cd backend && ./gradlew ktlintCheck --no-daemon
+      - name: Build
+        run: cd backend && ./gradlew build -x test --no-daemon
+      - name: Test
+        run: cd backend && ./gradlew test --no-daemon
+
+  frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      - name: Format check
+        run: cd frontend && npx prettier --check .
+      - name: Lint
+        run: cd frontend && npx eslint .
+      - name: Build
+        run: cd frontend && npm run build
+      - name: Test
+        run: cd frontend && npm test
+
+  e2e:
+    needs: changes
+    if: |
+      needs.changes.outputs.e2e == 'true' &&
+      github.event_name == 'pull_request' &&
+      github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend deps
+        run: cd frontend && npm ci
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+      - name: Bootstrap stack env
+        run: |
+          cat > .env <<EOF
+          POSTGRES_DB=pay_and_pray
+          POSTGRES_USER=pay_and_pray_user
+          POSTGRES_PASSWORD=ci_password
+          JWT_SECRET=ci-jwt-secret-key-long-enough-for-hmac-sha256-algorithm
+          SEED_USER_COUNT=0
+          EDGAR_USER_AGENT=Pay-and-Pray/1.0 github-actions@pay-and-pray.dev
+          EOF
+      - name: Run E2E (docker compose + cypress)
+        run: cd frontend && npm run e2e
+      - name: Upload Cypress screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+          if-no-files-found: ignore

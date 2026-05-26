@@ -29,12 +29,10 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/admin/prices/refresh")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated()
+                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/companies/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/admin/prices/refresh").permitAll()
+                    .anyRequest().authenticated()
             }.exceptionHandling { ex ->
                 ex.authenticationEntryPoint { _, response, _ ->
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
