@@ -54,16 +54,19 @@ def fetch_prices(tickers: list[str]) -> dict[str, float]:
     return prices
 
 
-def upsert_price(conn, ticker: str, price: float) -> None:
+def upsert_prices(conn, prices: dict[str, float]) -> None:
+    if not prices:
+        return
+    rows = [(ticker, price, datetime.now(timezone.utc)) for ticker, price in prices.items()]
     with conn.cursor() as cur:
-        cur.execute(
+        cur.executemany(
             """
             INSERT INTO prices (ticker, price, fetched_at)
             VALUES (%s, %s, %s)
             ON CONFLICT (ticker) DO UPDATE
             SET price = EXCLUDED.price, fetched_at = EXCLUDED.fetched_at
             """,
-            (ticker, price, datetime.now(timezone.utc)),
+            rows,
         )
     conn.commit()
 
@@ -94,16 +97,13 @@ def run_batch() -> bool:
         tickers = collect_tickers(conn)
         prices = fetch_prices(tickers)
 
-        errors: list[str] = []
-        for ticker in tickers:
-            if ticker in prices:
-                upsert_price(conn, ticker, prices[ticker])
-            else:
-                msg = f"No price for {ticker}"
-                print(f"WARN: {msg}", file=sys.stderr)
-                errors.append(msg)
+        missing = [t for t in tickers if t not in prices]
+        for t in missing:
+            print(f"WARN: No price for {t}", file=sys.stderr)
 
-        error_summary = "; ".join(errors) if errors else None
+        upsert_prices(conn, {t: prices[t] for t in tickers if t in prices})
+
+        error_summary = "; ".join(f"No price for {t}" for t in missing) if missing else None
         record_batch_run(conn, started_at, "SUCCESS", error_summary)
         return True
     except Exception as exc:
