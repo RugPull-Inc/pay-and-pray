@@ -1,3 +1,5 @@
+import { apiFetch } from './apiClient'
+
 export interface BuyResponse {
   ticker: string
   quantity: number
@@ -23,32 +25,68 @@ export class PortfolioServiceError extends Error {
   }
 }
 
-const MOCK_PRICES: Record<string, number> = {
-  AAPL: 189.5,
-  MSFT: 415.2,
-  GOOGL: 175.8,
-  AMZN: 198.3,
-  TSLA: 248.7,
+type BackendErrorResponse = {
+  error?: string
+  errors?: Record<string, string>
 }
 
-const mockPositions: Record<string, number> = {}
+async function readErrorMessage(
+  response: Response,
+  fallbackMessage: string
+): Promise<string> {
+  try {
+    const data = (await response.json()) as BackendErrorResponse
+    if (data.error) return data.error
 
-export async function buy(ticker: string, quantity: number): Promise<BuyResponse> {
-  await new Promise((r) => setTimeout(r, 400))
-  const price = MOCK_PRICES[ticker.toUpperCase()]
-  if (!price) throw new PortfolioServiceError('El ticker no existe o no tiene precio registrado', 404)
-  const prev = mockPositions[ticker] ?? 0
-  mockPositions[ticker] = prev + quantity
-  return { ticker, quantity, priceAtOperation: price, newQuantity: prev + quantity, newAvgBuyPrice: price }
+    const firstValidationError = data.errors
+      ? Object.values(data.errors)[0]
+      : null
+    if (firstValidationError) return firstValidationError
+  } catch {
+    // Ignore malformed error payloads and use the fallback.
+  }
+
+  return fallbackMessage
 }
 
-export async function sell(ticker: string, quantity: number): Promise<SellResponse> {
-  await new Promise((r) => setTimeout(r, 400))
-  const price = MOCK_PRICES[ticker.toUpperCase()]
-  if (!price) throw new PortfolioServiceError('El ticker no existe o no tiene precio registrado', 404)
-  const current = mockPositions[ticker] ?? 0
-  if (current === 0) throw new PortfolioServiceError('No tenés posición en ese ticker', 400)
-  if (quantity > current) throw new PortfolioServiceError('No podés vender más unidades de las que tenés', 400)
-  mockPositions[ticker] = current - quantity
-  return { ticker, quantity, priceAtOperation: price, remainingQuantity: current - quantity }
+async function postTrade<T>(
+  path: '/portfolio/buy' | '/portfolio/sell',
+  ticker: string,
+  quantity: number,
+  fallbackMessage: string
+): Promise<T> {
+  const response = await apiFetch(path, {
+    method: 'POST',
+    body: JSON.stringify({
+      ticker: ticker.trim().toUpperCase(),
+      quantity,
+    }),
+  })
+
+  if (!response.ok) {
+    throw new PortfolioServiceError(
+      await readErrorMessage(response, fallbackMessage),
+      response.status
+    )
+  }
+
+  return response.json() as Promise<T>
+}
+
+export function buy(ticker: string, quantity: number): Promise<BuyResponse> {
+  return postTrade(
+    '/portfolio/buy',
+    ticker,
+    quantity,
+    'Could not register buy.'
+  )
+}
+
+export function sell(ticker: string, quantity: number): Promise<SellResponse> {
+  return postTrade(
+    '/portfolio/sell',
+    ticker,
+    quantity,
+    'Could not register sell.'
+  )
 }
