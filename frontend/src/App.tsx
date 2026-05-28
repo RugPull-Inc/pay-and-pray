@@ -18,8 +18,22 @@ function Shell() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/companies/:ticker" element={<CompanyPage />} />
-        <Route path="/portfolio/buy" element={<ProtectedRoute><BuyPage /></ProtectedRoute>} />
-        <Route path="/portfolio/sell" element={<ProtectedRoute><SellPage /></ProtectedRoute>} />
+        <Route
+          path="/portfolio/buy"
+          element={
+            <ProtectedRoute>
+              <BuyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/portfolio/sell"
+          element={
+            <ProtectedRoute>
+              <SellPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

@@ -30,7 +30,9 @@ export default function BuyPage() {
     setLoading(true)
     try {
       const data = await buy(ticker.trim().toUpperCase(), qty)
-      setSuccessMsg(`Compra registrada: ${data.quantity} unidades de ${data.ticker}`)
+      setSuccessMsg(
+        `Compra registrada: ${data.quantity} unidades de ${data.ticker}`
+      )
       setQuantity('')
     } catch (error) {
       if (error instanceof PortfolioServiceError) {
@@ -57,16 +59,26 @@ export default function BuyPage() {
           <h1 className="text-3xl font-bold tracking-tight">Buy shares</h1>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="flex flex-col gap-5"
+        >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="ticker" className="text-sm font-medium text-zinc-400">
+            <label
+              htmlFor="ticker"
+              className="text-sm font-medium text-zinc-400"
+            >
               Ticker
             </label>
             <TickerInput value={ticker} onChange={setTicker} />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="quantity" className="text-sm font-medium text-zinc-400">
+            <label
+              htmlFor="quantity"
+              className="text-sm font-medium text-zinc-400"
+            >
               Quantity
             </label>
             <input
