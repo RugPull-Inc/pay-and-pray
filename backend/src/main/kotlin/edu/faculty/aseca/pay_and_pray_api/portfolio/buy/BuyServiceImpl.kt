@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.RoundingMode
 import java.time.LocalDateTime
+import java.util.Locale
 import java.util.UUID
 
 @Service
@@ -26,17 +27,24 @@ class BuyServiceImpl(
         ticker: String,
         quantity: Int,
     ): BuyResponse {
-        val price = priceService.getLatestPrice(ticker) ?: throw TickerNotFoundException()
+        val normalizedTicker = ticker.trim().uppercase(Locale.US)
+        val price = priceService.getLatestPrice(normalizedTicker) ?: throw TickerNotFoundException()
 
         transactionRepository.save(
-            Transaction(userId = userId, ticker = ticker, type = "BUY", quantity = quantity, priceAtOperation = price),
+            Transaction(
+                userId = userId,
+                ticker = normalizedTicker,
+                type = "BUY",
+                quantity = quantity,
+                priceAtOperation = price,
+            ),
         )
 
-        val existing = positionRepository.findByUserIdAndTicker(userId, ticker)
+        val existing = positionRepository.findByUserIdAndTicker(userId, normalizedTicker)
         val updatedPosition =
             if (existing == null) {
                 positionRepository.save(
-                    Position(id = PositionId(userId, ticker), quantity = quantity, avgBuyPrice = price),
+                    Position(id = PositionId(userId, normalizedTicker), quantity = quantity, avgBuyPrice = price),
                 )
             } else {
                 val newQty = existing.quantity + quantity
@@ -49,7 +57,7 @@ class BuyServiceImpl(
             }
 
         return BuyResponse(
-            ticker = ticker,
+            ticker = normalizedTicker,
             quantity = quantity,
             priceAtOperation = price,
             newQuantity = updatedPosition.quantity,

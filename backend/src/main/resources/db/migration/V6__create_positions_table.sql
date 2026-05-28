@@ -1,3 +1,5 @@
+DROP TABLE positions;
+
 CREATE TABLE positions (
     user_id        UUID          NOT NULL REFERENCES users(id),
     ticker         VARCHAR(20)   NOT NULL,

@@ -11,6 +11,7 @@ import edu.faculty.aseca.pay_and_pray_api.price.PriceService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.Locale
 import java.util.UUID
 
 @Service
@@ -25,14 +26,21 @@ class SellServiceImpl(
         ticker: String,
         quantity: Int,
     ): SellResponse {
-        val price = priceService.getLatestPrice(ticker) ?: throw TickerNotFoundException()
+        val normalizedTicker = ticker.trim().uppercase(Locale.US)
+        val price = priceService.getLatestPrice(normalizedTicker) ?: throw TickerNotFoundException()
 
-        val position = positionRepository.findByUserIdAndTicker(userId, ticker) ?: throw NoPositionException()
+        val position = positionRepository.findByUserIdAndTicker(userId, normalizedTicker) ?: throw NoPositionException()
 
         if (quantity > position.quantity) throw InsufficientQuantityException()
 
         transactionRepository.save(
-            Transaction(userId = userId, ticker = ticker, type = "SELL", quantity = quantity, priceAtOperation = price),
+            Transaction(
+                userId = userId,
+                ticker = normalizedTicker,
+                type = "SELL",
+                quantity = quantity,
+                priceAtOperation = price,
+            ),
         )
 
         val remaining = position.quantity - quantity
@@ -43,7 +51,7 @@ class SellServiceImpl(
         }
 
         return SellResponse(
-            ticker = ticker,
+            ticker = normalizedTicker,
             quantity = quantity,
             priceAtOperation = price,
             remainingQuantity = remaining,
