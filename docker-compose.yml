@@ -34,8 +34,27 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SEED_USER_COUNT: ${SEED_USER_COUNT:-3}
       EDGAR_USER_AGENT: ${EDGAR_USER_AGENT}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,https://localhost}
     ports:
       - "8080:8080"
+
+  price-batch:
+    build:
+      context: ./price-batch
+      dockerfile: Dockerfile
+    container_name: pay-and-pray-price-batch
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      BATCH_SCRIPT_PATH: /app/batch.py
+    profiles:
+      - batch
 
   frontend:
     build:
@@ -46,8 +65,7 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
-      API_URL: http://backend:8080
+      VITE_API_URL: http://localhost:8080
     ports:
       - "3000:3000"
     volumes:

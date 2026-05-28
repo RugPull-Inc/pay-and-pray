@@ -1,11 +1,13 @@
 import type { Config } from 'jest'
-import nextJest from 'next/jest.js'
-
-const createJestConfig = nextJest({ dir: './' })
 
 const config: Config = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
   coverageProvider: 'v8',
+  cacheDirectory: '<rootDir>/.jest-cache',
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
 }
 
-export default createJestConfig(config)
+export default config

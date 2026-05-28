@@ -36,7 +36,13 @@ data class CompanySubmissions(
 data class CompanyFacts(
     val cik: String,
     val entityName: String,
-    val facts: Map<String, Any> = emptyMap(),
+    val facts: Map<String, Map<String, CompanyFactConcept>> = emptyMap(),
+)
+
+data class CompanyFactConcept(
+    val label: String? = null,
+    val description: String? = null,
+    val units: Map<String, List<ConceptUnit>> = emptyMap(),
 )
 
 data class CompanyConcept(
