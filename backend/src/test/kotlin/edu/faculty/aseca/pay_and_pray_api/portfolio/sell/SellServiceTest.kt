@@ -33,7 +33,9 @@ class SellServiceTest {
     @Test
     fun `sell reduces position quantity on partial sell`() {
         val userId = UUID.randomUUID()
-        fakePositionRepository.save(Position(id = PositionId(userId, "AAPL"), quantity = 10, avgBuyPrice = BigDecimal("100.00")))
+        fakePositionRepository.save(
+            Position(id = PositionId(userId, "AAPL"), quantity = 10, avgBuyPrice = BigDecimal("100.00")),
+        )
         fakePriceService.price = BigDecimal("110.00")
 
         sellService.sell(userId, "AAPL", 4)
@@ -45,7 +47,9 @@ class SellServiceTest {
     @Test
     fun `sell deletes position when all units are sold`() {
         val userId = UUID.randomUUID()
-        fakePositionRepository.save(Position(id = PositionId(userId, "AAPL"), quantity = 5, avgBuyPrice = BigDecimal("100.00")))
+        fakePositionRepository.save(
+            Position(id = PositionId(userId, "AAPL"), quantity = 5, avgBuyPrice = BigDecimal("100.00")),
+        )
         fakePriceService.price = BigDecimal("110.00")
 
         sellService.sell(userId, "AAPL", 5)
@@ -56,7 +60,9 @@ class SellServiceTest {
     @Test
     fun `sell records a SELL transaction`() {
         val userId = UUID.randomUUID()
-        fakePositionRepository.save(Position(id = PositionId(userId, "TSLA"), quantity = 8, avgBuyPrice = BigDecimal("200.00")))
+        fakePositionRepository.save(
+            Position(id = PositionId(userId, "TSLA"), quantity = 8, avgBuyPrice = BigDecimal("200.00")),
+        )
         fakePriceService.price = BigDecimal("220.00")
 
         sellService.sell(userId, "TSLA", 3)
@@ -90,7 +96,9 @@ class SellServiceTest {
     @Test
     fun `sell throws InsufficientQuantityException when selling more than owned`() {
         val userId = UUID.randomUUID()
-        fakePositionRepository.save(Position(id = PositionId(userId, "AAPL"), quantity = 3, avgBuyPrice = BigDecimal("100.00")))
+        fakePositionRepository.save(
+            Position(id = PositionId(userId, "AAPL"), quantity = 3, avgBuyPrice = BigDecimal("100.00")),
+        )
         fakePriceService.price = BigDecimal("100.00")
 
         assertThrows<InsufficientQuantityException> {
@@ -101,7 +109,9 @@ class SellServiceTest {
     @Test
     fun `sell returns correct response fields`() {
         val userId = UUID.randomUUID()
-        fakePositionRepository.save(Position(id = PositionId(userId, "MSFT"), quantity = 10, avgBuyPrice = BigDecimal("300.00")))
+        fakePositionRepository.save(
+            Position(id = PositionId(userId, "MSFT"), quantity = 10, avgBuyPrice = BigDecimal("300.00")),
+        )
         fakePriceService.price = BigDecimal("350.00")
 
         val response = sellService.sell(userId, "MSFT", 4)

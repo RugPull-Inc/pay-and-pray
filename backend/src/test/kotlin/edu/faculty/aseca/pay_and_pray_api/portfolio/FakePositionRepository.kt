@@ -7,8 +7,10 @@ import java.util.UUID
 class FakePositionRepository : PositionRepository {
     val store = mutableListOf<Position>()
 
-    override fun findByUserIdAndTicker(userId: UUID, ticker: String): Position? =
-        store.find { it.id.userId == userId && it.id.ticker == ticker }
+    override fun findByUserIdAndTicker(
+        userId: UUID,
+        ticker: String,
+    ): Position? = store.find { it.id.userId == userId && it.id.ticker == ticker }
 
     override fun save(position: Position): Position =
         position.also {

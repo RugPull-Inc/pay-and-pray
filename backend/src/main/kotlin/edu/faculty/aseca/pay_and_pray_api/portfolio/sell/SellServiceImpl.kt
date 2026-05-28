@@ -20,7 +20,11 @@ class SellServiceImpl(
     private val positionRepository: PositionRepository,
     private val transactionRepository: TransactionRepository,
 ) : SellService {
-    override fun sell(userId: UUID, ticker: String, quantity: Int): SellResponse {
+    override fun sell(
+        userId: UUID,
+        ticker: String,
+        quantity: Int,
+    ): SellResponse {
         val price = priceService.getLatestPrice(ticker) ?: throw TickerNotFoundException()
 
         val position = positionRepository.findByUserIdAndTicker(userId, ticker) ?: throw NoPositionException()

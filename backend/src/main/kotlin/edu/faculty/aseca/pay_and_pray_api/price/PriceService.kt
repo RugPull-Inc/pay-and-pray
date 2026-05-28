@@ -4,5 +4,6 @@ import java.math.BigDecimal
 
 interface PriceService {
     fun getLatestPrice(ticker: String): BigDecimal?
+
     fun getLastUpdated(): LastUpdatedResponse
 }

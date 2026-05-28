@@ -21,7 +21,11 @@ class BuyServiceImpl(
     private val positionRepository: PositionRepository,
     private val transactionRepository: TransactionRepository,
 ) : BuyService {
-    override fun buy(userId: UUID, ticker: String, quantity: Int): BuyResponse {
+    override fun buy(
+        userId: UUID,
+        ticker: String,
+        quantity: Int,
+    ): BuyResponse {
         val price = priceService.getLatestPrice(ticker) ?: throw TickerNotFoundException()
 
         transactionRepository.save(
@@ -31,13 +35,17 @@ class BuyServiceImpl(
         val existing = positionRepository.findByUserIdAndTicker(userId, ticker)
         val updatedPosition =
             if (existing == null) {
-                positionRepository.save(Position(id = PositionId(userId, ticker), quantity = quantity, avgBuyPrice = price))
+                positionRepository.save(
+                    Position(id = PositionId(userId, ticker), quantity = quantity, avgBuyPrice = price),
+                )
             } else {
                 val newQty = existing.quantity + quantity
                 val newAvg =
                     (existing.quantity.toBigDecimal() * existing.avgBuyPrice + quantity.toBigDecimal() * price)
                         .divide(newQty.toBigDecimal(), 4, RoundingMode.HALF_UP)
-                positionRepository.save(existing.copy(quantity = newQty, avgBuyPrice = newAvg, updatedAt = LocalDateTime.now()))
+                positionRepository.save(
+                    existing.copy(quantity = newQty, avgBuyPrice = newAvg, updatedAt = LocalDateTime.now()),
+                )
             }
 
         return BuyResponse(

@@ -11,7 +11,8 @@ class PriceServiceImpl(
     override fun getLatestPrice(ticker: String): BigDecimal? = priceRepository.findByTicker(ticker)?.price
 
     override fun getLastUpdated(): LastUpdatedResponse =
-        batchRunRepository.findTopSuccessCompletedAt()
+        batchRunRepository
+            .findTopSuccessCompletedAt()
             ?.let { LastUpdatedResponse(lastUpdated = it) }
             ?: LastUpdatedResponse(message = "El proceso nunca fue ejecutado")
 }

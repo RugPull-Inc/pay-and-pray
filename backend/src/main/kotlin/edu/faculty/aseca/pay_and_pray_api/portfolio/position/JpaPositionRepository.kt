@@ -6,5 +6,8 @@ import java.util.UUID
 
 @Repository
 interface JpaPositionRepository : JpaRepository<Position, PositionId> {
-    fun findByIdUserIdAndIdTicker(userId: UUID, ticker: String): Position?
+    fun findByIdUserIdAndIdTicker(
+        userId: UUID,
+        ticker: String,
+    ): Position?
 }

@@ -22,7 +22,11 @@ class PortfolioIntegrationTest : IntegrationTestBase() {
         given(priceService.getLatestPrice("UNKNOWN")).willReturn(null)
     }
 
-    private fun buy(token: String, ticker: String, quantity: Int): ResultActionsDsl =
+    private fun buy(
+        token: String,
+        ticker: String,
+        quantity: Int,
+    ): ResultActionsDsl =
         mockMvc.post("/portfolio/buy") {
             contentType = MediaType.APPLICATION_JSON
             header("Authorization", "Bearer $token")
@@ -30,7 +34,11 @@ class PortfolioIntegrationTest : IntegrationTestBase() {
         }
 
     @Suppress("SameParameterValue")
-    private fun sell(token: String, ticker: String, quantity: Int): ResultActionsDsl =
+    private fun sell(
+        token: String,
+        ticker: String,
+        quantity: Int,
+    ): ResultActionsDsl =
         mockMvc.post("/portfolio/sell") {
             contentType = MediaType.APPLICATION_JSON
             header("Authorization", "Bearer $token")
@@ -39,18 +47,20 @@ class PortfolioIntegrationTest : IntegrationTestBase() {
 
     @Test
     fun `POST buy without token returns 401`() {
-        mockMvc.post("/portfolio/buy") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"ticker":"AAPL","quantity":10}"""
-        }.andExpect { status { isUnauthorized() } }
+        mockMvc
+            .post("/portfolio/buy") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"ticker":"AAPL","quantity":10}"""
+            }.andExpect { status { isUnauthorized() } }
     }
 
     @Test
     fun `POST sell without token returns 401`() {
-        mockMvc.post("/portfolio/sell") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"ticker":"AAPL","quantity":5}"""
-        }.andExpect { status { isUnauthorized() } }
+        mockMvc
+            .post("/portfolio/sell") {
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"ticker":"AAPL","quantity":5}"""
+            }.andExpect { status { isUnauthorized() } }
     }
 
     @Test
