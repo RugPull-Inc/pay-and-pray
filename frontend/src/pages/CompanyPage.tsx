@@ -8,6 +8,7 @@ import type {
   QuarterlySnapshot,
 } from '@/src/types/company'
 import FinancialChart from '@/src/components/FinancialChart'
+import PriceStatusBar from '@/src/components/PriceStatusBar'
 
 export default function CompanyPage() {
   const { ticker = '' } = useParams()
@@ -146,9 +147,12 @@ function MetricsGrid({
 }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold text-zinc-200">
-        Key Financial Metrics
-      </h2>
+      <div className="flex items-baseline justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold text-zinc-200">
+          Key Financial Metrics
+        </h2>
+        <PriceStatusBar />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <MetricCard label="Revenue" metric={metrics.revenue} />
         <MetricCard label="Net Income" metric={metrics.netIncome} colorize />
