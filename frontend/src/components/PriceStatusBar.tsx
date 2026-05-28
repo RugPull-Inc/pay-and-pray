@@ -3,7 +3,9 @@ import { Clock } from 'lucide-react'
 import { formatLastUpdated, getLastUpdated } from '@/src/services/priceService'
 
 export default function PriceStatusBar() {
-  const [lastUpdated, setLastUpdated] = useState<string | null | undefined>(undefined)
+  const [lastUpdated, setLastUpdated] = useState<string | null | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     getLastUpdated()
