@@ -149,6 +149,15 @@ export async function searchCompanies(
   return data.results
 }
 
+export async function fetchCompanyByCik(
+  cik: string
+): Promise<CompanyFinancialsResponse | null> {
+  const res = await apiFetch(`/companies/${cik}/details`)
+  if (!res.ok) return null
+  const details: BackendDetailsResponse = await res.json()
+  return adaptDetailsResponse(details)
+}
+
 export async function fetchCompanyByTicker(
   ticker: string
 ): Promise<CompanyFinancialsResponse | null> {

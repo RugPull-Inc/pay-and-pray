@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, FileText, AlertCircle, Loader2 } from 'lucide-react'
-import { fetchCompanyByTicker } from '@/src/services/companyService'
+import {
+  fetchCompanyByCik,
+  fetchCompanyByTicker,
+} from '@/src/services/companyService'
 import type {
   CompanyFinancialsResponse,
   MetricValue,
@@ -19,7 +22,10 @@ export default function CompanyPage() {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    fetchCompanyByTicker(normalizedTicker)
+    const fetchCompany = /^\d+$/.test(ticker)
+      ? fetchCompanyByCik(ticker)
+      : fetchCompanyByTicker(normalizedTicker)
+    fetchCompany
       .then((result) => {
         if (!result)
           setError('Company not found or no financial data available.')
