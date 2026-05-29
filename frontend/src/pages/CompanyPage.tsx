@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, FileText, AlertCircle, Loader2 } from 'lucide-react'
 import {
   fetchCompanyByCik,
@@ -77,6 +77,7 @@ function ErrorState({ message }: { message: string }) {
 }
 
 function Header({ data }: { data: CompanyFinancialsResponse }) {
+  const navigate = useNavigate()
   return (
     <div className="space-y-4">
       <Link
@@ -86,7 +87,7 @@ function Header({ data }: { data: CompanyFinancialsResponse }) {
         <ArrowLeft size={16} />
         Back to search
       </Link>
-      <div className="flex items-start gap-4 flex-wrap">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-3xl font-bold tracking-tight">
@@ -98,6 +99,14 @@ function Header({ data }: { data: CompanyFinancialsResponse }) {
           </div>
           <p className="text-zinc-500 text-sm mt-1">CIK: {data.cik}</p>
         </div>
+        {data.ticker && (
+          <button
+            onClick={() => navigate(`/portfolio/buy?ticker=${data.ticker}`)}
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors cursor-pointer"
+          >
+            Buy
+          </button>
+        )}
       </div>
     </div>
   )
