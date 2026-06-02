@@ -55,7 +55,7 @@ it('muestra compras y ventas con sus datos en orden cronológico inverso', () =>
   cy.contains('button', 'Sell').click()
   cy.wait('@sell')
 
-  cy.intercept('GET', '**/portfolio/history', {
+  cy.intercept('GET', `${Cypress.env('apiUrl')}/portfolio/history`, {
     statusCode: 200,
     body: OPERATIONS,
   }).as('history')
@@ -94,7 +94,7 @@ it('informa que no hay operaciones cuando el historial está vacío', () => {
   cy.clearAuth()
   cy.setCookie('pay_and_pray_token', 'fake-token')
 
-  cy.intercept('GET', '**/portfolio/history', {
+  cy.intercept('GET', `${Cypress.env('apiUrl')}/portfolio/history`, {
     statusCode: 200,
     body: [],
   }).as('history')
