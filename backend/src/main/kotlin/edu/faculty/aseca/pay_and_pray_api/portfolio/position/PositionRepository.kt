@@ -8,6 +8,8 @@ interface PositionRepository {
         ticker: String,
     ): Position?
 
+    fun findAllByUserId(userId: UUID): List<Position>
+
     fun save(position: Position): Position
 
     fun delete(position: Position)

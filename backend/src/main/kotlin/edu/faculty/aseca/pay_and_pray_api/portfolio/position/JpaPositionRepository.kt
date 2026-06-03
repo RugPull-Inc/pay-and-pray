@@ -10,4 +10,6 @@ interface JpaPositionRepository : JpaRepository<Position, PositionId> {
         userId: UUID,
         ticker: String,
     ): Position?
+
+    fun findByIdUserId(userId: UUID): List<Position>
 }
