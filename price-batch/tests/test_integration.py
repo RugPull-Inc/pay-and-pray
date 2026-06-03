@@ -40,6 +40,12 @@ SCHEMA = """
         id     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         ticker VARCHAR(20) NOT NULL
     );
+
+    CREATE TABLE tracked_tickers (
+        ticker     VARCHAR(20) PRIMARY KEY,
+        source     VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+    );
 """
 
 
@@ -106,3 +112,41 @@ def test_batch_fetches_aapl_price_and_persists_in_db(pg):
     assert float(row[0]) > 0, "Price should be positive"
     assert run[0] == "SUCCESS"
     assert run[1] is not None, "completed_at should be set on success"
+
+
+@pytest.mark.integration
+def test_batch_fetches_price_for_ticker_in_tracked_tickers(pg):
+    conn = psycopg2.connect(
+        host=pg.get_container_host_ip(),
+        port=pg.get_exposed_port(5432),
+        dbname=pg.dbname,
+        user=pg.username,
+        password=pg.password,
+    )
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM prices")
+        cur.execute("DELETE FROM batch_runs")
+        cur.execute("DELETE FROM positions")
+        cur.execute("DELETE FROM tracked_tickers")
+        cur.execute("INSERT INTO tracked_tickers (ticker, source) VALUES ('MSFT', 'test')")
+    conn.commit()
+    conn.close()
+
+    success = b.run_batch()
+
+    assert success is True
+
+    conn = psycopg2.connect(
+        host=pg.get_container_host_ip(),
+        port=pg.get_exposed_port(5432),
+        dbname=pg.dbname,
+        user=pg.username,
+        password=pg.password,
+    )
+    with conn.cursor() as cur:
+        cur.execute("SELECT price FROM prices WHERE ticker = 'MSFT'")
+        row = cur.fetchone()
+    conn.close()
+
+    assert row is not None, "MSFT price not found in DB"
+    assert float(row[0]) > 0
