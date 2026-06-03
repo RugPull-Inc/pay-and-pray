@@ -88,7 +88,7 @@ class PriceIntegrationTest {
 
     @Test
     fun `POST admin prices refresh returns 500 when trigger throws`() {
-        doThrow(RuntimeException("script not found")).`when`(batchTriggerService).trigger()
+        doThrow(RuntimeException("price-batch unreachable")).`when`(batchTriggerService).trigger()
 
         mockMvc
             .post("/admin/prices/refresh")

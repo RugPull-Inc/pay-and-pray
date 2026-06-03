@@ -23,7 +23,9 @@ def collect_tickers(conn) -> list[str]:
         cur.execute(
             "SELECT ticker FROM positions "
             "UNION "
-            "SELECT ticker FROM watchlist_items"
+            "SELECT ticker FROM watchlist_items "
+            "UNION "
+            "SELECT ticker FROM tracked_tickers"
         )
         rows = cur.fetchall()
     return list({row[0] for row in rows})

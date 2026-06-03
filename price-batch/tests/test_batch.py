@@ -26,7 +26,7 @@ def test_collect_tickers_deduplicates_across_tables():
     assert len(result) == 2
 
 
-def test_collect_tickers_queries_both_tables():
+def test_collect_tickers_queries_all_three_tables():
     conn = MagicMock()
     cur = conn.cursor.return_value.__enter__.return_value
     cur.fetchall.return_value = []
@@ -36,6 +36,7 @@ def test_collect_tickers_queries_both_tables():
     sql = cur.execute.call_args[0][0]
     assert "positions" in sql.lower()
     assert "watchlist_items" in sql.lower()
+    assert "tracked_tickers" in sql.lower()
 
 
 def test_collect_tickers_returns_empty_when_no_data():
