@@ -14,7 +14,7 @@ class PriceServiceTest {
     @BeforeEach
     fun setUp() {
         repository = FakeBatchRunRepository()
-        service = PriceService(repository)
+        service = PriceServiceImpl(FakePriceRepository(), repository)
     }
 
     @Test
@@ -78,6 +78,10 @@ class PriceServiceTest {
         completedAt = completedAt,
         status = status,
     )
+}
+
+private class FakePriceRepository : PriceRepository {
+    override fun findByTicker(ticker: String): Price? = null
 }
 
 private class FakeBatchRunRepository : BatchRunRepository {

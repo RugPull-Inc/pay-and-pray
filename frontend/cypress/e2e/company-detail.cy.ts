@@ -70,6 +70,15 @@ describe('Company detail page', () => {
       })
   })
 
+  it('shows the price last-updated indicator', () => {
+    cy.contains('Key Financial Metrics', { timeout: 15000 }).should(
+      'be.visible'
+    )
+    cy.contains(
+      /Precios actualizados al|Los precios aún no fueron actualizados/
+    ).should('be.visible')
+  })
+
   it('unauthenticated user is redirected to login', () => {
     cy.clearAuth()
     cy.visit('/companies/AAPL')

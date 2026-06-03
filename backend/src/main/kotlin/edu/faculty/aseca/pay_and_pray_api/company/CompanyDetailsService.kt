@@ -20,8 +20,14 @@ class CompanyDetailsService(
         private const val STALE_REVENUE_MONTHS = 6L
         private val RELEVANT_FORMS = setOf("10-K", "10-Q")
         private val REVENUE_TAGS =
-            listOf("RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet", "Revenues")
-        private val NET_INCOME_TAGS = listOf("NetIncomeLoss")
+            listOf(
+                "RevenueFromContractWithCustomerExcludingAssessedTax",
+                "SalesRevenueNet",
+                "Revenues",
+                "RevenuesNetOfInterestExpense",
+            )
+        private val NET_INCOME_TAGS =
+            listOf("NetIncomeLoss", "NetIncomeLossAvailableToCommonStockholdersBasic")
         private val EPS_TAGS = listOf("EarningsPerShareBasic", "EarningsPerShareDiluted")
         private val ASSETS_TAGS = listOf("Assets")
         private val LIABILITIES_TAGS =
