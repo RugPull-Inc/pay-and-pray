@@ -2,12 +2,14 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/RouteGuards'
 import Navbar from './components/Navbar'
+import PortfolioLayout from './layouts/PortfolioLayout'
 import CompanyPage from './pages/CompanyPage'
 import Home from './pages/Home'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import BuyPage from './pages/BuyPage'
 import SellPage from './pages/SellPage'
+import PortfolioHistoryPage from './pages/PortfolioHistoryPage'
 
 function Shell() {
   return (
@@ -19,21 +21,18 @@ function Shell() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/companies/:ticker" element={<CompanyPage />} />
         <Route
-          path="/portfolio/buy"
+          path="/portfolio"
           element={
             <ProtectedRoute>
-              <BuyPage />
+              <PortfolioLayout />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/portfolio/sell"
-          element={
-            <ProtectedRoute>
-              <SellPage />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route index element={<Navigate to="buy" replace />} />
+          <Route path="buy" element={<BuyPage />} />
+          <Route path="sell" element={<SellPage />} />
+          <Route path="history" element={<PortfolioHistoryPage />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

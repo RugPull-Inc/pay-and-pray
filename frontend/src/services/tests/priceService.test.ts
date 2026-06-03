@@ -1,4 +1,4 @@
-import { formatLastUpdated, getPriceStatusText } from './priceService'
+import { formatLastUpdated, getPriceStatusText } from '../priceService'
 
 describe('formatLastUpdated', () => {
   it('formats an ISO string to DD/MM/YYYY HH:mm', () => {
