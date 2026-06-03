@@ -81,18 +81,30 @@ class PriceIntegrationTest {
 
     @Test
     fun `POST admin prices refresh returns 202 when trigger succeeds`() {
+        val token = loginAndGetToken()
+
+        mockMvc
+            .post("/admin/prices/refresh") {
+                header("Authorization", "Bearer $token")
+            }.andExpect { status { isAccepted() } }
+    }
+
+    @Test
+    fun `POST admin prices refresh returns 401 without auth`() {
         mockMvc
             .post("/admin/prices/refresh")
-            .andExpect { status { isAccepted() } }
+            .andExpect { status { isUnauthorized() } }
     }
 
     @Test
     fun `POST admin prices refresh returns 500 when trigger throws`() {
-        doThrow(RuntimeException("script not found")).`when`(batchTriggerService).trigger()
+        val token = loginAndGetToken()
+        doThrow(RuntimeException("price-batch unreachable")).`when`(batchTriggerService).trigger()
 
         mockMvc
-            .post("/admin/prices/refresh")
-            .andExpect { status { isInternalServerError() } }
+            .post("/admin/prices/refresh") {
+                header("Authorization", "Bearer $token")
+            }.andExpect { status { isInternalServerError() } }
     }
 
     @Test
