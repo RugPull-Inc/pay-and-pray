@@ -12,6 +12,8 @@ class PositionRepositoryImpl(
         ticker: String,
     ): Position? = jpa.findByIdUserIdAndIdTicker(userId, ticker)
 
+    override fun findAllByUserId(userId: UUID): List<Position> = jpa.findByIdUserId(userId)
+
     override fun save(position: Position): Position = jpa.save(position)
 
     override fun delete(position: Position) = jpa.delete(position)

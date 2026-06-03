@@ -12,6 +12,8 @@ class FakePositionRepository : PositionRepository {
         ticker: String,
     ): Position? = store.find { it.id.userId == userId && it.id.ticker == ticker }
 
+    override fun findAllByUserId(userId: UUID): List<Position> = store.filter { it.id.userId == userId }
+
     override fun save(position: Position): Position =
         position.also {
             store.removeIf { it.id == position.id }
