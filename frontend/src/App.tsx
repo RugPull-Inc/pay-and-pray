@@ -28,6 +28,7 @@ function Shell() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<Navigate to="buy" replace />} />
           <Route path="buy" element={<BuyPage />} />
           <Route path="sell" element={<SellPage />} />
           <Route path="history" element={<PortfolioHistoryPage />} />
