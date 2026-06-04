@@ -9,4 +9,7 @@ class FakeTransactionRepository : TransactionRepository {
 
     override fun save(transaction: Transaction): Transaction =
         transaction.copy(id = UUID.randomUUID()).also { store.add(it) }
+
+    override fun findByUserIdOrderByCreatedAtDesc(userId: UUID): List<Transaction> =
+        store.filter { it.userId == userId }.sortedByDescending { it.createdAt }
 }

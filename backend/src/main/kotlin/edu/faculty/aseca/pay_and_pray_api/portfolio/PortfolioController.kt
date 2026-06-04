@@ -6,7 +6,9 @@ import edu.faculty.aseca.pay_and_pray_api.portfolio.dto.BuyResponse
 import edu.faculty.aseca.pay_and_pray_api.portfolio.dto.PortfolioView
 import edu.faculty.aseca.pay_and_pray_api.portfolio.dto.SellRequest
 import edu.faculty.aseca.pay_and_pray_api.portfolio.dto.SellResponse
+import edu.faculty.aseca.pay_and_pray_api.portfolio.dto.TransactionResponse
 import edu.faculty.aseca.pay_and_pray_api.portfolio.sell.SellService
+import edu.faculty.aseca.pay_and_pray_api.portfolio.transaction.TransactionService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -23,11 +25,18 @@ class PortfolioController(
     private val buyService: BuyService,
     private val sellService: SellService,
     private val portfolioService: PortfolioService,
+    private val transactionService: TransactionService,
 ) {
     @GetMapping
     fun getPortfolio(authentication: Authentication): ResponseEntity<PortfolioView> {
         val userId = UUID.fromString(authentication.principal as String)
         return ResponseEntity.ok(portfolioService.getPortfolio(userId))
+    }
+
+    @GetMapping("/history")
+    fun history(authentication: Authentication): List<TransactionResponse> {
+        val userId = UUID.fromString(authentication.principal as String)
+        return transactionService.getHistory(userId)
     }
 
     @PostMapping("/buy")
