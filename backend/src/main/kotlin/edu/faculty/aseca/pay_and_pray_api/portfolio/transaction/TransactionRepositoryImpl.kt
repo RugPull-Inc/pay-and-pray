@@ -9,5 +9,6 @@ class TransactionRepositoryImpl(
 ) : TransactionRepository {
     override fun save(transaction: Transaction): Transaction = jpa.save(transaction)
 
-    override fun findByUserIdOrderByCreatedAtDesc(userId: UUID): List<Transaction> = jpa.findByUserIdOrderByCreatedAtDesc(userId)
+    override fun findByUserIdOrderByCreatedAtDesc(userId: UUID): List<Transaction> =
+        jpa.findByUserIdOrderByCreatedAtDesc(userId)
 }
