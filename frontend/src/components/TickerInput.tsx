@@ -1,22 +1,8 @@
-import { useRef, useState } from 'react'
-
-interface TickerSuggestion {
-  ticker: string
-  name: string
-}
-
-const MOCK_TICKERS: TickerSuggestion[] = [
-  { ticker: 'AAPL', name: 'Apple Inc.' },
-  { ticker: 'MSFT', name: 'Microsoft Corporation' },
-  { ticker: 'GOOGL', name: 'Alphabet Inc.' },
-  { ticker: 'AMZN', name: 'Amazon.com Inc.' },
-  { ticker: 'TSLA', name: 'Tesla Inc.' },
-  { ticker: 'NVDA', name: 'NVIDIA Corporation' },
-  { ticker: 'META', name: 'Meta Platforms Inc.' },
-  { ticker: 'BRK', name: 'Berkshire Hathaway Inc.' },
-  { ticker: 'JPM', name: 'JPMorgan Chase & Co.' },
-  { ticker: 'V', name: 'Visa Inc.' },
-]
+import { useEffect, useRef, useState } from 'react'
+import {
+  searchCompanies,
+  type BackendSearchResult,
+} from '@/src/services/companyService'
 
 interface Props {
   value: string
@@ -25,15 +11,26 @@ interface Props {
 
 export default function TickerInput({ value, onChange }: Props) {
   const [open, setOpen] = useState(false)
+  const [suggestions, setSuggestions] = useState<BackendSearchResult[]>([])
   const ref = useRef<HTMLDivElement>(null)
 
-  const suggestions = value.trim()
-    ? MOCK_TICKERS.filter(
-        (t) =>
-          t.ticker.startsWith(value.toUpperCase()) ||
-          t.name.toLowerCase().includes(value.toLowerCase())
-      )
-    : []
+  useEffect(() => {
+    const query = value.trim()
+    if (!query) {
+      setSuggestions([])
+      return
+    }
+
+    const timeoutId = setTimeout(() => {
+      searchCompanies(query)
+        .then((results) =>
+          setSuggestions(results.filter((result) => Boolean(result.ticker)))
+        )
+        .catch(() => setSuggestions([]))
+    }, 250)
+
+    return () => clearTimeout(timeoutId)
+  }, [value])
 
   function handleBlur(e: React.FocusEvent) {
     if (!ref.current?.contains(e.relatedTarget as Node)) setOpen(false)
@@ -62,11 +59,11 @@ export default function TickerInput({ value, onChange }: Props) {
       {open && suggestions.length > 0 && (
         <ul className="absolute z-10 left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden shadow-lg">
           {suggestions.map((s) => (
-            <li key={s.ticker}>
+            <li key={`${s.cik ?? s.ticker}-${s.name}`}>
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => select(s.ticker)}
+                onClick={() => select(s.ticker!)}
                 className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-zinc-800 transition-colors text-left"
               >
                 <span className="text-sm font-mono font-semibold text-indigo-300 w-14 shrink-0">
