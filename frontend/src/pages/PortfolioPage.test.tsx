@@ -11,6 +11,11 @@ jest.mock('@/src/services/apiClient', () => ({
   apiFetch: jest.fn(),
 }))
 
+jest.mock('@/src/components/PriceStatusBar', () => ({
+  __esModule: true,
+  default: () => <div>Precios actualizados al 05/06/2026 10:47</div>,
+}))
+
 jest.mock('react-router-dom', () => ({
   Link: ({ to, children, ...props }: { to: string; children: ReactNode }) => (
     <a href={to} {...props}>
@@ -112,6 +117,9 @@ describe('PortfolioPage', () => {
     expect(container.textContent).toContain('-$50.00')
     expect(container.textContent).toContain('Valor total del portfolio')
     expect(container.textContent).toContain('$2,200.00')
+    expect(container.textContent).toContain(
+      'Precios actualizados al 05/06/2026 10:47'
+    )
 
     const rows = Array.from(container.querySelectorAll('tbody tr'))
     const aaplPnl = rows[0].querySelector('.portfolio-pnl-value')

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiFetch } from '@/src/services/apiClient'
+import PriceStatusBar from '@/src/components/PriceStatusBar'
 
 export interface PortfolioPosition {
   ticker: string
@@ -167,6 +168,9 @@ export default function PortfolioPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Posiciones actuales, valor de mercado y P&amp;L.
           </p>
+          <div className="mt-2">
+            <PriceStatusBar />
+          </div>
         </div>
         <div className="flex gap-2">
           <Link
