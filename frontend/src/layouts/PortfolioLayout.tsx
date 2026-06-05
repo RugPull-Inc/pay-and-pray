@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
 const tabs = [
+  { to: '/portfolio', label: 'Mi Portfolio', end: true },
   { to: '/portfolio/buy', label: 'Buy' },
   { to: '/portfolio/sell', label: 'Sell' },
   { to: '/portfolio/history', label: 'Historial' },
@@ -14,10 +15,11 @@ export default function PortfolioLayout() {
           className="flex gap-1 border-b border-zinc-800"
           data-testid="portfolio-tabs"
         >
-          {tabs.map(({ to, label }) => (
+          {tabs.map(({ to, label, end }) => (
             <NavLink
               key={to}
               to={to}
+              end={end}
               className={({ isActive }) =>
                 `px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
                   isActive

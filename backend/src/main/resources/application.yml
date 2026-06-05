@@ -32,3 +32,7 @@ cors:
 
 batch:
   service-url: ${BATCH_SERVICE_URL:http://price-batch:8081}
+
+prices:
+  refresh-on-startup:
+    enabled: true

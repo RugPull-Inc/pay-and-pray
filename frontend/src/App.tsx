@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage'
 import BuyPage from './pages/BuyPage'
 import SellPage from './pages/SellPage'
 import PortfolioHistoryPage from './pages/PortfolioHistoryPage'
+import PortfolioPage from './pages/PortfolioPage'
 
 function Shell() {
   return (
@@ -28,7 +29,7 @@ function Shell() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="buy" replace />} />
+          <Route index element={<PortfolioPage />} />
           <Route path="buy" element={<BuyPage />} />
           <Route path="sell" element={<SellPage />} />
           <Route path="history" element={<PortfolioHistoryPage />} />
