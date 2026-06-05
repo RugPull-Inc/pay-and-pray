@@ -14,3 +14,7 @@ edgar:
 
 batch:
   service-url: http://localhost:9999
+
+prices:
+  refresh-on-startup:
+    enabled: false
