@@ -13,7 +13,7 @@ describe('Auth', () => {
     cy.registerThroughUI(email, password)
 
     cy.url({ timeout: 10000 }).should('match', /\/$/)
-    cy.window().its('localStorage.token').should('be.a', 'string')
+    cy.getCookie('pay_and_pray_token').should('not.be.null')
   })
 
   it('logs in with existing credentials', () => {
@@ -22,6 +22,6 @@ describe('Auth', () => {
     cy.loginThroughUI(email, password)
 
     cy.url({ timeout: 10000 }).should('match', /\/$/)
-    cy.window().its('localStorage.token').should('be.a', 'string')
+    cy.getCookie('pay_and_pray_token').should('not.be.null')
   })
 })
