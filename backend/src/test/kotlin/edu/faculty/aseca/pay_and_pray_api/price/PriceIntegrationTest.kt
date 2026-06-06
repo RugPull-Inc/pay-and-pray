@@ -96,10 +96,10 @@ class PriceIntegrationTest {
     }
 
     @Test
-    fun `GET prices last-updated without auth returns 401`() {
+    fun `GET prices last-updated without auth returns 200`() {
         mockMvc
             .get("/prices/last-updated")
-            .andExpect { status { isUnauthorized() } }
+            .andExpect { status { isOk() } }
     }
 
     @Test

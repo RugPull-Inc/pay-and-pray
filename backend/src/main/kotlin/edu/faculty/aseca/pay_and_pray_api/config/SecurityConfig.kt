@@ -35,6 +35,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/admin/prices/refresh")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/prices/last-updated")
+                    .permitAll()
                     .anyRequest()
                     .authenticated()
             }.exceptionHandling { ex ->
