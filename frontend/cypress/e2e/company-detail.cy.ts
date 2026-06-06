@@ -67,5 +67,4 @@ describe('Company detail page', () => {
       /Precios actualizados al|Los precios aún no fueron actualizados/
     ).should('be.visible')
   })
-
 })
