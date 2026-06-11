@@ -32,5 +32,16 @@ export default tseslint.config(
     languageOptions: {
       globals: globals.node,
     },
+  },
+  {
+    files: ['appium/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.mocha,
+        browser: 'readonly',
+        $: 'readonly',
+      },
+    },
   }
 )
