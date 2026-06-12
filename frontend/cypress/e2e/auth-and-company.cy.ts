@@ -15,13 +15,13 @@ describe('Auth + company browse — minimum E2E', () => {
 
     // Register auto-logs the user in (token stored, redirect to /)
     cy.url({ timeout: 10000 }).should('match', /\/$/)
-    cy.window().its('localStorage.token').should('be.a', 'string')
+    cy.getCookie('pay_and_pray_token').should('not.be.null')
 
     // 2. Sign out so we can exercise the login flow on its own
     cy.clearAuth()
     cy.loginThroughUI(email, password)
     cy.url({ timeout: 10000 }).should('match', /\/$/)
-    cy.window().its('localStorage.token').should('be.a', 'string')
+    cy.getCookie('pay_and_pray_token').should('not.be.null')
 
     // 3. Search for a company from the home page
     cy.get('input[placeholder*="Search ticker"]').type('AAPL')

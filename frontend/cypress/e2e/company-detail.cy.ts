@@ -1,19 +1,8 @@
 /// <reference types="cypress" />
 
 describe('Company detail page', () => {
-  const password = 'password123'
-  const email = `cypress-detail-${crypto.randomUUID()}@example.com`
-
-  before(() => {
-    cy.clearAuth()
-    cy.registerThroughUI(email, password)
-    cy.clearAuth()
-  })
-
   beforeEach(() => {
     cy.clearAuth()
-    cy.loginThroughUI(email, password)
-    // Navigate to Apple via the popular shortcut — avoids a live EDGAR search
     cy.visit('/companies/AAPL')
   })
 
@@ -70,9 +59,12 @@ describe('Company detail page', () => {
       })
   })
 
-  it('unauthenticated user is redirected to login', () => {
-    cy.clearAuth()
-    cy.visit('/companies/AAPL')
-    cy.url({ timeout: 5000 }).should('include', '/login')
+  it('shows the price last-updated indicator', () => {
+    cy.contains('Key Financial Metrics', { timeout: 15000 }).should(
+      'be.visible'
+    )
+    cy.contains(
+      /Precios actualizados al|Los precios aún no fueron actualizados/
+    ).should('be.visible')
   })
 })

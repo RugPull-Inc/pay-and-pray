@@ -11,3 +11,10 @@ jwt:
 
 edgar:
   user-agent: test-agent
+
+batch:
+  service-url: http://localhost:9999
+
+prices:
+  refresh-on-startup:
+    enabled: false
