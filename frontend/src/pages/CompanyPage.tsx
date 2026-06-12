@@ -270,7 +270,7 @@ function FilingsSection({
                       rel="noopener noreferrer"
                       className="text-indigo-400 hover:text-indigo-300 transition-colors text-xs font-medium"
                     >
-                      View -&gt;
+                      View →
                     </a>
                   </td>
                 </tr>
