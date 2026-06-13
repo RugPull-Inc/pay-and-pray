@@ -2,18 +2,53 @@
  * @jest-environment jsdom
  */
 import { act } from 'react'
+import type { ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import WatchlistPage from './WatchlistPage'
 import { apiFetch } from '@/src/services/apiClient'
+import { searchCompanies } from '@/src/services/companyService'
 
 jest.mock('@/src/services/apiClient', () => ({
   apiFetch: jest.fn(),
+}))
+
+jest.mock('react-router-dom', () => ({
+  Link: ({ to, children, ...props }: { to: string; children: ReactNode }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}))
+
+jest.mock('@/src/services/companyService', () => ({
+  searchCompanies: jest.fn(),
+}))
+
+jest.mock('@/src/components/TickerInput', () => ({
+  __esModule: true,
+  default: ({
+    value,
+    onChange,
+  }: {
+    value: string
+    onChange: (value: string) => void
+  }) => (
+    <input
+      id="ticker"
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value.toUpperCase())}
+    />
+  ),
 }))
 ;(
   globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
 
 const mockApiFetch = apiFetch as jest.MockedFunction<typeof apiFetch>
+const mockSearchCompanies = searchCompanies as jest.MockedFunction<
+  typeof searchCompanies
+>
 
 function response(body: unknown, status = 200): Response {
   return {
@@ -52,10 +87,15 @@ function getSubmitButton(container: HTMLElement) {
   ) as HTMLButtonElement
 }
 
+const setInputValue = Object.getOwnPropertyDescriptor(
+  window.HTMLInputElement.prototype,
+  'value'
+)!.set!
+
 async function typeTicker(container: HTMLElement, value: string) {
   const input = getInput(container)
   await act(async () => {
-    input.value = value
+    setInputValue.call(input, value)
     input.dispatchEvent(new Event('input', { bubbles: true }))
   })
 }
@@ -85,6 +125,12 @@ async function clickRemove(container: HTMLElement, ticker: string) {
 describe('WatchlistPage', () => {
   let root: Root | null = null
 
+  beforeEach(() => {
+    mockSearchCompanies.mockImplementation(async (query: string) => [
+      { ticker: query.toUpperCase(), name: 'Mock Co', cik: '1' },
+    ])
+  })
+
   afterEach(() => {
     if (root) {
       act(() => root?.unmount())
@@ -92,6 +138,7 @@ describe('WatchlistPage', () => {
     }
     document.body.innerHTML = ''
     mockApiFetch.mockReset()
+    mockSearchCompanies.mockReset()
   })
 
   it('renderiza la lista de empresas con sus columnas', async () => {
@@ -249,14 +296,10 @@ describe('WatchlistPage', () => {
     expect(container.textContent).toContain('AAPL')
   })
 
-  it('agregar la misma empresa dos veces no la duplica visualmente', async () => {
+  it('agregar la misma empresa dos veces no la duplica y muestra un error', async () => {
     mockApiFetch
       .mockResolvedValueOnce(response({ items: [] }))
       .mockResolvedValueOnce(response({ ticker: 'AAPL' }, 201))
-      .mockResolvedValueOnce(
-        response({ items: [{ ticker: 'AAPL', hasOpenPosition: false }] })
-      )
-      .mockResolvedValueOnce(response({ ticker: 'AAPL' }, 200))
       .mockResolvedValueOnce(
         response({ items: [{ ticker: 'AAPL', hasOpenPosition: false }] })
       )
@@ -276,6 +319,27 @@ describe('WatchlistPage', () => {
 
     const rows = container.querySelectorAll('tbody tr')
     expect(rows).toHaveLength(1)
+    expect(container.textContent).toContain('El ticker ya está en tu watchlist.')
+    expect(mockApiFetch).toHaveBeenCalledTimes(3)
+  })
+
+  it('muestra un error si el ticker no corresponde a una empresa existente', async () => {
+    mockApiFetch.mockResolvedValueOnce(response({ items: [] }))
+    mockSearchCompanies.mockResolvedValueOnce([])
+
+    const rendered = await renderWatchlist()
+    root = rendered.root
+    const { container } = rendered
+    await settle()
+
+    await typeTicker(container, 'ZZZZ')
+    await submitForm(container)
+    await settle()
+
+    expect(container.textContent).toContain(
+      'No existe una empresa con ese ticker.'
+    )
+    expect(mockApiFetch).toHaveBeenCalledTimes(1)
   })
 
   it('quita una empresa existente: dispara DELETE y la remueve de la lista', async () => {

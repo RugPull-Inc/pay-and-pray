@@ -12,6 +12,8 @@ import type {
 } from '@/src/types/company'
 import FinancialChart from '@/src/components/FinancialChart'
 import PriceStatusBar from '@/src/components/PriceStatusBar'
+import { apiFetch } from '@/src/services/apiClient'
+import { useAuth } from '@/src/auth/AuthContext'
 
 export default function CompanyPage() {
   const { ticker = '' } = useParams()
@@ -77,8 +79,56 @@ function ErrorState({ message }: { message: string }) {
   )
 }
 
+function AddToWatchlistButton({ ticker }: { ticker: string }) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>(
+    'idle'
+  )
+  const [message, setMessage] = useState('')
+
+  async function handleClick() {
+    setStatus('loading')
+    setMessage('')
+
+    try {
+      const res = await apiFetch('/watchlist', {
+        method: 'POST',
+        body: JSON.stringify({ ticker }),
+      })
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string }
+        setMessage(data.error ?? 'No se pudo agregar a la watchlist.')
+        setStatus('error')
+        return
+      }
+
+      setStatus('done')
+    } catch {
+      setMessage('No se pudo agregar a la watchlist.')
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button
+        onClick={handleClick}
+        disabled={status === 'loading' || status === 'done'}
+        className="px-4 py-2 text-sm font-medium text-zinc-200 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-xl transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {status === 'done' ? 'En watchlist' : 'Agregar a watchlist'}
+      </button>
+      {status === 'error' && (
+        <p className="text-xs text-red-400">{message}</p>
+      )}
+    </div>
+  )
+}
+
 function Header({ data }: { data: CompanyFinancialsResponse }) {
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+
   return (
     <div className="space-y-4">
       <Link
@@ -101,12 +151,17 @@ function Header({ data }: { data: CompanyFinancialsResponse }) {
           <p className="text-zinc-500 text-sm mt-1">CIK: {data.cik}</p>
         </div>
         {data.ticker && (
-          <button
-            onClick={() => navigate(`/portfolio/buy?ticker=${data.ticker}`)}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors cursor-pointer"
-          >
-            Buy
-          </button>
+          <div className="flex items-start gap-2">
+            {isAuthenticated && (
+              <AddToWatchlistButton ticker={data.ticker} />
+            )}
+            <button
+              onClick={() => navigate(`/portfolio/buy?ticker=${data.ticker}`)}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors cursor-pointer"
+            >
+              Buy
+            </button>
+          </div>
         )}
       </div>
     </div>
