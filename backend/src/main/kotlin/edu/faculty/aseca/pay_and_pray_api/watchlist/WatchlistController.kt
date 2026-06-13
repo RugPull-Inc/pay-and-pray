@@ -1,5 +1,7 @@
 package edu.faculty.aseca.pay_and_pray_api.watchlist
 
+import edu.faculty.aseca.pay_and_pray_api.watchlist.compare.WatchlistCompareService
+import edu.faculty.aseca.pay_and_pray_api.watchlist.compare.dto.WatchlistCompareResponse
 import edu.faculty.aseca.pay_and_pray_api.watchlist.dto.AddTickerRequest
 import edu.faculty.aseca.pay_and_pray_api.watchlist.dto.TickerResponse
 import edu.faculty.aseca.pay_and_pray_api.watchlist.dto.WatchlistResponse
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -19,6 +22,7 @@ import java.util.UUID
 @RequestMapping("/watchlist")
 class WatchlistController(
     private val watchlistService: WatchlistService,
+    private val watchlistCompareService: WatchlistCompareService,
 ) {
     @PostMapping
     fun addTicker(
@@ -45,5 +49,15 @@ class WatchlistController(
     fun getWatchlist(authentication: Authentication): WatchlistResponse {
         val userId = UUID.fromString(authentication.principal as String)
         return WatchlistResponse(items = watchlistService.getWatchlist(userId))
+    }
+
+    @GetMapping("/compare")
+    fun compare(
+        @RequestParam ticker1: String,
+        @RequestParam ticker2: String,
+        authentication: Authentication,
+    ): WatchlistCompareResponse {
+        val userId = UUID.fromString(authentication.principal as String)
+        return watchlistCompareService.compare(userId, ticker1, ticker2)
     }
 }
