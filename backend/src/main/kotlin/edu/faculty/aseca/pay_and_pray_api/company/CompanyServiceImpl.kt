@@ -22,7 +22,8 @@ class CompanyServiceImpl(
         return CompanySearchResponse(results = results, total = results.size)
     }
 
-    override fun findCik(ticker: String): String? = TODO("Not yet implemented")
+    override fun findCik(ticker: String): String? =
+        companyCache().firstOrNull { it.ticker?.uppercase() == ticker.uppercase() }?.cik
 
     private fun companyCache(): List<CompanySearchResult> = cache ?: loadCache().also { cache = it }
 

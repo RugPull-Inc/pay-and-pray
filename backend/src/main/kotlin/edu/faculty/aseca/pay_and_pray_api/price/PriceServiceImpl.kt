@@ -11,7 +11,7 @@ class PriceServiceImpl(
 ) : PriceService {
     override fun getLatestPrice(ticker: String): BigDecimal? = priceRepository.findByTicker(ticker)?.price
 
-    override fun getLatestPriceUpdatedAt(ticker: String): Instant? = TODO("Not yet implemented")
+    override fun getLatestPriceUpdatedAt(ticker: String): Instant? = priceRepository.findByTicker(ticker)?.fetchedAt
 
     override fun getLastUpdated(): LastUpdatedResponse =
         batchRunRepository
