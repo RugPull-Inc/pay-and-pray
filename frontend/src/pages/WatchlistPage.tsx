@@ -147,9 +147,7 @@ export default function WatchlistPage() {
           </button>
         </form>
 
-        {actionError && (
-          <p className="text-sm text-red-400">{actionError}</p>
-        )}
+        {actionError && <p className="text-sm text-red-400">{actionError}</p>}
 
         {items.length === 0 ? (
           <p className="text-sm text-zinc-400">

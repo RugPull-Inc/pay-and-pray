@@ -118,9 +118,7 @@ function AddToWatchlistButton({ ticker }: { ticker: string }) {
       >
         {status === 'done' ? 'En watchlist' : 'Agregar a watchlist'}
       </button>
-      {status === 'error' && (
-        <p className="text-xs text-red-400">{message}</p>
-      )}
+      {status === 'error' && <p className="text-xs text-red-400">{message}</p>}
     </div>
   )
 }
@@ -152,9 +150,7 @@ function Header({ data }: { data: CompanyFinancialsResponse }) {
         </div>
         {data.ticker && (
           <div className="flex items-start gap-2">
-            {isAuthenticated && (
-              <AddToWatchlistButton ticker={data.ticker} />
-            )}
+            {isAuthenticated && <AddToWatchlistButton ticker={data.ticker} />}
             <button
               onClick={() => navigate(`/portfolio/buy?ticker=${data.ticker}`)}
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors cursor-pointer"

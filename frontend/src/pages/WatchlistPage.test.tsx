@@ -82,9 +82,7 @@ function getInput(container: HTMLElement) {
 }
 
 function getSubmitButton(container: HTMLElement) {
-  return container.querySelector(
-    'button[type="submit"]'
-  ) as HTMLButtonElement
+  return container.querySelector('button[type="submit"]') as HTMLButtonElement
 }
 
 const setInputValue = Object.getOwnPropertyDescriptor(
@@ -103,9 +101,7 @@ async function typeTicker(container: HTMLElement, value: string) {
 async function submitForm(container: HTMLElement) {
   const form = container.querySelector('form') as HTMLFormElement
   await act(async () => {
-    form.dispatchEvent(
-      new Event('submit', { bubbles: true, cancelable: true })
-    )
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   })
 }
 
@@ -257,9 +253,7 @@ describe('WatchlistPage', () => {
   it('muestra el error del backend si falla el alta', async () => {
     mockApiFetch
       .mockResolvedValueOnce(response({ items: [] }))
-      .mockResolvedValueOnce(
-        response({ error: 'El ticker es requerido' }, 400)
-      )
+      .mockResolvedValueOnce(response({ error: 'El ticker es requerido' }, 400))
 
     const rendered = await renderWatchlist()
     root = rendered.root
@@ -319,7 +313,9 @@ describe('WatchlistPage', () => {
 
     const rows = container.querySelectorAll('tbody tr')
     expect(rows).toHaveLength(1)
-    expect(container.textContent).toContain('El ticker ya está en tu watchlist.')
+    expect(container.textContent).toContain(
+      'El ticker ya está en tu watchlist.'
+    )
     expect(mockApiFetch).toHaveBeenCalledTimes(3)
   })
 
