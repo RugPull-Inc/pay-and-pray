@@ -1,9 +1,19 @@
-function byText(text) {
-  return $(`android=new UiSelector().text("${text}")`)
+function byInput(placeholderText) {
+  return $(
+    `android=new UiSelector().className("android.widget.EditText").textContains("${placeholderText}")`
+  )
 }
 
-async function waitForText(text, timeout = 30000) {
-  const element = await byText(text)
+function byDescription(text) {
+  return $(`android=new UiSelector().descriptionContains("${text}")`)
+}
+
+function byStaticText(text) {
+  return $(`android=new UiSelector().textContains("${text}")`)
+}
+
+async function waitForStaticText(text, timeout = 30000) {
+  const element = await byStaticText(text)
   await element.waitForDisplayed({ timeout })
   return element
 }
@@ -11,10 +21,15 @@ async function waitForText(text, timeout = 30000) {
 async function scrollToText(text, maxScrolls = 8) {
   const { width, height } = await browser.getWindowSize()
 
-  for (let attempt = 0; attempt <= maxScrolls; attempt += 1) {
-    const element = await byText(text)
-    if (await element.isDisplayed().catch(() => false)) return element
+  const checkVisible = async () => {
+    const element = await byStaticText(text)
+    return (await element.isDisplayed().catch(() => false)) ? element : null
+  }
 
+  let found = await checkVisible()
+  if (found) return found
+
+  for (let i = 0; i < maxScrolls; i += 1) {
     await browser.execute('mobile: scrollGesture', {
       left: Math.round(width * 0.1),
       top: Math.round(height * 0.2),
@@ -23,24 +38,27 @@ async function scrollToText(text, maxScrolls = 8) {
       direction: 'down',
       percent: 0.75,
     })
+    found = await checkVisible()
+    if (found) return found
   }
 
   throw new Error(`Could not find visible text after scrolling: ${text}`)
 }
 
-describe('F2 US 6.2 - company financial detail on mobile', () => {
+describe('Company financial detail on mobile', () => {
   it('searches AAPL by ticker and shows readable metrics, history, and filings', async () => {
     await browser.setOrientation('PORTRAIT')
 
-    const searchInput = await waitForText('Search ticker or company name...')
+    const searchInput = await byInput('Search ticker')
+    await searchInput.waitForDisplayed({ timeout: 30000 })
     await searchInput.click()
     await searchInput.setValue('AAPL')
 
-    const aaplResult = await waitForText('AAPL')
+    const aaplResult = await byDescription('Open AAPL company details')
+    await aaplResult.waitForDisplayed({ timeout: 30000 })
     await aaplResult.click()
 
-    await waitForText('AAPL')
-    await waitForText('Key Financial Metrics')
+    await waitForStaticText('Key Financial Metrics')
 
     for (const metric of [
       'Revenue',
