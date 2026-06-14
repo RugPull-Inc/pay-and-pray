@@ -26,7 +26,7 @@
     "appium:server": "appium --base-path /",
     "appium:driver:install": "appium driver install --source=npm appium-uiautomator2-driver",
     "appium:driver:list": "appium driver list --installed",
-    "appium:android:apk": "cd android && gradlew.bat assembleDebug",
+    "appium:android:apk": "cd android && ./gradlew assembleDebug",
     "appium:test:android": "npm run mobile:build && npm run appium:android:apk && wdio run appium/wdio.android.conf.mjs",
     "type-check": "tsc --noEmit"
   },
