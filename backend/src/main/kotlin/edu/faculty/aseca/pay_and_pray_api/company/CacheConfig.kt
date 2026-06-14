@@ -19,7 +19,7 @@ class CacheConfig {
                 listOf(
                     CaffeineCache(
                         COMPANY_DETAILS_CACHE,
-                        Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build(),
+                        Caffeine.newBuilder().maximumSize(10_000).expireAfterWrite(1, TimeUnit.HOURS).build(),
                     ),
                     CaffeineCache(
                         COMPANY_TICKERS_CACHE,
