@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Clock } from 'lucide-react'
-import { getAuthToken } from '@/src/auth/tokenCookie'
 import { getPriceStatusText, getLastUpdated } from '@/src/services/priceService'
 
 export default function PriceStatusBar() {
@@ -9,7 +8,6 @@ export default function PriceStatusBar() {
   )
 
   useEffect(() => {
-    if (!getAuthToken()) return
     getLastUpdated()
       .then((res) => setLastUpdated(res.lastUpdated))
       .catch(() => setLastUpdated(undefined))

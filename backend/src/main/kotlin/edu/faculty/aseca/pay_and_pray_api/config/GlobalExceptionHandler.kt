@@ -6,6 +6,7 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarApiException
 import edu.faculty.aseca.pay_and_pray_api.portfolio.exception.InsufficientQuantityException
 import edu.faculty.aseca.pay_and_pray_api.portfolio.exception.NoPositionException
 import edu.faculty.aseca.pay_and_pray_api.portfolio.exception.TickerNotFoundException
+import edu.faculty.aseca.pay_and_pray_api.watchlist.exception.TickerNotInWatchlistException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -49,6 +50,10 @@ class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientQuantityException::class)
     fun handleInsufficientQuantity(ex: InsufficientQuantityException): ResponseEntity<ErrorResponse> =
         ResponseEntity.badRequest().body(ErrorResponse(error = ex.message ?: "Bad request"))
+
+    @ExceptionHandler(TickerNotInWatchlistException::class)
+    fun handleTickerNotInWatchlist(ex: TickerNotInWatchlistException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(error = ex.message ?: "Not found"))
 }
 
 data class ErrorResponse(
