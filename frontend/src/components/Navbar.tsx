@@ -66,6 +66,12 @@ export default function Navbar() {
           >
             Mi Portfolio
           </Link>
+          <Link
+            to="/watchlist"
+            className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-zinc-100 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-xl transition-colors"
+          >
+            Watchlist
+          </Link>
           <TradeMenu />
           <button
             onClick={handleLogout}
