@@ -1,9 +1,11 @@
 package edu.faculty.aseca.pay_and_pray_api
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
@@ -18,6 +20,14 @@ import java.util.UUID
 abstract class IntegrationTestBase {
     @Autowired
     protected lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
+    @BeforeEach
+    fun clearCaches() {
+        cacheManager.cacheNames.forEach { cacheManager.getCache(it)?.clear() }
+    }
 
     protected fun loginAndGetToken(): String {
         val email = "test-${UUID.randomUUID()}@example.com"
