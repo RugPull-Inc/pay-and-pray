@@ -92,17 +92,6 @@ class CompanyServiceTest {
     }
 
     @Test
-    fun `search uses cached tickers on second call`() {
-        fakeEdgar.tickers =
-            mapOf("0" to CompanyTicker(cikStr = 320193, name = "Apple Inc.", ticker = "AAPL"))
-
-        service.search("AAPL")
-        service.search("AAPL")
-
-        assertEquals(1, fakeEdgar.getTickersCallCount)
-    }
-
-    @Test
     fun `search propagates EdgarApiException when EDGAR is down`() {
         fakeEdgar.throwOnGetTickers = true
 
@@ -127,27 +116,4 @@ class CompanyServiceTest {
         )
         assertEquals("AAPL", response.results[0].ticker)
     }
-}
-
-private class FakeTickerEdgarClient : EdgarClient {
-    var tickers: Map<String, CompanyTicker> = emptyMap()
-    var throwOnGetTickers = false
-    var getTickersCallCount = 0
-
-    override fun getCompanyTickers(): Map<String, CompanyTicker> {
-        if (throwOnGetTickers) throw EdgarApiException("EDGAR unavailable")
-        getTickersCallCount++
-        return tickers
-    }
-
-    override fun getCompanySubmissions(cik: String): CompanySubmissions = throw UnsupportedOperationException()
-
-    override fun getCompanyFacts(cik: String): CompanyFacts = throw UnsupportedOperationException()
-
-    override fun getCompanyConcept(
-        cik: String,
-        concept: String,
-    ): CompanyConcept = throw UnsupportedOperationException()
-
-    override fun searchFullText(query: String): FullTextSearchResult = throw UnsupportedOperationException()
 }

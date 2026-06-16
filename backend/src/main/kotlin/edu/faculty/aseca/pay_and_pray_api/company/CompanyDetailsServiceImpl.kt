@@ -4,6 +4,7 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.CompanySubmissions
 import edu.faculty.aseca.pay_and_pray_api.edgar.ConceptUnit
 import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarApiException
 import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarClient
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
@@ -36,6 +37,7 @@ class CompanyDetailsServiceImpl(
             listOf("CommonStockSharesOutstanding", "CommonStockSharesIssued")
     }
 
+    @Cacheable(CacheConfig.COMPANY_DETAILS_CACHE, key = "#cik")
     override fun getDetails(cik: String): CompanyDetailsResponse {
         val submissions = edgarClient.getCompanySubmissions(cik)
         val netIncome = fetchMetric(cik, NET_INCOME_TAGS)
