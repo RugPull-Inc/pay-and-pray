@@ -15,7 +15,7 @@ class CompanyServiceTest {
     @BeforeEach
     fun setUp() {
         fakeEdgar = FakeTickerEdgarClient()
-        service = CompanyServiceImpl(fakeEdgar)
+        service = CompanyServiceImpl(CompanyTickerCache(fakeEdgar))
     }
 
     @Test

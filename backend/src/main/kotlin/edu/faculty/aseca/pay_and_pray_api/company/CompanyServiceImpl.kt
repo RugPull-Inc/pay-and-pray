@@ -1,17 +1,13 @@
 package edu.faculty.aseca.pay_and_pray_api.company
 
-import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarClient
 import org.springframework.stereotype.Service
 
 @Service
 class CompanyServiceImpl(
-    private val edgarClient: EdgarClient,
+    private val tickerCache: CompanyTickerCache,
 ) : CompanyService {
-    @Volatile
-    private var cache: List<CompanySearchResult>? = null
-
     override fun search(query: String): CompanySearchResponse {
-        val tickers = companyCache()
+        val tickers = tickerCache.getTickers()
         val q = query.trim().uppercase()
         val results =
             tickers
@@ -23,16 +19,5 @@ class CompanyServiceImpl(
     }
 
     override fun findCik(ticker: String): String? =
-        companyCache().firstOrNull { it.ticker?.uppercase() == ticker.uppercase() }?.cik
-
-    private fun companyCache(): List<CompanySearchResult> = cache ?: loadCache().also { cache = it }
-
-    private fun loadCache(): List<CompanySearchResult> =
-        edgarClient.getCompanyTickers().values.map { t ->
-            CompanySearchResult(
-                name = t.name,
-                ticker = t.ticker,
-                cik = t.cikStr.toString(),
-            )
-        }
+        tickerCache.getTickers().firstOrNull { it.ticker?.uppercase() == ticker.uppercase() }?.cik
 }
