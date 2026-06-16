@@ -12,7 +12,7 @@ import type {
 } from '@/src/types/company'
 import FinancialChart from '@/src/components/FinancialChart'
 import PriceStatusBar from '@/src/components/PriceStatusBar'
-import { apiFetch } from '@/src/services/apiClient'
+import { addToWatchlist } from '@/src/services/watchlistService'
 import { useAuth } from '@/src/auth/AuthContext'
 
 export default function CompanyPage() {
@@ -90,21 +90,12 @@ function AddToWatchlistButton({ ticker }: { ticker: string }) {
     setMessage('')
 
     try {
-      const res = await apiFetch('/watchlist', {
-        method: 'POST',
-        body: JSON.stringify({ ticker }),
-      })
-
-      if (!res.ok) {
-        const data = (await res.json()) as { error?: string }
-        setMessage(data.error ?? 'No se pudo agregar a la watchlist.')
-        setStatus('error')
-        return
-      }
-
+      await addToWatchlist(ticker)
       setStatus('done')
-    } catch {
-      setMessage('No se pudo agregar a la watchlist.')
+    } catch (e) {
+      setMessage(
+        e instanceof Error ? e.message : 'No se pudo agregar a la watchlist.'
+      )
       setStatus('error')
     }
   }

@@ -1,21 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { apiFetch } from '@/src/services/apiClient'
 import { searchCompanies } from '@/src/services/companyService'
+import {
+  getWatchlist,
+  addToWatchlist,
+  removeFromWatchlist,
+} from '@/src/services/watchlistService'
+import type { WatchlistItem } from '@/src/services/watchlistService'
 import TickerInput from '@/src/components/TickerInput'
 
-export interface WatchlistItem {
-  ticker: string
-  hasOpenPosition: boolean
-}
-
-interface WatchlistResponse {
-  items: WatchlistItem[]
-}
-
-interface ErrorBody {
-  error?: string
-}
+export type { WatchlistItem }
 
 export default function WatchlistPage() {
   const [items, setItems] = useState<WatchlistItem[]>([])
@@ -29,10 +23,7 @@ export default function WatchlistPage() {
     setLoadError('')
 
     try {
-      const res = await apiFetch('/watchlist')
-      if (!res.ok) throw new Error('Watchlist request failed')
-      const data = (await res.json()) as WatchlistResponse
-      setItems(data.items)
+      setItems(await getWatchlist())
     } catch {
       setLoadError('No se pudo cargar la watchlist.')
     } finally {
@@ -69,21 +60,13 @@ export default function WatchlistPage() {
     }
 
     try {
-      const res = await apiFetch('/watchlist', {
-        method: 'POST',
-        body: JSON.stringify({ ticker: value }),
-      })
-      const data = (await res.json()) as ErrorBody
-
-      if (!res.ok) {
-        setActionError(data.error ?? 'No se pudo agregar el ticker.')
-        return
-      }
-
+      await addToWatchlist(value)
       setTicker('')
       await loadWatchlist()
-    } catch {
-      setActionError('No se pudo agregar el ticker.')
+    } catch (e) {
+      setActionError(
+        e instanceof Error ? e.message : 'No se pudo agregar el ticker.'
+      )
     }
   }
 
@@ -91,19 +74,12 @@ export default function WatchlistPage() {
     setActionError('')
 
     try {
-      const res = await apiFetch(`/watchlist/${itemTicker}`, {
-        method: 'DELETE',
-      })
-
-      if (!res.ok) {
-        const data = (await res.json()) as ErrorBody
-        setActionError(data.error ?? 'No se pudo quitar el ticker.')
-        return
-      }
-
+      await removeFromWatchlist(itemTicker)
       await loadWatchlist()
-    } catch {
-      setActionError('No se pudo quitar el ticker.')
+    } catch (e) {
+      setActionError(
+        e instanceof Error ? e.message : 'No se pudo quitar el ticker.'
+      )
     }
   }
 
