@@ -80,6 +80,7 @@ export default function Home() {
                 <button
                   key={c.cik ?? c.name}
                   onClick={() => navigate(`/companies/${c.ticker ?? c.cik}`)}
+                  aria-label={`Open ${c.ticker} company details`}
                   className="w-full flex items-center gap-4 px-4 py-3 hover:bg-zinc-800 transition-colors text-left border-b border-zinc-800 last:border-0"
                 >
                   <span className="font-mono text-sm font-semibold text-indigo-400 w-16 shrink-0">
