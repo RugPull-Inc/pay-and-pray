@@ -37,7 +37,9 @@ describe('Watchlist page', () => {
     }).as('getWatchlist')
     cy.intercept('GET', `${Cypress.env('apiUrl')}/companies/search*`, {
       statusCode: 200,
-      body: { results: [{ name: 'Apple Inc.', ticker: 'AAPL', cik: '320193' }] },
+      body: {
+        results: [{ name: 'Apple Inc.', ticker: 'AAPL', cik: '320193' }],
+      },
     }).as('search')
     cy.intercept('POST', `${Cypress.env('apiUrl')}/watchlist`, {
       statusCode: 201,
