@@ -12,6 +12,7 @@ import type { CompareEntry } from '@/src/services/compareService'
 
 jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
+  useNavigate: () => jest.fn(),
   useLocation: () => ({ pathname: '/watchlist/compare', state: null }),
   Navigate: ({ to }: { to: string }) => (
     <div data-testid="redirect" data-to={to} />
@@ -25,7 +26,6 @@ jest.mock('@/src/auth/AuthContext', () => ({
 jest.mock('@/src/services/compareService', () => ({
   fetchCompareData: jest.fn(),
 }))
-
 ;(
   globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
@@ -38,13 +38,13 @@ const mockFetchCompareData = fetchCompareData as jest.MockedFunction<
 const AAPL: CompareEntry = {
   ticker: 'AAPL',
   companyName: 'Apple Inc.',
-  price: 150,
-  marketCap: 2500,
-  revenue: 90000,
-  netIncome: 20000,
-  eps: 1.5,
-  totalAssets: 350000,
-  totalLiabilities: 280000,
+  price: 62,
+  marketCap: 165,
+  revenue: 319,
+  netIncome: 42,
+  eps: 1.61,
+  totalAssets: 166,
+  totalLiabilities: 97,
   lastFiling: '2024-02-01',
   lastUpdated: '2024-05-01',
 }
@@ -52,13 +52,13 @@ const AAPL: CompareEntry = {
 const MSFT: CompareEntry = {
   ticker: 'MSFT',
   companyName: 'Microsoft Corp.',
-  price: 380,
-  marketCap: 2800,
-  revenue: 56000,
-  netIncome: 18000,
-  eps: 2.4,
-  totalAssets: 410000,
-  totalLiabilities: 190000,
+  price: 393,
+  marketCap: 292,
+  revenue: 241,
+  netIncome: 979,
+  eps: 13,
+  totalAssets: 694,
+  totalLiabilities: 279,
   lastFiling: '2024-01-25',
   lastUpdated: '2024-04-25',
 }
@@ -129,7 +129,9 @@ describe('WatchlistComparePage', () => {
     const rendered = await renderComparePage(false)
     root = rendered.root
 
-    expect(rendered.container.querySelector('[data-testid="redirect"]')).not.toBeNull()
+    expect(
+      rendered.container.querySelector('[data-testid="redirect"]')
+    ).not.toBeNull()
     expect(rendered.container.querySelector('table')).toBeNull()
   })
 
@@ -138,7 +140,9 @@ describe('WatchlistComparePage', () => {
     root = rendered.root
     await settle()
 
-    expect(rendered.container.querySelector('[data-testid="redirect"]')).toBeNull()
+    expect(
+      rendered.container.querySelector('[data-testid="redirect"]')
+    ).toBeNull()
     expect(rendered.container.querySelector('table')).not.toBeNull()
   })
 
@@ -169,32 +173,32 @@ describe('WatchlistComparePage', () => {
     await settle()
 
     const priceRow = getMetricRow(rendered.container, 'Precio actual')
-    expect(priceRow!.cells[1].textContent).toContain('150')
-    expect(priceRow!.cells[2].textContent).toContain('380')
+    expect(priceRow!.cells[1].textContent).toContain('62')
+    expect(priceRow!.cells[2].textContent).toContain('393')
 
     const mcRow = getMetricRow(rendered.container, 'Market Cap')
-    expect(mcRow!.cells[1].textContent).toContain('2500')
-    expect(mcRow!.cells[2].textContent).toContain('2800')
+    expect(mcRow!.cells[1].textContent).toContain('165')
+    expect(mcRow!.cells[2].textContent).toContain('292')
 
     const revenueRow = getMetricRow(rendered.container, 'Revenue (Q)')
-    expect(revenueRow!.cells[1].textContent).toContain('90000')
-    expect(revenueRow!.cells[2].textContent).toContain('56000')
+    expect(revenueRow!.cells[1].textContent).toContain('319')
+    expect(revenueRow!.cells[2].textContent).toContain('241')
 
     const niRow = getMetricRow(rendered.container, 'Net Income (Q)')
-    expect(niRow!.cells[1].textContent).toContain('20000')
-    expect(niRow!.cells[2].textContent).toContain('18000')
+    expect(niRow!.cells[1].textContent).toContain('42')
+    expect(niRow!.cells[2].textContent).toContain('979')
 
     const epsRow = getMetricRow(rendered.container, 'EPS (Q)')
-    expect(epsRow!.cells[1].textContent).toContain('1.5')
-    expect(epsRow!.cells[2].textContent).toContain('2.4')
+    expect(epsRow!.cells[1].textContent).toContain('1.61')
+    expect(epsRow!.cells[2].textContent).toContain('13')
 
     const taRow = getMetricRow(rendered.container, 'Total Assets')
-    expect(taRow!.cells[1].textContent).toContain('350000')
-    expect(taRow!.cells[2].textContent).toContain('410000')
+    expect(taRow!.cells[1].textContent).toContain('166')
+    expect(taRow!.cells[2].textContent).toContain('694')
 
     const tlRow = getMetricRow(rendered.container, 'Total Liabilities')
-    expect(tlRow!.cells[1].textContent).toContain('280000')
-    expect(tlRow!.cells[2].textContent).toContain('190000')
+    expect(tlRow!.cells[1].textContent).toContain('97')
+    expect(tlRow!.cells[2].textContent).toContain('279')
 
     const filingRow = getMetricRow(rendered.container, 'Último filing')
     expect(filingRow!.cells[1].textContent).toContain('2024-02-01')
@@ -215,7 +219,7 @@ describe('WatchlistComparePage', () => {
 
     const priceRow = getMetricRow(rendered.container, 'Precio actual')
     expect(priceRow!.cells[1].textContent).toContain('N/A')
-    expect(priceRow!.cells[2].textContent).toContain('380')
+    expect(priceRow!.cells[2].textContent).toContain('393')
   })
 
   it('si una métrica de la empresa B es null, esa celda muestra "N/A"', async () => {
@@ -227,7 +231,7 @@ describe('WatchlistComparePage', () => {
     await settle()
 
     const niRow = getMetricRow(rendered.container, 'Net Income (Q)')
-    expect(niRow!.cells[1].textContent).toContain('20000')
+    expect(niRow!.cells[1].textContent).toContain('42')
     expect(niRow!.cells[2].textContent).toContain('N/A')
   })
 

@@ -14,9 +14,48 @@ export interface CompareEntry {
   lastUpdated: string | null
 }
 
-export async function fetchCompareData(tickers: string[]): Promise<CompareEntry[]> {
-  const query = tickers.map((t) => `tickers=${encodeURIComponent(t)}`).join('&')
-  const res = await apiFetch(`/watchlist/compare?${query}`)
+interface BackendCompany {
+  ticker: string
+  currentPrice: number | null
+  marketCap: number | null
+  revenueQuarterly: number | null
+  netIncomeQuarterly: number | null
+  epsQuarterly: number | null
+  totalAssets: number | null
+  totalLiabilities: number | null
+  lastFiling: { filingDate: string } | null
+  priceLastUpdatedAt: string | null
+}
+
+interface BackendCompareResponse {
+  company1: BackendCompany
+  company2: BackendCompany
+}
+
+function adapt(c: BackendCompany): CompareEntry {
+  return {
+    ticker: c.ticker,
+    companyName: c.ticker,
+    price: c.currentPrice,
+    marketCap: c.marketCap,
+    revenue: c.revenueQuarterly,
+    netIncome: c.netIncomeQuarterly,
+    eps: c.epsQuarterly,
+    totalAssets: c.totalAssets,
+    totalLiabilities: c.totalLiabilities,
+    lastFiling: c.lastFiling?.filingDate ?? null,
+    lastUpdated: c.priceLastUpdatedAt,
+  }
+}
+
+export async function fetchCompareData(
+  tickers: string[]
+): Promise<CompareEntry[]> {
+  const [ticker1, ticker2] = tickers
+  const res = await apiFetch(
+    `/watchlist/compare?ticker1=${encodeURIComponent(ticker1)}&ticker2=${encodeURIComponent(ticker2)}`
+  )
   if (!res.ok) throw new Error('No se pudo cargar la comparación.')
-  return res.json() as Promise<CompareEntry[]>
+  const data = (await res.json()) as BackendCompareResponse
+  return [adapt(data.company1), adapt(data.company2)]
 }

@@ -12,6 +12,7 @@ import SellPage from './pages/SellPage'
 import PortfolioHistoryPage from './pages/PortfolioHistoryPage'
 import PortfolioPage from './pages/PortfolioPage'
 import WatchlistPage from './pages/WatchlistPage'
+import WatchlistComparePage from './pages/WatchlistComparePage'
 
 function Shell() {
   return (
@@ -26,7 +27,8 @@ function Shell() {
           path="/portfolio"
           element={
             <ProtectedRoute>
-              <PortfolioLayout />
+              {' '}
+              <PortfolioLayout />{' '}
             </ProtectedRoute>
           }
         >
@@ -39,7 +41,17 @@ function Shell() {
           path="/watchlist"
           element={
             <ProtectedRoute>
-              <WatchlistPage />
+              {' '}
+              <WatchlistPage />{' '}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/watchlist/compare"
+          element={
+            <ProtectedRoute>
+              {' '}
+              <WatchlistComparePage />{' '}
             </ProtectedRoute>
           }
         />

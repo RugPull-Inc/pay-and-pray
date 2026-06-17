@@ -18,6 +18,7 @@ jest.mock('react-router-dom', () => ({
       {children}
     </a>
   ),
+  useNavigate: () => jest.fn(),
 }))
 
 jest.mock('@/src/services/companyService', () => ({

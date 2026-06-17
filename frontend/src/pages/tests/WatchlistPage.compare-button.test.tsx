@@ -44,7 +44,6 @@ jest.mock('@/src/components/TickerInput', () => ({
     />
   ),
 }))
-
 ;(
   globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
@@ -78,14 +77,30 @@ async function settle() {
   })
 }
 
-function getCompareButton(container: HTMLElement): HTMLButtonElement | undefined {
+function getCompareButton(
+  container: HTMLElement
+): HTMLButtonElement | undefined {
   return Array.from(container.querySelectorAll('button')).find(
     (b) => b.textContent?.trim() === 'Comparar'
   ) as HTMLButtonElement | undefined
 }
 
-function getRowCheckbox(container: HTMLElement, ticker: string): HTMLInputElement {
-  const row = container.querySelector(`tr[data-ticker="${ticker}"]`) as HTMLElement
+async function enterSelectionMode(container: HTMLElement) {
+  const btn = Array.from(container.querySelectorAll('button')).find(
+    (b) => b.textContent?.trim() === 'Comparar empresas'
+  ) as HTMLButtonElement
+  await act(async () => {
+    btn.click()
+  })
+}
+
+function getRowCheckbox(
+  container: HTMLElement,
+  ticker: string
+): HTMLInputElement {
+  const row = container.querySelector(
+    `tr[data-ticker="${ticker}"]`
+  ) as HTMLElement
   return row.querySelector('input[type="checkbox"]') as HTMLInputElement
 }
 
@@ -101,9 +116,11 @@ describe('WatchlistPage — botón Comparar', () => {
 
   beforeEach(() => {
     mockNavigate.mockReset()
-    ;(searchCompanies as jest.MockedFunction<typeof searchCompanies>).mockImplementation(
-      async (query) => [{ ticker: query.toUpperCase(), name: 'Mock Co', cik: '1' }]
-    )
+    ;(
+      searchCompanies as jest.MockedFunction<typeof searchCompanies>
+    ).mockImplementation(async (query) => [
+      { ticker: query.toUpperCase(), name: 'Mock Co', cik: '1' },
+    ])
   })
 
   afterEach(() => {
@@ -121,6 +138,8 @@ describe('WatchlistPage — botón Comparar', () => {
     root = rendered.root
     await settle()
 
+    await enterSelectionMode(rendered.container)
+
     const btn = getCompareButton(rendered.container)
     expect(btn).toBeDefined()
     expect(btn!.disabled).toBe(true)
@@ -132,6 +151,7 @@ describe('WatchlistPage — botón Comparar', () => {
     root = rendered.root
     await settle()
 
+    await enterSelectionMode(rendered.container)
     await act(async () => {
       getRowCheckbox(rendered.container, 'AAPL').click()
     })
@@ -145,6 +165,7 @@ describe('WatchlistPage — botón Comparar', () => {
     root = rendered.root
     await settle()
 
+    await enterSelectionMode(rendered.container)
     await act(async () => {
       getRowCheckbox(rendered.container, 'AAPL').click()
     })
@@ -161,6 +182,7 @@ describe('WatchlistPage — botón Comparar', () => {
     root = rendered.root
     await settle()
 
+    await enterSelectionMode(rendered.container)
     await act(async () => {
       getRowCheckbox(rendered.container, 'AAPL').click()
     })
@@ -180,6 +202,7 @@ describe('WatchlistPage — botón Comparar', () => {
     root = rendered.root
     await settle()
 
+    await enterSelectionMode(rendered.container)
     await act(async () => {
       getRowCheckbox(rendered.container, 'AAPL').click()
     })
