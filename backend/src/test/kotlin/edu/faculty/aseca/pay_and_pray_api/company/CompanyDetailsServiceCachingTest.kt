@@ -63,7 +63,7 @@ class CompanyDetailsServiceCachingTest(
         fun fakeEdgar(): FakeCountingEdgarClient = FakeCountingEdgarClient()
 
         @Bean
-        fun detailsService(edgar: FakeCountingEdgarClient): CompanyDetailsService = CompanyDetailsService(edgar)
+        fun detailsService(edgar: FakeCountingEdgarClient): CompanyDetailsService = CompanyDetailsServiceImpl(edgar)
     }
 }
 

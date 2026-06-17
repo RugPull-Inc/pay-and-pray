@@ -14,6 +14,7 @@ data class CompanyMetrics(
     val eps: List<MetricDataPoint>,
     val totalAssets: List<MetricDataPoint>,
     val totalLiabilities: List<MetricDataPoint>,
+    val sharesOutstanding: List<MetricDataPoint>,
 )
 
 data class MetricDataPoint(
