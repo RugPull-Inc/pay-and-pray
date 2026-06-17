@@ -3,7 +3,7 @@
  */
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import WatchlistComparePage from './WatchlistComparePage'
+import WatchlistComparePage from '../WatchlistComparePage'
 import { ProtectedRoute } from '@/src/auth/RouteGuards'
 import { useAuth } from '@/src/auth/AuthContext'
 import { useSearchParams } from 'react-router-dom'
