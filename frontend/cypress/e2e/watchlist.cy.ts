@@ -130,6 +130,160 @@ describe('Watchlist page', () => {
     cy.contains('Tu watchlist está vacía.').should('be.visible')
   })
 
+  it('compara las métricas de dos empresas de la watchlist', () => {
+    cy.intercept('GET', `${Cypress.env('apiUrl')}/watchlist`, {
+      statusCode: 200,
+      body: {
+        items: [
+          { ticker: 'AAPL', hasOpenPosition: false },
+          { ticker: 'MSFT', hasOpenPosition: false },
+        ],
+      },
+    }).as('getWatchlist')
+
+    cy.intercept('GET', `${Cypress.env('apiUrl')}/watchlist/compare*`, {
+      statusCode: 200,
+      body: {
+        company1: {
+          ticker: 'AAPL',
+          currentPrice: 62.87,
+          marketCap: 2925763070000,
+          revenueQuarterly: 3193000000,
+          netIncomeQuarterly: 425000000,
+          epsQuarterly: 1.61,
+          totalAssets: 16640000000,
+          totalLiabilities: 9749000000,
+          lastFiling: {
+            filingDate: '2026-04-30',
+            form: '10-Q',
+            accessionNumber: '0000320193-26-000001',
+            reportDate: null,
+            primaryDocument: null,
+            url: null,
+          },
+          priceLastUpdatedAt: '2026-06-17T06:44:16.147054Z',
+        },
+        company2: {
+          ticker: 'MSFT',
+          currentPrice: 393.83,
+          marketCap: 2925763070000,
+          revenueQuarterly: 241832000000,
+          netIncomeQuarterly: 97983000000,
+          epsQuarterly: 13.19,
+          totalAssets: 694228000000,
+          totalLiabilities: 279861000000,
+          lastFiling: {
+            filingDate: '2026-04-29',
+            form: '10-Q',
+            accessionNumber: '0000789019-26-000001',
+            reportDate: null,
+            primaryDocument: null,
+            url: null,
+          },
+          priceLastUpdatedAt: '2026-06-17T06:44:16.147048Z',
+        },
+      },
+    }).as('getCompare')
+
+    cy.visit('/watchlist')
+    cy.wait('@getWatchlist')
+
+    cy.contains('button', 'Comparar empresas').click()
+    cy.contains('tr', 'AAPL').find('input[type="checkbox"]').click()
+    cy.contains('tr', 'MSFT').find('input[type="checkbox"]').click()
+    cy.contains('button', 'Comparar').click()
+
+    cy.wait('@getCompare')
+
+    cy.url().should('include', '/watchlist/compare')
+    cy.contains('AAPL').should('be.visible')
+    cy.contains('MSFT').should('be.visible')
+
+    cy.contains('tr', 'Precio actual').within(() => {
+      cy.contains('62.87').should('be.visible')
+      cy.contains('393.83').should('be.visible')
+    })
+    cy.contains('tr', 'EPS (Q)').within(() => {
+      cy.contains('1.61').should('be.visible')
+      cy.contains('13.19').should('be.visible')
+    })
+    cy.contains('tr', 'Último filing').within(() => {
+      cy.contains('2026-04-30').should('be.visible')
+      cy.contains('2026-04-29').should('be.visible')
+    })
+  })
+
+  it('muestra N/A cuando alguna métrica no está disponible al comparar', () => {
+    cy.intercept('GET', `${Cypress.env('apiUrl')}/watchlist`, {
+      statusCode: 200,
+      body: {
+        items: [
+          { ticker: 'AAPL', hasOpenPosition: false },
+          { ticker: 'MSFT', hasOpenPosition: false },
+        ],
+      },
+    }).as('getWatchlist')
+
+    cy.intercept('GET', `${Cypress.env('apiUrl')}/watchlist/compare*`, {
+      statusCode: 200,
+      body: {
+        company1: {
+          ticker: 'AAPL',
+          currentPrice: null,
+          marketCap: null,
+          revenueQuarterly: 3193000000,
+          netIncomeQuarterly: null,
+          epsQuarterly: 1.61,
+          totalAssets: 16640000000,
+          totalLiabilities: 9749000000,
+          lastFiling: null,
+          priceLastUpdatedAt: null,
+        },
+        company2: {
+          ticker: 'MSFT',
+          currentPrice: 393.83,
+          marketCap: 2925763070000,
+          revenueQuarterly: 241832000000,
+          netIncomeQuarterly: 97983000000,
+          epsQuarterly: 13.19,
+          totalAssets: 694228000000,
+          totalLiabilities: 279861000000,
+          lastFiling: {
+            filingDate: '2026-04-29',
+            form: '10-Q',
+            accessionNumber: '0000789019-26-000001',
+            reportDate: null,
+            primaryDocument: null,
+            url: null,
+          },
+          priceLastUpdatedAt: '2026-06-17T06:44:16.147048Z',
+        },
+      },
+    }).as('getCompare')
+
+    cy.visit('/watchlist')
+    cy.wait('@getWatchlist')
+
+    cy.contains('button', 'Comparar empresas').click()
+    cy.contains('tr', 'AAPL').find('input[type="checkbox"]').click()
+    cy.contains('tr', 'MSFT').find('input[type="checkbox"]').click()
+    cy.contains('button', 'Comparar').click()
+
+    cy.wait('@getCompare')
+
+    cy.contains('tr', 'Precio actual').within(() => {
+      cy.contains('N/A').should('be.visible')
+      cy.contains('393.83').should('be.visible')
+    })
+    cy.contains('tr', 'Net Income (Q)').within(() => {
+      cy.contains('N/A').should('be.visible')
+    })
+    cy.contains('tr', 'Último filing').within(() => {
+      cy.contains('N/A').should('be.visible')
+      cy.contains('2026-04-29').should('be.visible')
+    })
+  })
+
   it('el link "Visitar empresa" navega a la página de la empresa', () => {
     cy.intercept('GET', `${Cypress.env('apiUrl')}/watchlist`, {
       statusCode: 200,
