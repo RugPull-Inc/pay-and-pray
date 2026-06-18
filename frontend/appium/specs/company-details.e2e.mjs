@@ -1,9 +1,3 @@
-function byInput(placeholderText) {
-  return $(
-    `android=new UiSelector().className("android.widget.EditText").textContains("${placeholderText}")`
-  )
-}
-
 function byDescription(text) {
   return $(`android=new UiSelector().descriptionContains("${text}")`)
 }
@@ -49,7 +43,7 @@ describe('Company financial detail on mobile', () => {
   it('searches AAPL by ticker and shows readable metrics, history, and filings', async () => {
     await browser.setOrientation('PORTRAIT')
 
-    const searchInput = await byInput('Search ticker')
+    const searchInput = await byDescription('Search ticker')
     await searchInput.waitForDisplayed({ timeout: 30000 })
     await searchInput.click()
     await searchInput.setValue('AAPL')
