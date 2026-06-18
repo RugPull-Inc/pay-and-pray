@@ -1,0 +1,14 @@
+# Override para stress testing: limita el backend a 2 cores para forzar un quiebre
+# duro contra una pared de CPU dura, dejando el resto de cores libres para el
+# generador de carga (Locust) y la DB -> el quiebre es inequivocamente del backend.
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f load-tests/docker-compose.stress.yml up -d
+# Para volver a la normalidad: docker compose up -d  (sin el -f del override)
+services:
+  backend:
+    cpus: 2
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
