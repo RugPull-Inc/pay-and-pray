@@ -18,7 +18,7 @@ class CompanyDetailsServiceTest {
     @BeforeEach
     fun setUp() {
         fakeEdgar = FakeDetailsEdgarClient()
-        service = CompanyDetailsService(fakeEdgar)
+        service = CompanyDetailsServiceImpl(fakeEdgar)
     }
 
     @Test
