@@ -63,6 +63,7 @@ class PayAndPrayUser(HttpUser):
             "/auth/register",
             json={"email": self.email, "password": PASSWORD},
             name="POST /auth/register",
+            timeout=REQUEST_TIMEOUT,
             catch_response=True,
         ) as resp:
             if resp.status_code in (201, 409):
@@ -75,6 +76,7 @@ class PayAndPrayUser(HttpUser):
             "/auth/login",
             json={"email": self.email, "password": PASSWORD},
             name="POST /auth/login",
+            timeout=REQUEST_TIMEOUT,
             catch_response=True,
         ) as resp:
             if resp.status_code == 200:
