@@ -4,7 +4,7 @@
 import { act } from 'react'
 import type { ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import WatchlistPage from './WatchlistPage'
+import WatchlistPage from '../WatchlistPage'
 import { apiFetch } from '@/src/services/apiClient'
 import { searchCompanies } from '@/src/services/companyService'
 
@@ -18,6 +18,7 @@ jest.mock('react-router-dom', () => ({
       {children}
     </a>
   ),
+  useNavigate: () => jest.fn(),
 }))
 
 jest.mock('@/src/services/companyService', () => ({
