@@ -27,7 +27,9 @@ async function scrollToText(text, maxScrolls = 12) {
     const el = await byStaticText(text)
     try {
       if (await el.isDisplayed()) return el
-    } catch {}
+    } catch (err) {
+      if (!err.message.includes('no such element')) throw err
+    }
 
     if (i === maxScrolls) break
 
@@ -108,7 +110,9 @@ async function tickerIsVisibleAnywhere(ticker, maxScrolls = 8) {
     const el = await byStaticText(ticker)
     try {
       if (await el.isDisplayed()) return true
-    } catch {}
+    } catch (err) {
+      if (!err.message.includes('no such element')) throw err
+    }
 
     await browser.execute('mobile: scrollGesture', {
       left: Math.round(width * 0.1),
