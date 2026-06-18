@@ -36,6 +36,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SEED_USER_COUNT: ${SEED_USER_COUNT:-3}
       EDGAR_USER_AGENT: ${EDGAR_USER_AGENT}
+      EDGAR_TICKERS_FALLBACK_ENABLED: ${EDGAR_TICKERS_FALLBACK_ENABLED:-false}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,https://localhost}
       BATCH_SERVICE_URL: http://price-batch:8081
     ports:

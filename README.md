@@ -91,6 +91,7 @@ Prerequisites:
 - Android Studio
 - Android SDK
 - Android Emulator, or a physical Android device with USB debugging enabled
+- Java 17 or 21 available on `PATH` for the Android Gradle build. Do not use newer JDKs such as Java 25 for Android builds.
 
 Run from `frontend`:
 
@@ -109,4 +110,57 @@ For the Android emulator, the backend URL must use the host-machine alias instea
 
 ```bash
 VITE_API_URL=http://10.0.2.2:8080
+```
+
+## Mobile E2E tests with Appium
+
+Mobile E2E tests run the Capacitor Android app with Appium and the UiAutomator2 driver.
+
+Prerequisites:
+
+- Android Studio with an Android Virtual Device configured
+- Android SDK tools on `PATH` (`adb`, `emulator`)
+- `JAVA_HOME` pointing to JDK 17 or 21 for the Android Gradle build
+- Appium dependencies installed with `npm install` from `frontend`
+
+Install or verify the Appium Android driver from `frontend`:
+
+```bash
+cd frontend
+npm run appium:driver:install   # first time only
+npm run appium:driver:list      # should show uiautomator2
+```
+
+If the install command says `uiautomator2` is already installed, continue with `npm run appium:driver:list`.
+
+Start an emulator before running the tests. You can use Android Studio's Device Manager, or the command line:
+
+```bash
+emulator -list-avds
+emulator -avd <AVD_NAME>
+adb devices
+```
+
+Build the app and run the Android tests:
+
+```bash
+cd frontend
+npm run appium:test:android
+```
+
+The test command uses the WebdriverIO testrunner and starts Appium through `@wdio/appium-service`. You only need `npm run appium:server` when you want to run Appium manually for debugging or Appium Inspector.
+
+If Appium reports that the UiAutomator2 instrumentation cannot be initialized, confirm the emulator is fully booted and visible as `device` in `adb devices`. The WDIO config already increases the Android install, ADB, and UiAutomator2 launch timeouts for slower local emulators.
+
+Useful overrides:
+
+```bash
+# choose a specific device name reported by adb/emulator
+APPIUM_ANDROID_DEVICE_NAME="Pixel_7_API_35" npm run appium:test:android
+
+# reuse a prebuilt APK instead of the default android/app/build/outputs/apk/debug/app-debug.apk
+APPIUM_ANDROID_APP="/path/to/app-debug.apk" npm run appium:test:android
+
+# point to a non-default Appium server
+APPIUM_HOST=127.0.0.1 APPIUM_PORT=4723 npm run appium:test:android
 ```

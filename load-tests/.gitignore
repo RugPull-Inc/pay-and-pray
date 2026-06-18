@@ -1,0 +1,6 @@
+# Reportes generados por Locust (--csv / --html)
+results/
+.venv/
+__pycache__/
+.DS_Store
+tokens.json

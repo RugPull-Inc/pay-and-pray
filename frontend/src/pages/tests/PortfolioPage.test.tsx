@@ -4,7 +4,7 @@
 import { act } from 'react'
 import type { ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import PortfolioPage from './PortfolioPage'
+import PortfolioPage from '../PortfolioPage'
 import { apiFetch } from '@/src/services/apiClient'
 
 jest.mock('@/src/services/apiClient', () => ({

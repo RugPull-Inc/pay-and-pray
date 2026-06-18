@@ -26,6 +26,8 @@ jwt:
 
 edgar:
   user-agent: ${EDGAR_USER_AGENT}
+  tickers-fallback:
+    enabled: ${EDGAR_TICKERS_FALLBACK_ENABLED:false}
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}

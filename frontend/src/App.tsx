@@ -11,6 +11,8 @@ import BuyPage from './pages/BuyPage'
 import SellPage from './pages/SellPage'
 import PortfolioHistoryPage from './pages/PortfolioHistoryPage'
 import PortfolioPage from './pages/PortfolioPage'
+import WatchlistPage from './pages/WatchlistPage'
+import WatchlistComparePage from './pages/WatchlistComparePage'
 
 function Shell() {
   return (
@@ -25,7 +27,8 @@ function Shell() {
           path="/portfolio"
           element={
             <ProtectedRoute>
-              <PortfolioLayout />
+              {' '}
+              <PortfolioLayout />{' '}
             </ProtectedRoute>
           }
         >
@@ -34,6 +37,24 @@ function Shell() {
           <Route path="sell" element={<SellPage />} />
           <Route path="history" element={<PortfolioHistoryPage />} />
         </Route>
+        <Route
+          path="/watchlist"
+          element={
+            <ProtectedRoute>
+              {' '}
+              <WatchlistPage />{' '}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/watchlist/compare"
+          element={
+            <ProtectedRoute>
+              {' '}
+              <WatchlistComparePage />{' '}
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

@@ -6,6 +6,9 @@ import edu.faculty.aseca.pay_and_pray_api.edgar.EdgarApiException
 import edu.faculty.aseca.pay_and_pray_api.portfolio.exception.InsufficientQuantityException
 import edu.faculty.aseca.pay_and_pray_api.portfolio.exception.NoPositionException
 import edu.faculty.aseca.pay_and_pray_api.portfolio.exception.TickerNotFoundException
+import edu.faculty.aseca.pay_and_pray_api.watchlist.exception.CompanyDataNotFoundException
+import edu.faculty.aseca.pay_and_pray_api.watchlist.exception.TickerNotInWatchlistException
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -48,6 +51,18 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(InsufficientQuantityException::class)
     fun handleInsufficientQuantity(ex: InsufficientQuantityException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.badRequest().body(ErrorResponse(error = ex.message ?: "Bad request"))
+
+    @ExceptionHandler(TickerNotInWatchlistException::class)
+    fun handleTickerNotInWatchlist(ex: TickerNotInWatchlistException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(error = ex.message ?: "Not found"))
+
+    @ExceptionHandler(CompanyDataNotFoundException::class)
+    fun handleCompanyDataNotFound(ex: CompanyDataNotFoundException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(error = ex.message ?: "Not found"))
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintViolation(ex: ConstraintViolationException): ResponseEntity<ErrorResponse> =
         ResponseEntity.badRequest().body(ErrorResponse(error = ex.message ?: "Bad request"))
 }
 
