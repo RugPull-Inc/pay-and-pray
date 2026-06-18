@@ -96,6 +96,17 @@ async function signOut() {
   await waitForStaticText('Register')
 }
 
+// Deja la app en estado de invitado, sin importar de qué test venimos. Cada test
+// de auth/portfolio que registra una cuenta asume partir de un invitado en Home;
+// si un test previo terminó autenticado, sin esto el link "Register" estaría
+// oculto y registerNewAccount haría timeout.
+async function ensureSignedOut() {
+  const signOutLink = await byStaticText('Sign out')
+  if (await signOutLink.isExisting()) {
+    await signOut()
+  }
+}
+
 async function loginWith(email, password) {
   await tapStaticText('Sign in') // link de navbar -> /login
   await waitForStaticText('Sign in to continue')
@@ -111,6 +122,7 @@ async function loginWith(email, password) {
 describe('US 6.1 - Autenticación desde el celular', () => {
   beforeEach(async () => {
     await browser.setOrientation('PORTRAIT')
+    await ensureSignedOut()
   })
 
   it('registra una cuenta con email y contraseña válidos y crea la cuenta', async () => {
@@ -158,6 +170,7 @@ describe('US 6.1 - Autenticación desde el celular', () => {
 describe('US 6.3 - Última actualización de precios desde el celular', () => {
   beforeEach(async () => {
     await browser.setOrientation('PORTRAIT')
+    await ensureSignedOut()
   })
 
   it('muestra la fecha y hora de la última actualización de precios de forma legible', async () => {
@@ -193,6 +206,7 @@ describe('US 6.4 - Gestión de portfolio desde el celular', () => {
   // Una sola sesión autenticada para toda la secuencia comprar -> vender -> ver.
   before(async () => {
     await browser.setOrientation('PORTRAIT')
+    await ensureSignedOut()
     await registerNewAccount(uniqueEmail())
   })
 
