@@ -41,7 +41,6 @@ export default tseslint.config(
         ...globals.mocha,
         browser: 'readonly',
         $: 'readonly',
-        $$: 'readonly',
         expect: 'readonly',
       },
     },
