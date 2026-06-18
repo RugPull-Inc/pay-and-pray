@@ -55,7 +55,12 @@ async function isAlreadyLoggedIn(timeout = 3000) {
     const navbar = await byStaticText('Watchlist')
     await navbar.waitForDisplayed({ timeout })
     return true
-  } catch {
+  } catch (err) {
+    if (
+      !err.message.includes('no such element') &&
+      !err.message.includes('timeout')
+    )
+      throw err
     return false
   }
 }
@@ -131,7 +136,10 @@ async function expectAtLeastOnePositionBadgeVisible() {
   try {
     await scrollToText('Tengo posición', 12)
     return
-  } catch {}
+  } catch (err) {
+    if (!err.message.includes('Could not find visible text after scrolling'))
+      throw err
+  }
 
   await scrollToText('Sin posición', 12)
 }
