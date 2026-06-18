@@ -62,7 +62,7 @@ export default function WatchlistPage() {
 
   function handleCompare() {
     const [a, b] = Array.from(selected)
-    navigate(`/watchlist/compare?tickers=${a},${b}`)
+    navigate(`/watchlist/compare?ticker1=${a}&ticker2=${b}`)
   }
 
   async function handleAdd(e: React.FormEvent) {
@@ -105,6 +105,11 @@ export default function WatchlistPage() {
 
     try {
       await removeFromWatchlist(itemTicker)
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.delete(itemTicker)
+        return next
+      })
       await loadWatchlist()
     } catch (e) {
       setActionError(

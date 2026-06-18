@@ -53,23 +53,31 @@ function fmt(key: MetricKey, val: string | number | null): string {
 export default function WatchlistComparePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const tickers = (searchParams.get('tickers') ?? '').split(',').filter(Boolean)
-  const tickerKey = tickers.join(',')
+  const ticker1 = searchParams.get('ticker1') ?? ''
+  const ticker2 = searchParams.get('ticker2') ?? ''
+  const tickerKey = `${ticker1},${ticker2}`
 
   const [data, setData] = useState<CompareEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (tickers.length !== 2) {
+    if (!ticker1 || !ticker2) {
       setLoading(false)
       return
     }
+    const controller = new AbortController()
     setLoading(true)
-    fetchCompareData(tickers)
+    fetchCompareData([ticker1, ticker2], controller.signal)
       .then(setData)
-      .catch(() => setError('No se pudo cargar la comparación.'))
-      .finally(() => setLoading(false))
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setError('No se pudo cargar la comparación.')
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
+    return () => controller.abort()
   }, [tickerKey])
 
   if (loading) {

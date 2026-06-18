@@ -2,7 +2,6 @@ import { apiFetch } from './apiClient'
 
 export interface CompareEntry {
   ticker: string
-  companyName: string
   price: number | null
   marketCap: number | null
   revenue: number | null
@@ -35,7 +34,6 @@ interface BackendCompareResponse {
 function adapt(c: BackendCompany): CompareEntry {
   return {
     ticker: c.ticker,
-    companyName: c.ticker,
     price: c.currentPrice,
     marketCap: c.marketCap,
     revenue: c.revenueQuarterly,
@@ -49,11 +47,13 @@ function adapt(c: BackendCompany): CompareEntry {
 }
 
 export async function fetchCompareData(
-  tickers: string[]
+  tickers: string[],
+  signal?: AbortSignal
 ): Promise<CompareEntry[]> {
   const [ticker1, ticker2] = tickers
   const res = await apiFetch(
-    `/watchlist/compare?ticker1=${encodeURIComponent(ticker1)}&ticker2=${encodeURIComponent(ticker2)}`
+    `/watchlist/compare?ticker1=${encodeURIComponent(ticker1)}&ticker2=${encodeURIComponent(ticker2)}`,
+    { signal }
   )
   if (!res.ok) throw new Error('No se pudo cargar la comparación.')
   const data = (await res.json()) as BackendCompareResponse

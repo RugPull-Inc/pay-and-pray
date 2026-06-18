@@ -37,7 +37,6 @@ const mockFetchCompareData = fetchCompareData as jest.MockedFunction<
 
 const AAPL: CompareEntry = {
   ticker: 'AAPL',
-  companyName: 'Apple Inc.',
   price: 62,
   marketCap: 165,
   revenue: 319,
@@ -51,7 +50,6 @@ const AAPL: CompareEntry = {
 
 const MSFT: CompareEntry = {
   ticker: 'MSFT',
-  companyName: 'Microsoft Corp.',
   price: 393,
   marketCap: 292,
   revenue: 241,
@@ -73,7 +71,7 @@ async function renderComparePage(
     signOut: jest.fn(),
   })
   ;(useSearchParams as jest.Mock).mockReturnValue([
-    new URLSearchParams('tickers=AAPL,MSFT'),
+    new URLSearchParams('ticker1=AAPL&ticker2=MSFT'),
     jest.fn(),
   ])
   mockFetchCompareData.mockResolvedValue(data)
