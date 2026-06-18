@@ -27,9 +27,7 @@ async function scrollToText(text, maxScrolls = 12) {
     const el = await byStaticText(text)
     try {
       if (await el.isDisplayed()) return el
-    } catch {
-      // elemento todavía no renderizado o referencia obsoleta tras el scroll anterior; seguimos intentando
-    }
+    } catch {}
 
     if (i === maxScrolls) break
 
@@ -50,7 +48,19 @@ async function setOrientationPortrait() {
   await browser.setOrientation('PORTRAIT')
 }
 
+async function isAlreadyLoggedIn(timeout = 3000) {
+  try {
+    const navbar = await byStaticText('Watchlist')
+    await navbar.waitForDisplayed({ timeout })
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function login({ email, password }) {
+  if (await isAlreadyLoggedIn()) return
+
   const emailInput = await byInput('example@email.com')
   await emailInput.waitForDisplayed({ timeout: 30000 })
   await emailInput.click()
@@ -95,12 +105,10 @@ async function tickerIsVisibleAnywhere(ticker, maxScrolls = 8) {
   const { width, height } = await browser.getWindowSize()
 
   for (let i = 0; i < maxScrolls; i += 1) {
-    const el = byStaticText(ticker)
+    const el = await byStaticText(ticker)
     try {
       if (await el.isDisplayed()) return true
-    } catch {
-      // elemento todavía no renderizado o referencia obsoleta tras el scroll anterior; seguimos intentando
-    }
+    } catch {}
 
     await browser.execute('mobile: scrollGesture', {
       left: Math.round(width * 0.1),
@@ -119,9 +127,7 @@ async function expectAtLeastOnePositionBadgeVisible() {
   try {
     await scrollToText('Tengo posición', 12)
     return
-  } catch {
-    // no se encontró "Tengo posición"; probamos con el otro estado posible
-  }
+  } catch {}
 
   await scrollToText('Sin posición', 12)
 }
