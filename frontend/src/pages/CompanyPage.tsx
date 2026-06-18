@@ -12,7 +12,7 @@ import type {
 } from '@/src/types/company'
 import FinancialChart from '@/src/components/FinancialChart'
 import PriceStatusBar from '@/src/components/PriceStatusBar'
-import { addToWatchlist } from '@/src/services/watchlistService'
+import { addToWatchlist, getWatchlist } from '@/src/services/watchlistService'
 import { useAuth } from '@/src/auth/AuthContext'
 
 export default function CompanyPage() {
@@ -80,10 +80,33 @@ function ErrorState({ message }: { message: string }) {
 }
 
 function AddToWatchlistButton({ ticker }: { ticker: string }) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>(
-    'idle'
-  )
+  const [status, setStatus] = useState<
+    'checking' | 'idle' | 'loading' | 'done' | 'error'
+  >('checking')
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    setStatus('checking')
+    setMessage('')
+
+    getWatchlist()
+      .then((items) => {
+        if (cancelled) return
+        const isAlreadyInWatchlist = items.some(
+          (item) => item.ticker.toUpperCase() === ticker.toUpperCase()
+        )
+        setStatus(isAlreadyInWatchlist ? 'done' : 'idle')
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('idle')
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [ticker])
 
   async function handleClick() {
     setStatus('loading')
@@ -104,7 +127,9 @@ function AddToWatchlistButton({ ticker }: { ticker: string }) {
     <div className="flex flex-col items-end gap-1">
       <button
         onClick={handleClick}
-        disabled={status === 'loading' || status === 'done'}
+        disabled={
+          status === 'checking' || status === 'loading' || status === 'done'
+        }
         className="px-4 py-2 text-sm font-medium text-zinc-200 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-xl transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === 'done' ? 'En watchlist' : 'Agregar a watchlist'}
