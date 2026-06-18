@@ -53,6 +53,7 @@ export default function TickerInput({ value, onChange }: Props) {
         }}
         onFocus={() => setOpen(true)}
         placeholder="AAPL"
+        aria-label="Ticker"
         autoComplete="off"
         className="w-full rounded-xl border border-zinc-700 px-3.5 py-3 text-sm text-zinc-100 bg-zinc-900 outline-none transition focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60 font-mono"
       />
