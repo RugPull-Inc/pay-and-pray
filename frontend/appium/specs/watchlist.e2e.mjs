@@ -27,7 +27,9 @@ async function scrollToText(text, maxScrolls = 12) {
     const el = await byStaticText(text)
     try {
       if (await el.isDisplayed()) return el
-    } catch {}
+    } catch {
+      // elemento todavía no renderizado o referencia obsoleta tras el scroll anterior; seguimos intentando
+    }
 
     if (i === maxScrolls) break
 
@@ -96,7 +98,9 @@ async function tickerIsVisibleAnywhere(ticker, maxScrolls = 8) {
     const el = byStaticText(ticker)
     try {
       if (await el.isDisplayed()) return true
-    } catch {}
+    } catch {
+      // elemento todavía no renderizado o referencia obsoleta tras el scroll anterior; seguimos intentando
+    }
 
     await browser.execute('mobile: scrollGesture', {
       left: Math.round(width * 0.1),
@@ -115,7 +119,9 @@ async function expectAtLeastOnePositionBadgeVisible() {
   try {
     await scrollToText('Tengo posición', 12)
     return
-  } catch {}
+  } catch {
+    // no se encontró "Tengo posición"; probamos con el otro estado posible
+  }
 
   await scrollToText('Sin posición', 12)
 }
