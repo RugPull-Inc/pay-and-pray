@@ -44,6 +44,7 @@ class CompanyTickerCacheTest(
         fun fakeEdgar(): FakeTickerEdgarClient = FakeTickerEdgarClient()
 
         @Bean
-        fun tickerCache(edgar: FakeTickerEdgarClient): CompanyTickerCache = CompanyTickerCache(edgar)
+        fun tickerCache(edgar: FakeTickerEdgarClient): CompanyTickerCache =
+            CompanyTickerCache(edgar, FakeCompanyTickerFallback(), fallbackEnabled = false)
     }
 }
