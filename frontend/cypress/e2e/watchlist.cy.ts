@@ -1,5 +1,11 @@
 /// <reference types="cypress" />
 
+function selectTickerForComparison(ticker: string) {
+  cy.contains('tr', ticker)
+    .find('input[type="checkbox"]')
+    .check({ force: true })
+}
+
 describe('Watchlist page', () => {
   beforeEach(() => {
     cy.clearAuth()
@@ -189,8 +195,8 @@ describe('Watchlist page', () => {
     cy.wait('@getWatchlist')
 
     cy.contains('button', 'Comparar empresas').click()
-    cy.contains('tr', 'AAPL').find('input[type="checkbox"]').click()
-    cy.contains('tr', 'MSFT').find('input[type="checkbox"]').click()
+    selectTickerForComparison('AAPL')
+    selectTickerForComparison('MSFT')
     cy.contains('button', 'Comparar').click()
 
     cy.wait('@getCompare')
@@ -265,8 +271,8 @@ describe('Watchlist page', () => {
     cy.wait('@getWatchlist')
 
     cy.contains('button', 'Comparar empresas').click()
-    cy.contains('tr', 'AAPL').find('input[type="checkbox"]').click()
-    cy.contains('tr', 'MSFT').find('input[type="checkbox"]').click()
+    selectTickerForComparison('AAPL')
+    selectTickerForComparison('MSFT')
     cy.contains('button', 'Comparar').click()
 
     cy.wait('@getCompare')
