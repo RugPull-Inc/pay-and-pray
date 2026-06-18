@@ -236,6 +236,7 @@ export default function WatchlistPage() {
                             <input
                               type="checkbox"
                               className="sr-only"
+                              aria-label={`Select ${item.ticker} for comparison`}
                               checked={selected.has(item.ticker)}
                               onChange={() => toggleSelect(item.ticker)}
                               disabled={
@@ -281,6 +282,7 @@ export default function WatchlistPage() {
                           </Link>
                           <button
                             onClick={() => handleRemove(item.ticker)}
+                            aria-label={`Remove ${item.ticker} from watchlist`}
                             className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:bg-zinc-800"
                           >
                             Quitar
