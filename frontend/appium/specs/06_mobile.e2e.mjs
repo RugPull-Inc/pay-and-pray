@@ -14,15 +14,14 @@
 // (ver npm run appium:test:android y appium/README.md). Las pruebas que operan el
 // portfolio asumen que el backend tiene un precio disponible para AAPL.
 
+import {
+  byStaticText,
+  byDescription,
+  waitForStaticText,
+  scrollTo,
+} from '../helpers.mjs'
+
 // --- localizadores básicos ---------------------------------------------------
-
-function byStaticText(text) {
-  return $(`android=new UiSelector().textContains("${text}")`)
-}
-
-function byDescription(text) {
-  return $(`android=new UiSelector().descriptionContains("${text}")`)
-}
 
 // Botón de formulario: un <button> del WebView se mapea a android.widget.Button,
 // mientras que los links de navegación/tabs (<a>) se mapean a android.view.View.
@@ -41,12 +40,6 @@ function editTextAt(index) {
 }
 
 // --- helpers ----------------------------------------------------------------
-
-async function waitForStaticText(text, timeout = 30000) {
-  const element = await byStaticText(text)
-  await element.waitForDisplayed({ timeout })
-  return element
-}
 
 async function tapStaticText(text, timeout = 30000) {
   const element = await waitForStaticText(text, timeout)
@@ -69,59 +62,14 @@ async function typeInto(index, value, timeout = 30000) {
   return field
 }
 
-async function scrollToText(text, maxScrolls = 8) {
-  const { width, height } = await browser.getWindowSize()
-
-  const checkVisible = async () => {
-    const element = await byStaticText(text)
-    return (await element.isDisplayed().catch(() => false)) ? element : null
-  }
-
-  let found = await checkVisible()
-  if (found) return found
-
-  for (let i = 0; i < maxScrolls; i += 1) {
-    await browser.execute('mobile: scrollGesture', {
-      left: Math.round(width * 0.1),
-      top: Math.round(height * 0.2),
-      width: Math.round(width * 0.8),
-      height: Math.round(height * 0.65),
-      direction: 'down',
-      percent: 0.75,
-    })
-    found = await checkVisible()
-    if (found) return found
-  }
-
-  throw new Error(`No se encontró el texto tras hacer scroll: ${text}`)
-}
-
-// Tablas anchas (P&L) desbordan horizontalmente: scroll lateral para alcanzar columnas.
-async function scrollRightToText(text, maxScrolls = 6) {
-  const { width, height } = await browser.getWindowSize()
-
-  const checkVisible = async () => {
-    const element = await byStaticText(text)
-    return (await element.isDisplayed().catch(() => false)) ? element : null
-  }
-
-  let found = await checkVisible()
-  if (found) return found
-
-  for (let i = 0; i < maxScrolls; i += 1) {
-    await browser.execute('mobile: scrollGesture', {
-      left: Math.round(width * 0.1),
-      top: Math.round(height * 0.35),
-      width: Math.round(width * 0.8),
-      height: Math.round(height * 0.3),
-      direction: 'right',
-      percent: 0.85,
-    })
-    found = await checkVisible()
-    if (found) return found
-  }
-
-  throw new Error(`No se encontró el texto tras scroll horizontal: ${text}`)
+// Tablas anchas (P&L) desbordan horizontalmente: scroll lateral hacia las columnas.
+function scrollRightToText(text, maxScrolls = 6) {
+  return scrollTo(
+    text,
+    'right',
+    { top: 0.35, height: 0.3, percent: 0.85 },
+    maxScrolls
+  )
 }
 
 function uniqueEmail() {
@@ -228,7 +176,7 @@ describe('US 6.3 - Última actualización de precios desde el celular', () => {
     await waitForStaticText('Key Financial Metrics')
 
     // Requiere una ejecución exitosa del batch de precios en el backend.
-    const status = await scrollToText('Precios actualizados al')
+    const status = await scrollTo('Precios actualizados al')
     const text = await status.getText()
     // La fecha/hora debe ser legible: formato DD/MM/AAAA HH:MM.
     expect(text).toMatch(/\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}/)
@@ -278,24 +226,24 @@ describe('US 6.4 - Gestión de portfolio desde el celular', () => {
     await waitForStaticText('Mi Portfolio')
 
     // La posición resultante y las columnas de P&L deben ser legibles.
-    await scrollToText(TICKER)
-    await scrollToText('Cantidad')
+    await scrollTo(TICKER)
+    await scrollTo('Cantidad')
     await scrollRightToText('P&L ($)')
     await scrollRightToText('P&L (%)')
-    await scrollToText('Valor total del portfolio')
+    await scrollTo('Valor total del portfolio')
   })
 
   it('muestra el historial de operaciones desde el celular', async () => {
     await tapStaticText('Historial')
 
     // Encabezados del historial.
-    await scrollToText('Fecha')
-    await scrollToText('Tipo')
-    await scrollToText('Precio')
+    await scrollTo('Fecha')
+    await scrollTo('Tipo')
+    await scrollTo('Precio')
 
     // Operaciones realizadas en esta sesión: una compra (BUY) y una venta (SELL).
-    await scrollToText(TICKER)
-    await scrollToText('BUY')
-    await scrollToText('SELL')
+    await scrollTo(TICKER)
+    await scrollTo('BUY')
+    await scrollTo('SELL')
   })
 })
