@@ -61,12 +61,12 @@ describe('Company financial detail on mobile', () => {
       'Total Assets',
       'Total Liabilities',
     ]) {
-      await scrollToText(metric)
+      await scrollTo(metric)
     }
 
-    await scrollToText('Historical Evolution')
-    await scrollToText('Recent Filings')
-    await scrollToText('Type')
-    await scrollToText('Filed')
+    await scrollTo('Historical Evolution')
+    await scrollTo('Recent Filings')
+    await scrollTo('Type')
+    await scrollTo('Filed')
   })
 })
