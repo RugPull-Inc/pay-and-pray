@@ -148,8 +148,8 @@ describe('US 6.1 - Autenticación desde el celular', () => {
     await loginWith(uniqueEmail(), 'wrong-password')
 
     // El mensaje de error del backend (401) debe verse en la pantalla chica.
-    const error = await waitForStaticText('Invalid email or password.')
-    expect(await error.isDisplayed()).toBe(true)
+    // waitForStaticText ya falla si el texto no aparece visible en pantalla.
+    await waitForStaticText('Invalid email or password.')
   })
 
   it('mantiene las rutas protegidas fuera del alcance de un usuario sin autenticar', async () => {
