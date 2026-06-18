@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 2.3cm 2cm 2.2cm 2cm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10.5pt; color: #232323; line-height: 1.5; margin: 0;
+  }
+  p { text-align: justify; margin: 0 0 9px 0; }
+  ul { margin: 0 0 9px 0; padding-left: 20px; }
+  li { text-align: justify; margin-bottom: 5px; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9.2pt; background:#eef1f5; padding:0 3px; border-radius:3px; }
+  h1.section {
+    color: #1f3a5f; font-size: 16pt; font-weight: 700; margin: 0 0 12px 0;
+    padding-bottom: 6px; border-bottom: 1.5px solid #1f3a5f;
+    page-break-after: avoid;
+  }
+  h2.sub { color: #1f3a5f; font-size: 11.5pt; font-weight: 700; margin: 16px 0 6px 0; page-break-after: avoid; }
+  section { page-break-before: always; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px 0; font-size: 9.6pt; }
+  th { background: #1f3a5f; color: #fff; font-weight: 700; text-align: left; padding: 7px 10px; }
+  td { padding: 6px 10px; border-bottom: 1px solid #d6dbe2; vertical-align: top; }
+  tr:nth-child(even) td { background: #eef1f5; }
+  .small { font-size: 9.4pt; }
+
+  /* Title page */
+  .cover { height: 24cm; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; page-break-after: always; }
+  .cover .gap1 { height: 6.5cm; }
+  .cover h1 { color: #1f3a5f; font-size: 34pt; font-weight: 700; margin: 0; }
+  .cover .subtitle { color: #444; font-size: 13pt; margin: 8px 0 0 0; }
+  .cover .rule { width: 5cm; border-top: 2px solid #1f3a5f; margin: 14px 0 26px 0; }
+  .cover .doctype { color: #1a1a1a; font-size: 14pt; font-weight: 700; }
+  .cover .members-title { color: #1f3a5f; font-weight: 700; margin-top: 3.2cm; }
+  .cover .member { font-size: 11pt; margin-top: 2px; }
+  .cover .meta { color: #555; font-size: 10.5pt; margin-top: 2.6cm; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <div class="gap1"></div>
+  <h1>Pay and Pray</h1>
+  <div class="subtitle">Portfolio tracker de acciones del mercado de EE. UU.</div>
+  <div class="rule"></div>
+  <div class="doctype">Informe de Arquitectura, Testing y Rendimiento</div>
+  <div class="members-title">Integrantes</div>
+  <div class="member">Sofía Keczeli</div>
+  <div class="member">Julián Ritondale</div>
+  <div class="member">Fernando Santisi</div>
+  <div class="member">Juan Decoud</div>
+  <div class="member">Juan Luis Martinó</div>
+  <div class="meta">Fecha de entrega: 18/06/2026<br>Repositorio: RugPull-Inc / pay-and-pray</div>
+</div>
+
+<!-- ===================== 1. INTRODUCCIÓN ===================== -->
+<section>
+<h1 class="section">1. Introducción y enfoque de calidad</h1>
+<p>Pay and Pray es un portfolio tracker de acciones cotizadas en mercados de Estados Unidos, disponible como aplicación web y mobile sobre una misma API. El usuario puede registrar operaciones de compra y venta, consultar el valor y la ganancia/pérdida de sus posiciones, seguir empresas en una watchlist y acceder a información financiera oficial. El sistema se apoya en dos fuentes de datos externas reales: la API pública EDGAR de la SEC para los datos financieros, y Yahoo Finance para los precios de mercado.</p>
+<p>Ahora bien, el producto en sí fue el medio y no el fin. La consigna pedía un sistema deliberadamente minimalista, y el objetivo real del trabajo era poner en práctica los mecanismos de aseguramiento de la calidad sobre un caso con suficiente complejidad de dominio (cálculo de P&amp;L, integraciones externas inestables, rate limiting) como para que esas técnicas tuvieran sentido. Por eso, todo el informe está organizado alrededor de una pregunta: qué decidimos y por qué, más que qué construimos.</p>
+
+<h2 class="sub">1.1 Testeabilidad como requisito de diseño</h2>
+<p>La decisión que más condicionó al resto fue tratar la testeabilidad como un requisito de diseño, y no como una consecuencia. En la práctica esto se tradujo en reglas que aplicamos de forma sistemática en el backend: cada capa se expone detrás de una interfaz (<code>Service</code>/<code>ServiceImpl</code>, <code>Repository</code>/<code>RepositoryImpl</code>) para poder reemplazar dependencias en los tests; el acceso a datos vive aislado, de modo que una única clase conoce JPA y el resto habla contra una interfaz de dominio; y cada integración externa se define como una interfaz con los métodos justos, con una sola implementación que maneja HTTP, rate limiting y errores. Así, la lógica de negocio se prueba sin levantar Spring ni la base, y las integraciones se pueden fakear sin depender del servicio real.</p>
+
+<h2 class="sub">1.2 Cómo organizamos el avance</h2>
+<p>El trabajo se estructuró en seis features, cada una con sus user stories y criterios de aceptación. Avanzamos feature por feature, y dentro de cada una construimos de la persistencia hacia afuera: primero el modelo de datos y la API, después la interfaz web que la consume. Los tests unitarios y de integración no fueron un paso posterior, sino parte de construir cada feature; una historia no se daba por terminada sin esa cobertura. Priorizamos primero las piezas de mayor riesgo —las integraciones con EDGAR y Yahoo Finance, por ser externas e inestables— para validarlas temprano. Los tests end-to-end (Cypress y Appium) y las pruebas de carga con Locust llegaron sobre flujos ya estables, porque ejercitan el sistema integrado y no funcionalidad en construcción.</p>
+</section>
+
+<!-- ===================== 2. ARQUITECTURA (palabras de Yisus) ===================== -->
+<section>
+<h1 class="section">2. Arquitectura</h1>
+<p>El sistema se divide en cuatro componentes que corren como procesos separados y se orquestan con Docker Compose: una API REST, un frontend web que además se empaqueta como app Android, un proceso batch de precios y una base de datos PostgreSQL. La idea central del diseño es separar responsabilidades por proceso y dejar que cada uno escale y falle de forma independiente, compartiendo únicamente la base de datos como fuente de verdad.</p>
+
+<h2 class="sub">2.1 Decisiones de stack</h2>
+<ul>
+  <li><strong>Kotlin 2.1.21 + Spring Boot 3.4.5</strong> para la API REST. Es un stack con tipado fuerte, null-safety y un ecosistema maduro para JPA, validación, seguridad con JWT y caché. Spring nos da la inyección de dependencias y un modelo de capas (controller, service, repository) que ya teníamos estandarizado en las guías del proyecto. Corre sobre Java 21.</li>
+  <li><strong>React 19 + Vite 7 + TypeScript + Tailwind</strong> para el frontend web. React por ser el estándar del equipo, Vite por su velocidad de build y dev server, TypeScript por seguridad de tipos y Tailwind para estilos. Toda la lógica de UI, ruteo y servicios de API vive en un único codebase.</li>
+  <li><strong>Capacitor 8</strong> envuelve el mismo build web para generar la app Android, en lugar de reescribir la UI en nativo. El detalle se desarrolla en la sección Mobile.</li>
+  <li><strong>Python 3.12</strong> para el batch de precios. Python encaja por la disponibilidad de librerías de datos de mercado (yfinance) y por aislar una tarea de naturaleza distinta a la API transaccional. Usa psycopg2 para escribir en la base y pandas para procesar.</li>
+  <li><strong>PostgreSQL 16</strong> como base de datos única y compartida. PostgreSQL por madurez, soporte transaccional y buena integración con Flyway para migraciones versionadas.</li>
+</ul>
+
+<h2 class="sub">2.2 Separación API / batch</h2>
+<p>La API y el batch de precios son dos servicios distintos, cada uno en su contenedor. La API atiende las operaciones transaccionales del usuario (registro, login, búsqueda de empresas, compra y venta, portfolio con P&amp;L). El batch se ocupa de una tarea de fondo diferente: recolectar todos los tickers seguidos (posiciones, watchlist y tracked tickers), pedir precios a Yahoo Finance, hacer upsert en la tabla de precios y registrar el estado de cada corrida en <code>batch_runs</code>.</p>
+<p>Los dos procesos no comparten código ni memoria: se comunican por la base de datos y por un disparo HTTP. La API invoca al batch con un POST a <code>/trigger</code> del servicio de precios (clase <code>HttpBatchTriggerService</code>, URL configurable con <code>BATCH_SERVICE_URL</code>), y además hay un refresh de precios opcional al arranque. Esta separación permite que un trabajo de precios pesado o lento no bloquee las peticiones de los usuarios, y que cada servicio se reinicie o escale por su cuenta.</p>
+
+<h2 class="sub">2.3 Orquestación con Docker Compose</h2>
+<p>Docker Compose levanta los cuatro servicios con sus dependencias y healthchecks. El backend espera a que la base y el batch estén sanos antes de arrancar; el batch espera a la base; el frontend espera al backend. La base persiste en un volumen nombrado (<code>postgres_data</code>).</p>
+<table>
+  <tr><th>Servicio</th><th>Imagen / build</th><th>Puerto</th><th>Depende de</th></tr>
+  <tr><td>db</td><td>postgres:16-alpine</td><td>5432</td><td>—</td></tr>
+  <tr><td>backend (API)</td><td>build ./backend (Java 21)</td><td>8080</td><td>db, price-batch</td></tr>
+  <tr><td>price-batch</td><td>build ./price-batch (Python 3.12)</td><td>8081</td><td>db</td></tr>
+  <tr><td>frontend</td><td>build ./frontend</td><td>3000</td><td>backend</td></tr>
+</table>
+<p>El backend usa build multi-stage (compila con JDK, corre con JRE) y arranca con ddl-auto en validate, de modo que Hibernate nunca modifica el esquema: los cambios de base se aplican solo por migraciones Flyway versionadas.</p>
+
+<h2 class="sub">2.4 Seguridad y manejo de errores</h2>
+<p>La autenticación se resuelve con JWT y sesiones stateless: un filtro valida el token en cada request antes de llegar al controller. La regla por defecto en <code>SecurityConfig</code> es denegar —todo endpoint requiere autenticación— salvo los explícitamente liberados (registro y login, consulta pública de empresas, disparo del batch y consulta de última actualización de precios). La identidad del usuario nunca viene del request: el ID se toma del <code>Authentication</code> que inyecta Spring a partir del token, evitando que un usuario opere sobre el portfolio de otro.</p>
+<p>Cada modo de falla esperado tiene su propia excepción no chequeada (email duplicado, recurso inexistente, fondos/cantidad insuficiente, EDGAR no disponible). Todas se registran en un único <code>GlobalExceptionHandler</code> que las mapea al código HTTP correcto (409, 404, 503, 400) y devuelve siempre la misma forma de respuesta. El beneficio es un contrato de error uniforme para web y mobile, y lógica de negocio que puede fallar lanzando una excepción sin preocuparse por el formato HTTP.</p>
+</section>
+
+<!-- ===================== 3. FEATURES Y USER STORIES (mío) ===================== -->
+<section>
+<h1 class="section">3. Features y user stories</h1>
+<p>La especificación del sistema se organizó en tres niveles: <strong>features</strong> (las seis grandes capacidades del producto), <strong>user stories</strong> (las historias concretas dentro de cada feature, desde la perspectiva del usuario) y <strong>escenarios de aceptación</strong> (las condiciones puntuales que debían cumplirse). Los escenarios fueron la unidad operativa: funcionaron como Definition of Done y, en buena medida, como el guion de los tests. Por ejemplo, la user story "Vender acciones" no se consideraba terminada por permitir vender, sino cuando se verificaba —entre otros— que el sistema no permitiera vender más unidades de las disponibles, y existía una prueba que lo confirmaba.</p>
+<ul>
+  <li><strong>Feature 1 — Gestión de cuenta de usuario.</strong> Registro con email y contraseña, login y acceso autenticado. Rechaza emails inválidos, contraseñas vacías y emails duplicados (409), y no expone información sensible en los errores de login.</li>
+  <li><strong>Feature 2 — Búsqueda y consulta de empresas (SEC EDGAR).</strong> Búsqueda por nombre o ticker, métricas financieras clave (Revenue, Net Income, EPS, Total Assets, Total Liabilities), evolución histórica de 4 a 8 quarters y filings recientes (10-K, 10-Q).</li>
+  <li><strong>Feature 3 — Proceso de actualización de precios (Yahoo Finance).</strong> Disparo manual o por CI del batch, actualización de precios almacenados y registro de fecha/hora; una corrida fallida no sobrescribe la última fecha exitosa.</li>
+  <li><strong>Feature 4 — Gestión de portfolio.</strong> Compra y venta, consulta de posiciones con P&amp;L, valor total e historial de operaciones. Toda valorización se calcula contra el último precio almacenado; no se permite vender más de lo disponible.</li>
+  <li><strong>Feature 5 — Watchlist y comparación de empresas.</strong> Seguir empresas sin posición abierta (sin duplicados) y comparar sus métricas financieras clave, indicando si el usuario tiene posición en cada una.</li>
+  <li><strong>Feature 6 — Experiencia móvil y rendimiento bajo carga.</strong> Agrupa los requisitos no funcionales: usabilidad desde el celular en todas las pantallas principales (6.1–6.6) y comportamiento bajo carga —concurrencia, tiempos de respuesta, estabilidad sostenida y degradación controlada— (6.7–6.10).</li>
+</ul>
+</section>
+
+<!-- ===================== 4. ESTRATEGIA DE TESTING (palabras de Yisus) ===================== -->
+<section>
+<h1 class="section">4. Estrategia de testing</h1>
+<p>La estrategia sigue la pirámide de tests: muchos tests unitarios rápidos en la base, una capa intermedia de tests de integración que ejercitan HTTP y base de datos reales, y una punta angosta de tests end to end (web y mobile). Por fuera de la pirámide funcional, una capa de carga y estrés valida el comportamiento bajo presión. La regla de oro es: cuanto más abajo, más rápido y más barato el test, así que ahí concentramos el volumen.</p>
+
+<h2 class="sub">4.1 Tests unitarios (base de la pirámide)</h2>
+<p>Alrededor de 34 clases de test unitario, sin levantar contexto de Spring. En vez de Mockito se usan clases Fake escritas a mano (unas 13) que implementan las interfaces de servicio y repositorio, con flags de comportamiento y contadores cuando hace falta verificar interacciones. Por ejemplo <code>FakeTokenService</code>, <code>FakeUserService</code>, <code>FakePriceService</code> o <code>FakeTickerEdgarClient</code>. Cubren lógica de negocio pura: login, compra, venta, cálculo de transacciones, caché de tickers y manejo de errores de la API de EDGAR. Al no usar Spring, corren en milisegundos.</p>
+
+<h2 class="sub">4.2 Tests de integración (capa media)</h2>
+<p>Doce clases que extienden <code>IntegrationTestBase</code>, la cual combina <code>SpringBootTest</code>, <code>MockMvc</code> y un contenedor PostgreSQL 16 real levantado con Testcontainers. Prueban el request y response HTTP completo: códigos de estado, forma del JSON y persistencia real en la base. La clase base ofrece <code>loginAndGetToken()</code> para obtener un JWT válido y golpear endpoints protegidos, y limpia las cachés entre tests. Cubren auth, usuarios, empresas (incluido el escenario de EDGAR caído), compra, venta, vista de portfolio, historial, watchlist, comparación y precios.</p>
+
+<h2 class="sub">4.3 End to end web con Cypress</h2>
+<p>Nueve especificaciones de Cypress, divididas a propósito en dos modos. Los tests interceptados usan <code>cy.intercept</code> para stubear la API y verificar contratos de UI y caminos de error de forma rápida y determinística (watchlist, portfolio-trade, portfolio-history, portfolio-view). Los tests reales golpean el backend de verdad de punta a punta (auth, company-browse, company-detail, watchlist-real), incluyendo registro, login, búsqueda, compra y comparación con datos reales. La combinación da velocidad donde importa y confianza de extremo a extremo donde hace falta.</p>
+
+<h2 class="sub">4.4 End to end mobile con Appium</h2>
+<p>Tres especificaciones que corren la app Android empaquetada con Capacitor, usando Appium con el driver UiAutomator2 y WebdriverIO como runner. Cubren los flujos de watchlist (agregar, ver, comparar), auth y portfolio (registro, login, precios, compra, venta, historial) y detalle de empresa. Corren tanto en emulador como en celular físico por USB.</p>
+
+<h2 class="sub">4.5 Carga y estrés con Locust</h2>
+<p>Por fuera de la pirámide funcional, Locust ejercita cinco workflows (registro más login, búsqueda, ver portfolio, comprar, y vender sin poseer que debe dar 4xx). Sirve para hallar la capacidad, validar tiempos bajo carga, detectar fugas en corridas largas y verificar la degradación controlada. Los resultados están en la sección siguiente.</p>
+<table>
+  <tr><th>Capa</th><th>Herramienta</th><th>Cantidad</th><th>Qué valida</th></tr>
+  <tr><td>Unitarios</td><td>Fake* a mano (sin Spring)</td><td>~34</td><td>Lógica de negocio aislada</td></tr>
+  <tr><td>Integración</td><td>MockMvc + Testcontainers</td><td>12</td><td>HTTP + base de datos reales</td></tr>
+  <tr><td>E2E web</td><td>Cypress (intercept + real)</td><td>9</td><td>Flujos de usuario en navegador</td></tr>
+  <tr><td>E2E mobile</td><td>Appium + UiAutomator2</td><td>3</td><td>Flujos en Android real</td></tr>
+  <tr><td>Carga / estrés</td><td>Locust</td><td>5 workflows</td><td>Rendimiento y degradación</td></tr>
+</table>
+</section>
+
+<!-- ===================== 5. RESULTADOS DE CARGA (palabras de Yisus) ===================== -->
+<section>
+<h1 class="section">5. Resultados de carga</h1>
+<p>Todas las corridas son del 18/06/2026 sobre un entorno fijo y reproducible para que los números sean comparables. Las decisiones de medición se mantuvieron constantes:</p>
+<ul>
+  <li><strong>Entorno:</strong> backend limitado a 2 cores (override <code>docker-compose.stress.yml</code>). Un techo de CPU reproducible que además permite provocar el quiebre; con 8 cores la app es tan liviana que no rompe.</li>
+  <li><strong>Auth real:</strong> cada usuario virtual se registra y loguea con su propia cuenta (sin pool de tokens). Esto es 100% representativo y evita contención artificial.</li>
+  <li><strong>Think-time:</strong> 0 en todo. En load queda por debajo de la capacidad; en stress, muy por encima.</li>
+  <li><strong>Timeout:</strong> 30 s por request. Un request colgado cuenta como fallo explícito, no como latencia ilegible.</li>
+</ul>
+<p>El orden de corridas fue: capacity (hallar el knee), load, soak, dos modos de stress y recovery. Se reportan p50, p95 y p99, nunca el promedio, porque el promedio esconde la cola.</p>
+
+<h2 class="sub">5.1 Tabla de resultados</h2>
+<table>
+  <tr><th>Escenario</th><th>Usuarios</th><th>p50</th><th>p95</th><th>p99</th><th>Throughput</th><th>5xx</th><th>Estado</th></tr>
+  <tr><td>Capacity (knee)</td><td>~500</td><td>710 ms</td><td>760 ms</td><td>—</td><td>~1.950 rps</td><td>0</td><td>OK</td></tr>
+  <tr><td>Load (10 min)</td><td>300</td><td>77 ms</td><td>560 ms</td><td>910 ms</td><td>~1.836 rps</td><td>0</td><td>OK 6.7/6.8</td></tr>
+  <tr><td>Soak (30 min)</td><td>300</td><td>73 ms</td><td>410 ms</td><td>760 ms</td><td>~1.762 rps</td><td>0</td><td>OK 6.9</td></tr>
+  <tr><td>Stress-A shock onboarding</td><td>rampa +1.000</td><td>—</td><td>30 s+ (techo)</td><td>—</td><td>colapsa</td><td>0</td><td>OK 6.10</td></tr>
+  <tr><td>Stress-B carga gradual</td><td>rampa +150</td><td>—</td><td>230 ms a 12 s</td><td>—</td><td>~2.000 rps</td><td>0</td><td>OK 6.10</td></tr>
+</table>
+<p>El único fallo del soak fue 1 login 401 en 2,7 millones de requests (race transitorio en el arranque del usuario, no un 5xx). En los dos modos de stress, todos los fallos posteriores al quiebre son a nivel de conexión (connection reset, disconnect o timeout de 30 s): cero 5xx y cero corrupción de datos.</p>
+
+<h2 class="sub">5.2 Dimensionamiento derivado</h2>
+<ul>
+  <li><strong>Capacity:</strong> el RPS se aplana en ~1.950 rps alrededor de 500 usuarios (CPU a 2 cores saturada). Por encima de ese punto solo crece la latencia. El knee queda en ~500 usuarios.</li>
+  <li><strong>Carga de operación normal:</strong> se fijó en 60% del knee = 300 usuarios. Zona cómoda, con RPS aún sin saturar y p95 alrededor de 560 ms.</li>
+  <li><strong>Umbral de p95 (US 6.8):</strong> 1.000 ms (el p95 medido en load fue ~560 ms, más margen). El error rate aceptable es menos de 1% de 5xx; los 4xx esperados del workflow de venta sin poseer no cuentan.</li>
+</ul>
+
+<h2 class="sub">5.3 Conclusiones por user story</h2>
+<ul>
+  <li><strong>6.7 Concurrencia:</strong> 300 usuarios, 10 minutos, 0 errores 5xx en 1.101.723 requests.</li>
+  <li><strong>6.8 Tiempos bajo carga:</strong> p95 agregado de 560 ms, por debajo del umbral de 1.000 ms (search ~110 ms; portfolio, buy y sell ~680 ms).</li>
+  <li><strong>6.9 Estabilidad sostenida:</strong> 30 minutos con p95 plano en 520 a 580 ms sin creep, memoria estable en 1,01 a 1,05 GiB (sin fugas) y CPU constante en ~205%.</li>
+  <li><strong>6.10 Degradación controlada:</strong> validada en dos modos. Stress-A (shock de onboarding, +1.000 por escalón) quiebra a ~1.050 usuarios y degrada descartando conexiones y devolviendo timeouts explícitos, sin 5xx ni crash, y se recupera al bajar la carga (a 150 usuarios vuelve a 0 errores y p95 230 ms). Stress-B (carga gradual, +150 por escalón) aguanta 0 errores hasta 8.400 usuarios; la degradación es 100% latencia (p95 lineal de 230 ms a 12 s) con throughput plano en ~2.000 rps, y el breakpoint a 8.450 usuarios lo marca el límite de conexiones de Tomcat (max-connections 8.192), no un error de la app.</li>
+</ul>
+<p><strong>Hallazgo principal:</strong> comparando los dos modos de stress (misma base, mismos workflows, mismos 2 cores, la única diferencia es la tasa de onboarding), el cuello de botella bajo presión no son los workflows ni el volumen de datos, sino el bcrypt del registro y login. Meter ~1.000 altas de golpe satura los cores. Con onboarding gradual el sistema aguanta hasta el techo de conexiones de Tomcat.</p>
+</section>
+
+<!-- ===================== 6. EDGAR (palabras de Yisus) ===================== -->
+<section>
+<h1 class="section">6. EDGAR: rate limiting, caché e impacto en stress</h1>
+<p>Los datos de empresas (listado de tickers y métricas financieras) vienen de la API pública de SEC EDGAR. La integración está encapsulada detrás de la interfaz <code>EdgarClient</code>, con una única implementación (<code>EdgarApiClient</code>) que maneja HTTP, límite de tasa y envoltura de errores, lo que la hace fácil de fakear en tests.</p>
+
+<h2 class="sub">6.1 Rate limiting</h2>
+<p>SEC EDGAR exige un header User-Agent válido que identifique a la aplicación (se inyecta por variable de entorno <code>EDGAR_USER_AGENT</code>) y limita a 10 requests por segundo. El cliente respeta ese límite con un rate limiter Bucket4j configurado en capacidad 10 con recarga de 10 por segundo: cada llamada consume un token de forma bloqueante antes de salir a la red, de modo que nunca superamos el límite de SEC. La búsqueda full-text se restringe a formularios 10-K, una decisión consciente para un portfolio tracker: todas las grandes empresas públicas presentan 10-K, así que el resultado es relevante.</p>
+
+<h2 class="sub">6.2 Estrategia de caché</h2>
+<p>Sobre el rate limiting se apoya una caché en memoria con Caffeine para no repetir llamadas a EDGAR:</p>
+<table>
+  <tr><th>Caché</th><th>TTL</th><th>Tamaño</th><th>Contenido</th></tr>
+  <tr><td>companyDetails</td><td>1 hora</td><td>10.000 entradas</td><td>Métricas financieras por empresa (CIK)</td></tr>
+  <tr><td>companyTickers</td><td>24 horas</td><td>listado completo</td><td>Listado de tickers de EDGAR</td></tr>
+</table>
+<p>Además hay un fallback empaquetado para cuando EDGAR bloquea el archivo <code>company_tickers.json</code> (responde 403). Si está habilitado (<code>EDGAR_TICKERS_FALLBACK_ENABLED</code>) y la llamada en vivo falla, el sistema carga un JSON bundled de más de 50 empresas grandes (AAPL, MSFT, TSLA, NVDA, AMZN y otras) en lugar de caerse. Si el fallback está deshabilitado, la excepción se propaga. Esto mantiene la búsqueda de empresas funcionando aun cuando SEC nos rechaza.</p>
+
+<h2 class="sub">6.3 Impacto en el stress testing</h2>
+<p>El rate limit de 10 req/s de EDGAR podría parecer un cuello de botella para las pruebas de carga, pero por diseño no lo es. Antes de medir, el script <code>warmup.py</code> precalienta las cachés: dispara un refresh de precios y hace una única llamada que deja caliente el ticker cache (válido por 24 horas).</p>
+<p>Durante la corrida, las búsquedas usan prefijos de tickers que pegan contra el ticker cache, no contra EDGAR en vivo. Por eso, en las corridas de stress, EDGAR nunca aparece como el limitante: el quiebre lo marcan la CPU (bcrypt del onboarding) y el límite de conexiones de Tomcat, no el rate limit de SEC. Además, el proceso de actualización de precios contra Yahoo corre una única vez por invocación y no forma parte del bucle de carga, así que tampoco genera tráfico continuo sobre el servicio externo. Esto fue intencional, para medir la capacidad de nuestra aplicación y no la de un servicio externo.</p>
+</section>
+
+<!-- ===================== 7. MOBILE (palabras de Yisus) ===================== -->
+<section>
+<h1 class="section">7. Mobile</h1>
+
+<h2 class="sub">7.1 Decisión: Capacitor en lugar de nativo</h2>
+<p>Se eligió Capacitor para empaquetar como app Android el mismo build web de React en lugar de escribir una app nativa nueva. Las razones:</p>
+<ul>
+  <li><strong>Un solo codebase:</strong> el frontend ya es una app React basada en navegador y todavía no necesita una UI nativa propia. Capacitor envuelve el build de Vite (carpeta dist) dentro de un shell Android.</li>
+  <li><strong>Una sola fuente de verdad:</strong> comportamiento de producto, ruteo, servicios de API, estilos y tests quedan centrados en un único frontend, en vez de duplicarse en una base nativa aparte.</li>
+  <li><strong>Menos fricción:</strong> mantener <code>android/</code> dentro de <code>frontend/</code> es la estructura por defecto de Capacitor y reduce complejidad de configuración. Un paquete <code>mobile/</code> separado pediría cableado extra para consumir el build del frontend, sin beneficio hoy.</li>
+</ul>
+
+<h2 class="sub">7.2 Cómo funciona</h2>
+<p>El identificador de la app es <code>com.payandpray.app</code>. El flujo de build es: Vite compila la app React a <code>frontend/dist</code>, Capacitor sincroniza ese dist dentro del proyecto Android, y Gradle compila el APK con los assets web embebidos. Los comandos quedan envueltos en scripts npm (<code>mobile:build</code>, <code>mobile:android</code>, <code>cap:open:android</code>).</p>
+
+<h2 class="sub">7.3 Limitaciones encontradas</h2>
+<ul>
+  <li><strong>Red y localhost:</strong> la app mobile no resuelve localhost como lo hace el navegador de escritorio. En el emulador hay que apuntar <code>VITE_API_URL</code> a <code>http://10.0.2.2:8080</code> (alias de la máquina host desde dentro del emulador), y el CORS del backend debe permitir el origin de Capacitor (normalmente <code>https://localhost</code>).</li>
+  <li><strong>Dispositivo físico:</strong> para correr contra un celular físico por USB hay que tunelear el puerto con <code>adb reverse tcp:8080 tcp:8080</code> para que el dispositivo vea el backend en localhost.</li>
+  <li><strong>Versión de JDK:</strong> el build Android de Gradle requiere JDK 17 o 21. JDKs más nuevos (por ejemplo Java 25) rompen el build, así que hay que fijar <code>JAVA_HOME</code> a una versión soportada.</li>
+  <li><strong>E2E:</strong> los tests E2E mobile dependen de tener el backend corriendo con un precio de AAPL disponible y del APK debug compilado; los timeouts de instalación y de arranque de UiAutomator2 se subieron para tolerar emuladores lentos.</li>
+</ul>
+</section>
+
+<!-- ===================== 8. CI/CD Y GIT (mío) ===================== -->
+<section>
+<h1 class="section">8. CI/CD, versionado y flujo de Git</h1>
+<p>La integración continua se resuelve con GitHub Actions, en un workflow versionado en el propio repositorio (<code>.github/workflows/ci.yml</code>). Se dispara en cada push y cada pull request hacia las ramas <code>main</code> y <code>dev</code>, de modo que ningún cambio llega a las ramas principales sin pasar por validación automática.</p>
+
+<h2 class="sub">8.1 Pipeline con jobs selectivos</h2>
+<p>El pipeline arranca con un job que usa path filtering para detectar qué parte del repositorio cambió y decidir qué jobs correr, acortando el feedback sin perder cobertura. El job <strong>backend</strong> verifica formato (<code>ktlintCheck</code>), compila y corre la suite de tests (unitarios e integración con Testcontainers). El job <strong>frontend</strong> chequea formato (Prettier), lintea (ESLint), compila y corre los tests. El job <strong>e2e</strong> levanta el stack completo con Docker Compose y corre Cypress contra él; está acotado a pull requests hacia <code>main</code> por ser el más pesado, y sube las capturas de Cypress como artefacto ante una falla.</p>
+
+<h2 class="sub">8.2 Imágenes Docker reproducibles</h2>
+<p>Cada componente tiene su propio Dockerfile; los del backend y el frontend son multi-stage (una etapa compila, una etapa final liviana lleva solo el artefacto ejecutable). El resultado son imágenes reproducibles que <code>docker compose</code> ensambla en el stack completo, de modo que el sistema se construye y levanta sin pasos manuales de instalación.</p>
+
+<h2 class="sub">8.3 Versionado con SemVer</h2>
+<p>El avance se versionó en GitHub siguiendo Versionado Semántico. Las releases se publicaron en hitos: cada feature nueva incrementó la versión MINOR y cada corrección la PATCH, dando una historia trazable.</p>
+<table>
+  <tr><th>Versión</th><th>Hito</th></tr>
+  <tr><td>v1.0.0</td><td>Feature 1 — Gestión de cuenta de usuario</td></tr>
+  <tr><td>v1.1.0</td><td>Feature 2 — Búsqueda y consulta de empresas</td></tr>
+  <tr><td>v1.2.0</td><td>Feature 3 — Proceso de actualización de precios</td></tr>
+  <tr><td>v1.3.0</td><td>Feature 4 — Gestión de portfolio</td></tr>
+  <tr><td>v1.4.0</td><td>Feature 5 — Watchlist y comparación de empresas</td></tr>
+  <tr><td>v1.5.0</td><td>Feature 6 — Experiencia móvil y rendimiento bajo carga</td></tr>
+</table>
+<p>Entre medio se publicaron releases PATCH (v1.2.1, v1.3.1, v1.4.1) para correcciones puntuales.</p>
+
+<h2 class="sub">8.4 Flujo de Git y trazabilidad</h2>
+<p>El trabajo en equipo se ordenó alrededor de un flujo de Git con foco en la trazabilidad de punta a punta, desde la especificación hasta el código integrado:</p>
+<ul>
+  <li><strong>Issues derivados de los docs.</strong> Cada unidad de trabajo nace de un issue, y los issues salen directamente de las user stories ya definidas en la documentación. Una user story se convierte en uno o más issues concretos.</li>
+  <li><strong>Una rama por issue.</strong> Cada issue se desarrolla en su propia rama de trabajo, nombrada con el número de issue y la feature/US (por ejemplo <code>54-f4-us4-backend-historial-de-operaciones</code>). Son ramas cortas, de vida menor a una semana —en general un par de días— para integrar seguido y evitar divergencias grandes.</li>
+  <li><strong>Conventional Commits.</strong> Los commits siguen la convención (<code>feat:</code>, <code>fix:</code>, <code>test:</code>, etc.), con descripción donde aporta contexto, lo que hace legible la historia y habilita el versionado por tipo de cambio.</li>
+  <li><strong>Pull requests hacia <code>dev</code>.</strong> Cada rama de trabajo se integra mediante un PR hacia <code>dev</code> (y <code>dev</code> hacia <code>main</code> en los hitos). El PR es el punto de corrección: pasa por peer review de otro integrante y por el CI, que corre el testing automatizado como compuerta antes de poder mergear.</li>
+  <li><strong>GitHub Projects.</strong> Se usó un tablero que asocia issues, PRs y commits, dando trazabilidad completa: desde una user story se puede llegar al issue, a la rama, a los commits y al PR que la cerró. Los issues avanzan por estados —Backlog, Todo, In Progress, Review, Done— que reflejan en qué punto del flujo está cada unidad de trabajo.</li>
+</ul>
+</section>
+
+<!-- ===================== 9. DECISIONES DE DISEÑO (mío) ===================== -->
+<section>
+<h1 class="section">9. Decisiones de diseño destacadas</h1>
+
+<h2 class="sub">9.1 Valorización contra el precio almacenado</h2>
+<p>Es la decisión transversal del sistema: ningún cálculo de negocio consulta Yahoo Finance en vivo. Las compras, ventas y la valorización del portfolio usan el último precio almacenado (<code>PriceService.getLatestPrice</code>). Esto hace la operación determinística, rápida (sin latencia de red en el camino crítico) y testeable (basta sembrar un precio para probar el flujo). El precio se actualiza por fuera, mediante el batch.</p>
+
+<h2 class="sub">9.2 Posiciones por costo promedio ponderado</h2>
+<p>Combinar múltiples compras y ventas de un mismo ticker en una posición coherente fue la parte menos trivial del dominio. Cada posición se modela con dos datos —cantidad y precio de compra promedio— mantenidos por costo promedio ponderado: al comprar, el nuevo promedio pondera la posición existente con la nueva compra; al vender, solo se reduce la cantidad y el promedio no cambia (si llega a cero, la posición se elimina). El P&amp;L no realizado de cada posición es <code>(precioActual − avgBuyPrice) × cantidad</code>. Se eligió costo promedio y no lotes FIFO por proporcionalidad: es el modelo más simple que responde correctamente lo que el producto necesita, sin la complejidad de rastrear lotes individuales. Cada operación se persiste igual como una transacción independiente, de modo que el historial completo queda registrado.</p>
+
+<h2 class="sub">9.3 Aritmética con BigDecimal y datos faltantes</h2>
+<p>Por tratarse de dinero, todos los cálculos monetarios usan <code>BigDecimal</code> (nunca <code>Double</code>), con redondeo explícito (HALF_UP) y escala fija donde corresponde, evitando errores de coma flotante que harían diferir dos caminos de cálculo equivalentes. Además, si un ticker no tiene precio almacenado, la posición no rompe el cálculo: se muestra con su cantidad y precio de compra, con valor actual y P&amp;L en nulo, y simplemente no suma al valor total, en lugar de devolver un error.</p>
+</section>
+
+<!-- ===================== 10. PUNTOS DE MEJORA (mío) ===================== -->
+<section>
+<h1 class="section">10. Posibles puntos de mejora</h1>
+<p>El trabajo cumplió sus objetivos, pero el proceso dejó a la vista varios puntos donde, con más tiempo o en una próxima iteración, habríamos hecho las cosas distinto.</p>
+<ul>
+  <li><strong>Definir el pipeline Features → User Stories → Escenarios desde el principio.</strong> Los escenarios de aceptación se incorporaron en buena medida sobre la marcha. Escribirlos antes de implementar, como contrato previo, habría reforzado el enfoque ATDD y vuelto más natural escribir el test antes que el código.</li>
+  <li><strong>Refinar el <code>CLAUDE.md</code> para asegurar calidad por defecto.</strong> Varias convenciones del proyecto viven en ese documento. Con más tiempo, valdría la pena plantear algunas de esas garantías de forma más completa y precisa, para que se apliquen por defecto sin tener que explicitar cada detalle en el momento, y el resultado dependa menos de recordatorios puntuales.</li>
+  <li><strong>Releases más granulares y lineales.</strong> El versionado mapeó cada feature a una release, pero fueron releases gruesas. Releases más finas —por ejemplo por user story terminada— darían una historia de versiones más precisa y acercarían el proyecto a un esquema de entrega continua.</li>
+  <li><strong>Mejor solución para los tracked tickers.</strong> Hoy el conjunto de tickers seguidos funciona como una whitelist sembrada, lo que resuelve el problema técnico pero limita la experiencia: el usuario no puede operar libremente cualquier ticker. Habría valido la pena explorar una mejor solución de UX, por ejemplo incorporar un ticker bajo demanda la primera vez que un usuario lo busca u opera, en lugar de depender de una lista predefinida.</li>
+</ul>
+</section>
+
+<!-- ===================== 11. CONCLUSIÓN (mío) ===================== -->
+<section>
+<h1 class="section">11. Conclusión</h1>
+<p>El objetivo del trabajo no era tanto construir un portfolio tracker como usar ese producto para aplicar aseguramiento de la calidad de software, y ese fue el hilo que recorrió todas las decisiones. La tesis que adoptamos desde el principio —tratar la testeabilidad como un requisito de diseño— se materializó en una arquitectura en capas con interfaces, integraciones externas encapsuladas y fakeables, y un esquema de persistencia versionado; y se pagó después en una pirámide de tests que es el reflejo de esa estructura, no un agregado posterior.</p>
+<p>Sobre esa base, cumplimos los requisitos de la consigna: las seis features con sus user stories y escenarios de aceptación, la integración real con SEC EDGAR (con su rate limiting y caché) y con Yahoo Finance a través de un batch independiente, el diseño de precio almacenado que hace determinística la valorización, los tests unitarios con Fake*, los de integración con Testcontainers, los end-to-end en web (Cypress) y mobile (Appium), las pruebas de carga y estrés con Locust diferenciando ambos esquemas, el stack completo en Docker Compose con volúmenes persistentes, el versionado SemVer y la integración continua en GitHub Actions.</p>
+<p>Más allá del cumplimiento, lo más valioso fueron los lugares donde la forma de trabajar dejó aprendizajes: el orden en que conviene definir features, historias y escenarios; cómo el contraste entre dos esquemas de stress reveló que el cuello bajo onboarding masivo era el auth y no los flujos de negocio; y los puntos de mejora que identificamos para una próxima iteración. El sistema quedó funcionando, probado de punta a punta y con su calidad documentada, que era exactamente lo que el trabajo se proponía demostrar.</p>
+</section>
+
+</body>
+</html>
