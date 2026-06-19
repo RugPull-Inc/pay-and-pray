@@ -25,6 +25,33 @@
   td { padding: 6px 10px; border-bottom: 1px solid #d6dbe2; vertical-align: top; }
   tr:nth-child(even) td { background: #eef1f5; }
   .small { font-size: 9.4pt; }
+  .page-break { page-break-before: always; }
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .chart-card {
+    border: 1px solid #d6dbe2;
+    border-radius: 6px;
+    padding: 8px;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .chart-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #e5e9ef;
+  }
+  .chart-card .caption {
+    margin: 6px 0 0 0;
+    font-size: 9.4pt;
+    font-weight: 700;
+    text-align: center;
+    color: #1f3a5f;
+  }
 
   /* Title page */
   .cover { height: 24cm; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; page-break-after: always; }
@@ -69,7 +96,7 @@
 <p>El trabajo se estructuró en seis features, cada una con sus user stories y criterios de aceptación. Avanzamos feature por feature, y dentro de cada una construimos de la persistencia hacia afuera: primero el modelo de datos y la API, después la interfaz web que la consume. Los tests unitarios y de integración no fueron un paso posterior, sino parte de construir cada feature; una historia no se daba por terminada sin esa cobertura. Priorizamos primero las piezas de mayor riesgo —las integraciones con EDGAR y Yahoo Finance, por ser externas e inestables— para validarlas temprano. Los tests end-to-end (Cypress y Appium) y las pruebas de carga con Locust llegaron sobre flujos ya estables, porque ejercitan el sistema integrado y no funcionalidad en construcción.</p>
 </section>
 
-<!-- ===================== 2. ARQUITECTURA (palabras de Yisus) ===================== -->
+<!-- ===================== 2. ARQUITECTURA ===================== -->
 <section>
 <h1 class="section">2. Arquitectura</h1>
 <p>El sistema se divide en cuatro componentes que corren como procesos separados y se orquestan con Docker Compose: una API REST, un frontend web que además se empaqueta como app Android, un proceso batch de precios y una base de datos PostgreSQL. La idea central del diseño es separar responsabilidades por proceso y dejar que cada uno escale y falle de forma independiente, compartiendo únicamente la base de datos como fuente de verdad.</p>
@@ -103,7 +130,7 @@
 <p>Cada modo de falla esperado tiene su propia excepción no chequeada (email duplicado, recurso inexistente, fondos/cantidad insuficiente, EDGAR no disponible). Todas se registran en un único <code>GlobalExceptionHandler</code> que las mapea al código HTTP correcto (409, 404, 503, 400) y devuelve siempre la misma forma de respuesta. El beneficio es un contrato de error uniforme para web y mobile, y lógica de negocio que puede fallar lanzando una excepción sin preocuparse por el formato HTTP.</p>
 </section>
 
-<!-- ===================== 3. FEATURES Y USER STORIES (mío) ===================== -->
+<!-- ===================== 3. FEATURES Y USER STORIES ===================== -->
 <section>
 <h1 class="section">3. Features y user stories</h1>
 <p>La especificación del sistema se organizó en tres niveles: <strong>features</strong> (las seis grandes capacidades del producto), <strong>user stories</strong> (las historias concretas dentro de cada feature, desde la perspectiva del usuario) y <strong>escenarios de aceptación</strong> (las condiciones puntuales que debían cumplirse). Los escenarios fueron la unidad operativa: funcionaron como Definition of Done y, en buena medida, como el guion de los tests. Por ejemplo, la user story "Vender acciones" no se consideraba terminada por permitir vender, sino cuando se verificaba —entre otros— que el sistema no permitiera vender más unidades de las disponibles, y existía una prueba que lo confirmaba.</p>
@@ -117,7 +144,7 @@
 </ul>
 </section>
 
-<!-- ===================== 4. ESTRATEGIA DE TESTING (palabras de Yisus) ===================== -->
+<!-- ===================== 4. ESTRATEGIA DE TESTING ===================== -->
 <section>
 <h1 class="section">4. Estrategia de testing</h1>
 <p>La estrategia sigue la pirámide de tests: muchos tests unitarios rápidos en la base, una capa intermedia de tests de integración que ejercitan HTTP y base de datos reales, y una punta angosta de tests end to end (web y mobile). Por fuera de la pirámide funcional, una capa de carga y estrés valida el comportamiento bajo presión. La regla de oro es: cuanto más abajo, más rápido y más barato el test, así que ahí concentramos el volumen.</p>
@@ -146,7 +173,7 @@
 </table>
 </section>
 
-<!-- ===================== 5. RESULTADOS DE CARGA (palabras de Yisus) ===================== -->
+<!-- ===================== 5. RESULTADOS DE CARGA ===================== -->
 <section>
 <h1 class="section">5. Resultados de carga</h1>
 <p>Todas las corridas son del 18/06/2026 sobre un entorno fijo y reproducible para que los números sean comparables. Las decisiones de medición se mantuvieron constantes:</p>
@@ -184,9 +211,31 @@
   <li><strong>6.10 Degradación controlada:</strong> validada en dos modos. Stress-A (shock de onboarding, +1.000 por escalón) quiebra a ~1.050 usuarios y degrada descartando conexiones y devolviendo timeouts explícitos, sin 5xx ni crash, y se recupera al bajar la carga (a 150 usuarios vuelve a 0 errores y p95 230 ms). Stress-B (carga gradual, +150 por escalón) aguanta 0 errores hasta 8.400 usuarios; la degradación es 100% latencia (p95 lineal de 230 ms a 12 s) con throughput plano en ~2.000 rps, y el breakpoint a 8.450 usuarios lo marca el límite de conexiones de Tomcat (max-connections 8.192), no un error de la app.</li>
 </ul>
 <p><strong>Hallazgo principal:</strong> comparando los dos modos de stress (misma base, mismos workflows, mismos 2 cores, la única diferencia es la tasa de onboarding), el cuello de botella bajo presión no son los workflows ni el volumen de datos, sino el bcrypt del registro y login. Meter ~1.000 altas de golpe satura los cores. Con onboarding gradual el sistema aguanta hasta el techo de conexiones de Tomcat.</p>
+
+<div class="page-break"></div>
+
+<h2 class="sub">5.4 Gráficos de las corridas</h2>
+<div class="chart-grid">
+  <div class="chart-card">
+    <img src="./assets/load-testing.png" alt="Load testing charts">
+    <p class="caption">Load Testing</p>
+  </div>
+  <div class="chart-card">
+    <img src="./assets/soak-testing.png" alt="Soak testing charts">
+    <p class="caption">Soak Testing</p>
+  </div>
+  <div class="chart-card">
+    <img src="./assets/stress-testing-a.png" alt="Stress testing A charts">
+    <p class="caption">Stress Testing (A)</p>
+  </div>
+  <div class="chart-card">
+    <img src="./assets/stress-testing-b.png" alt="Stress testing B charts">
+    <p class="caption">Stress Testing (B)</p>
+  </div>
+</div>
 </section>
 
-<!-- ===================== 6. EDGAR (palabras de Yisus) ===================== -->
+<!-- ===================== 6. EDGAR ===================== -->
 <section>
 <h1 class="section">6. EDGAR: rate limiting, caché e impacto en stress</h1>
 <p>Los datos de empresas (listado de tickers y métricas financieras) vienen de la API pública de SEC EDGAR. La integración está encapsulada detrás de la interfaz <code>EdgarClient</code>, con una única implementación (<code>EdgarApiClient</code>) que maneja HTTP, límite de tasa y envoltura de errores, lo que la hace fácil de fakear en tests.</p>
@@ -208,7 +257,7 @@
 <p>Durante la corrida, las búsquedas usan prefijos de tickers que pegan contra el ticker cache, no contra EDGAR en vivo. Por eso, en las corridas de stress, EDGAR nunca aparece como el limitante: el quiebre lo marcan la CPU (bcrypt del onboarding) y el límite de conexiones de Tomcat, no el rate limit de SEC. Además, el proceso de actualización de precios contra Yahoo corre una única vez por invocación y no forma parte del bucle de carga, así que tampoco genera tráfico continuo sobre el servicio externo. Esto fue intencional, para medir la capacidad de nuestra aplicación y no la de un servicio externo.</p>
 </section>
 
-<!-- ===================== 7. MOBILE (palabras de Yisus) ===================== -->
+<!-- ===================== 7. MOBILE ===================== -->
 <section>
 <h1 class="section">7. Mobile</h1>
 
@@ -232,7 +281,7 @@
 </ul>
 </section>
 
-<!-- ===================== 8. CI/CD Y GIT (mío) ===================== -->
+<!-- ===================== 8. CI/CD Y GIT ===================== -->
 <section>
 <h1 class="section">8. CI/CD, versionado y flujo de Git</h1>
 <p>La integración continua se resuelve con GitHub Actions, en un workflow versionado en el propio repositorio (<code>.github/workflows/ci.yml</code>). Se dispara en cada push y cada pull request hacia las ramas <code>main</code> y <code>dev</code>, de modo que ningún cambio llega a las ramas principales sin pasar por validación automática.</p>
@@ -267,7 +316,7 @@
 </ul>
 </section>
 
-<!-- ===================== 9. DECISIONES DE DISEÑO (mío) ===================== -->
+<!-- ===================== 9. DECISIONES DE DISEÑO ===================== -->
 <section>
 <h1 class="section">9. Decisiones de diseño destacadas</h1>
 
@@ -281,7 +330,7 @@
 <p>Por tratarse de dinero, todos los cálculos monetarios usan <code>BigDecimal</code> (nunca <code>Double</code>), con redondeo explícito (HALF_UP) y escala fija donde corresponde, evitando errores de coma flotante que harían diferir dos caminos de cálculo equivalentes. Además, si un ticker no tiene precio almacenado, la posición no rompe el cálculo: se muestra con su cantidad y precio de compra, con valor actual y P&amp;L en nulo, y simplemente no suma al valor total, en lugar de devolver un error.</p>
 </section>
 
-<!-- ===================== 10. PUNTOS DE MEJORA (mío) ===================== -->
+<!-- ===================== 10. PUNTOS DE MEJORA ===================== -->
 <section>
 <h1 class="section">10. Posibles puntos de mejora</h1>
 <p>El trabajo cumplió sus objetivos, pero el proceso dejó a la vista varios puntos donde, con más tiempo o en una próxima iteración, habríamos hecho las cosas distinto.</p>
@@ -293,7 +342,7 @@
 </ul>
 </section>
 
-<!-- ===================== 11. CONCLUSIÓN (mío) ===================== -->
+<!-- ===================== 11. CONCLUSIÓN ===================== -->
 <section>
 <h1 class="section">11. Conclusión</h1>
 <p>El objetivo del trabajo no era tanto construir un portfolio tracker como usar ese producto para aplicar aseguramiento de la calidad de software, y ese fue el hilo que recorrió todas las decisiones. La tesis que adoptamos desde el principio —tratar la testeabilidad como un requisito de diseño— se materializó en una arquitectura en capas con interfaces, integraciones externas encapsuladas y fakeables, y un esquema de persistencia versionado; y se pagó después en una pirámide de tests que es el reflejo de esa estructura, no un agregado posterior.</p>
